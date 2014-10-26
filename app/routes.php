@@ -21,3 +21,5 @@ Route::get('/test', function(){
     Debugbar::info($array);
     return View::make('test', array('hello' => 'hello i\'m twig'));
 });
+
+Route::get('/config', 'ConfigController@config');
