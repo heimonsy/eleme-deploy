@@ -1,0 +1,21 @@
+ssh key
+username
+keyphrase
+
+
+web app server name
+
+local web dir  相对commit的目录
+local static dir 相对commit的目录
+
+remote web dir
+remote static dir
+
+rsync excute file
+
+remote file owner www-data
+
+///
+
+static hosts
+web hosts

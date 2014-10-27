@@ -2,16 +2,96 @@
 
 
 
-            <div class="row">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Panel heading</div>
-                    <div class="panel-body">
-                        Panel content
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">Basic Config</div>
+        <div class="panel-body">
+            <form class="form-horizontal">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="rootDir" class="col-lg-2 control-label">Deploy Root</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="root" name="rootDir" placeholder="Deploy Root" type="text">
+                            <span class="help-block">本机的deploy根目录，必须包含commit和branch两个子目录</span>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-            </div>
+                    <div class="form-group">
+                        <label for="staticDir" class="col-lg-2 control-label">Static Dir</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="staticDir" name="staticDir" placeholder="Static Dir" type="text">
+                            <span class="help-block">静态目录，相对于{$deploy_root}/commit/{$commit_version}/目录</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="defaultBranch" class="col-lg-2 control-label">Default Branch</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="defaultBranch" name="default_branch" placeholder="Default Branch" type="text">
+                            <span class="help-block">默认branch</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="defaultBranch" class="col-lg-2 control-label">Remote User</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="defaultBranch" name="default_branch" placeholder="Remote User" type="text">
+                            <span class="help-block">远端用户名</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sshKey" class="col-lg-2 control-label">SSH KEY</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="sshKey" name="sshKey" placeholder="SSH KEY" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="keyPhrase" class="col-lg-2 control-label">SSH KEY Phrase</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="keyPhrase" name="keyPhrase" placeholder="SSH KEY Phrase" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serverName" class="col-lg-2 control-label">Server Name</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="serverName" name="serverName" placeholder="Server Name" type="text">
+                            <span class="help-block">WEB服务名</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remoteAppDir" class="col-lg-2 control-label">远程APP目录</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="remoteAppDir" name="remoteAppDir" placeholder="Remote App Dir" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remoteStaticApp" class="col-lg-2 control-label">远程静态目录</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="remoteStaticApp" name="remoteStaticApp" placeholder="Remote static Dir" type="text">
+                            <span class="help-block">需要发布到的静态文件主机的目录</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="buildCommand" class="col-lg-2 control-label">Build Command</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="buildCommand" name="build_command" placeholder="Build Command" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="distributeCommand" class="col-lg-2 control-label">Dist Command</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="distributeCommand" name="distribute_command" placeholder="Distribute Command" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-2">
+                            <button type="submit" class="btn btn-info">保存配置</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+</div>
 
 
 {{ include('footer.twig') }}
