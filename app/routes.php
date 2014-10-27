@@ -29,3 +29,7 @@ Route::get('/deploy', 'DeployController@index');
 Route::get('/host/config', 'ConfigController@hostConfig');
 
 Route::post('/config/save', 'ConfigController@saveConfig');
+
+Route::get('/host/add', 'ConfigController@hostAdd');
+
+Route::post('/host/del', 'ConfigController@hostDel');

@@ -1,4 +1,125 @@
 {{ include('header.twig') }}
 
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">Web Host</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="w-hostname" name="hostname" placeholder="Host Name" value="">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="w-ip" name="ip" placeholder="Host IP" value="">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="w-port" name="port" placeholder="Host PORT" value="">
+                        </div>
+                        <div class="form-group">
+                            <select id="w-type" name="type" class="form-control input-sm">
+                                <option value="staging">staging</option>
+                                <option value="production">production</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="addWebHost" class="btn btn-sm btn-info">添加</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-hover table-web-list">
+                        <thead>
+                        <tr>
+                            <th>Host Name</th>
+                            <th>Host IP</th>
+                            <th>Host Port</th>
+                            <th>Type</th>
+                            <th>Add Time</th>
+                            <th>Operation</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for host in web_hosts %}
+                        <tr {{ host.hosttype=='staging' ? 'class="text-info"':'' }}>
+                            <td>{{ host.hostname }}</td>
+                            <td>{{ host.hostip }}</td>
+                            <td>{{ host.hostport }}</td>
+                            <td>{{ host.hosttype }}</td>
+                            <td>{{ host.time }}</td>
+                            <td><buttion type="button" data-jstr="{{ host|json_encode }}" class="btn btn-sm btn-warning delHost">删除</buttion></td>
+                        </tr>
+                        {% endfor %}
 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Static Host</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="s-hostname" name="hostname" placeholder="Host Name" value="">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="s-ip" name="ip" placeholder="Host IP" value="">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="s-port" name="port" placeholder="Host PORT" value="">
+                        </div>
+                        <div class="form-group">
+                            <select id="s-type" name="type" class="form-control input-sm">
+                                <option value="staging">staging</option>
+                                <option value="production">production</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="addStaticHost" class="btn btn-sm btn-info">添加</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-hover table-static-list">
+                        <thead>
+                        <tr>
+                            <th>Host Name</th>
+                            <th>Host IP</th>
+                            <th>Host Port</th>
+                            <th>Type</th>
+                            <th>Add Time</th>
+                            <th>Operation</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for host in static_hosts %}
+                        <tr {{ host.hosttype=='staging' ? 'class="text-info"' : '' }}>
+                            <td>{{ host.hostname }}</td>
+                            <td>{{ host.hostip }}</td>
+                            <td>{{ host.hostport }}</td>
+                            <td>{{ host.hosttype }}</td>
+                            <td>{{ host.time }}</td>
+                            <td><buttion type="button" data-jstr="{{ host|json_encode() }}" class="btn btn-sm btn-warning delHost">删除</buttion></td>
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {{ include('footer.twig') }}
