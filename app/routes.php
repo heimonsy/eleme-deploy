@@ -25,3 +25,5 @@ Route::get('/test', function(){
 Route::get('/config', 'ConfigController@config');
 
 Route::get('/deploy', 'DeployController@index');
+
+Route::get('/host/config', 'ConfigController@hostConfig');

@@ -6,9 +6,11 @@
  * Time: 下午7:47
  */
 
-class DeployController extends Controller{
+class DeployController extends Controller
+{
 
-    public function index() {
+    public function index()
+    {
         return View::make('deploy');
     }
 } 

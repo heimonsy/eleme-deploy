@@ -7,10 +7,19 @@
  */
 
 
-class ConfigController extends Controller{
+class ConfigController extends Controller
+{
 
-    public function config() {
+    public function config()
+    {
+        $redis = app('redis')->connection();
+        $deploy_root = $redis->get('deploy.root');
+
         return View::make('config');
     }
 
+    public function hostConfig()
+    {
+        return View::make('hostconfig');
+    }
 }
