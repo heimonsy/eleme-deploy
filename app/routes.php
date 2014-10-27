@@ -33,3 +33,8 @@ Route::post('/config/save', 'ConfigController@saveConfig');
 Route::get('/host/add', 'ConfigController@hostAdd');
 
 Route::post('/host/del', 'ConfigController@hostDel');
+
+
+Route::post('/deploy/branch', 'DeployController@branch');
+Route::post('/deploy/commit', 'DeployController@commit');
+Route::get('/deploy/status', 'DeployController@status');

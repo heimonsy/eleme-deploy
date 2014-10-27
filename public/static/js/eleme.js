@@ -77,6 +77,36 @@ $(function(){
                 })
             }, 'json');
         });
+
+        $('#deployCommit').unbind('click');
+        $("#deployCommit").click(function(e) {
+            if ($('#s-commit').val()=='') {
+                alert('请选择commit version');
+                return false;
+            }
+            return true;
+        });
     };
     elemeInitBtn();
+
+
+    var resultInterval = window.setInterval(function(){
+        var result = $(".table-deploy-list tbody tr:first").attr('data-result');
+        if (result == 'success') {
+            window.clearInterval(resultInterval);
+        }
+        var id = $(".table-deploy-list tbody tr:first").attr('data-id');
+        if (result != 'success') {
+            $.getJSON('/deploy/status?id=' + id, function (data) {
+                if (data.res == 0) {
+                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
+                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
+                    if(data.result == 'success') {
+                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
+                    }
+                }
+            });
+        }
+
+    }, 5000);
 });
