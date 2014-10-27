@@ -7,12 +7,121 @@
             <form class="form-inline" role="form">
                 <div class="form-group">
                     <label class="sr-only" for="branch">Branch Name</label>
-                    <input class="form-control" id="branch" placeholder="Branch Name">
+                    <input class="form-control" id="branch" placeholder="Branch Name" value="develop">
                 </div>
                 <div class="form-group">
                     <button type="button" class="btn btn-info">Deploy</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Commit Deploy</div>
+        <div class="panel-body">
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                    <label class="sr-only" for="commit">Commit Version</label>
+                    <select class="form-control" id="commit" name="commit">
+                        <option value="">Commit Version...</option>
+                        <option value="d725bca6cbb8077382c52847665f08acee9314bc">d725bca6cbb8077382c52847665f08acee9314bc</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="remote">remote</label>
+                    <select class="form-control" id="remote" name="remote">
+                        <option value="staging">Staging</option>
+                        <option value="production">Production</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-info">Deploy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Deploy List</div>
+        <div class="panel-body">
+            <table class="table table-striped table-hover ">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Branch</th>
+                    <th>Commit Version</th>
+                    <th>Deploy Type</th>
+                    <th>Deploy Time</th>
+                    <th>Last Update</th>
+                    <th>Result</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr class="info">
+                    <td>3</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr class="success">
+                    <td>4</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr class="danger">
+                    <td>5</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr class="warning">
+                    <td>6</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                <tr class="active">
+                    <td>7</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
