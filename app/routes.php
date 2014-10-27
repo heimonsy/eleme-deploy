@@ -27,3 +27,5 @@ Route::get('/config', 'ConfigController@config');
 Route::get('/deploy', 'DeployController@index');
 
 Route::get('/host/config', 'ConfigController@hostConfig');
+
+Route::post('/config/save', 'ConfigController@saveConfig');

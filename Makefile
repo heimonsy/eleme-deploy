@@ -3,3 +3,4 @@ requirements:
 	composer install
 
 build: requirements
+build-dist: requirements

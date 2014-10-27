@@ -6,78 +6,79 @@
     <div class="panel panel-default">
         <div class="panel-heading">Basic Config</div>
         <div class="panel-body">
-            <form class="form-horizontal">
+            <form class="form-horizontal" action="/config/save" method="post">
                 <fieldset>
                     <div class="form-group">
-                        <label for="rootDir" class="col-lg-2 control-label">Deploy Root</label>
+                        <label for="deployRoot" class="col-lg-2 control-label">Deploy Root</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="root" name="rootDir" placeholder="Deploy Root" type="text">
+                            <input class="form-control" id="deployRoot" name="deployRoot" placeholder="Deploy Root" type="text" value="{{ deploy_root }}">
                             <span class="help-block">本机的deploy根目录，必须包含commit和branch两个子目录</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="staticDir" class="col-lg-2 control-label">Static Dir</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="staticDir" name="staticDir" placeholder="Static Dir" type="text">
+                            <input class="form-control" id="staticDir" name="staticDir" placeholder="Static Dir" type="text" value="{{ static_dir }}">
                             <span class="help-block">静态目录，相对于{$deploy_root}/commit/{$commit_version}/目录</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="defaultBranch" class="col-lg-2 control-label">Default Branch</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="defaultBranch" name="default_branch" placeholder="Default Branch" type="text">
+                            <input class="form-control" id="defaultBranch" name="defaultBranch" placeholder="Default Branch" type="text" value="{{ default_branch }}">
                             <span class="help-block">默认branch</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="defaultBranch" class="col-lg-2 control-label">Remote User</label>
+                        <label for="remoteUser" class="col-lg-2 control-label">Remote User</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="defaultBranch" name="default_branch" placeholder="Remote User" type="text">
+                            <input class="form-control" id="remoteUser" name="remoteUser" placeholder="Remote User" type="text" value="{{ remote_user }}">
                             <span class="help-block">远端用户名</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="sshKey" class="col-lg-2 control-label">SSH KEY</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="sshKey" name="sshKey" placeholder="SSH KEY" type="text">
+                            <input class="form-control" id="sshKey" name="sshKey" placeholder="SSH KEY" type="text" value="{{ ssh_key }}">
+                            <span class="help-block">ssh key 文件路径</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="keyPhrase" class="col-lg-2 control-label">SSH KEY Phrase</label>
+                        <label for="keyPhrase" class="col-lg-2 control-label">KEY Phrase</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="keyPhrase" name="keyPhrase" placeholder="SSH KEY Phrase" type="text">
+                            <input class="form-control" id="keyPhrase" name="keyPhrase" placeholder="SSH KEY Phrase" type="text" value="{{ key_phrase }}">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="serverName" class="col-lg-2 control-label">Server Name</label>
+                        <label for="serviceName" class="col-lg-2 control-label">Service Name</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="serverName" name="serverName" placeholder="Server Name" type="text">
+                            <input class="form-control" id="serviceName" name="serviceName" placeholder="Service Name" type="text" value="{{ service_name }}">
                             <span class="help-block">WEB服务名</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="remoteAppDir" class="col-lg-2 control-label">远程APP目录</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="remoteAppDir" name="remoteAppDir" placeholder="Remote App Dir" type="text">
+                            <input class="form-control" id="remoteAppDir" name="remoteAppDir" placeholder="Remote App Dir" type="text" value="{{ remote_app_dir }}">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="remoteStaticApp" class="col-lg-2 control-label">远程静态目录</label>
+                        <label for="remoteStaticDir" class="col-lg-2 control-label">远程静态目录</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="remoteStaticApp" name="remoteStaticApp" placeholder="Remote static Dir" type="text">
+                            <input class="form-control" id="remoteStaticDir" name="remoteStaticDir" placeholder="Remote static Dir" type="text" value="{{ remote_static_dir }}">
                             <span class="help-block">需要发布到的静态文件主机的目录</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="buildCommand" class="col-lg-2 control-label">Build Command</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="buildCommand" name="build_command" placeholder="Build Command" type="text">
+                            <input class="form-control" id="buildCommand" name="buildCommand" placeholder="Build Command" type="text" value="{{ build_command }}">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="distributeCommand" class="col-lg-2 control-label">Dist Command</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="distributeCommand" name="distribute_command" placeholder="Distribute Command" type="text">
+                            <input class="form-control" id="distributeCommand" name="distributeCommand" placeholder="Distribute Command" type="text" value="{{ dist_command }}">
                         </div>
                     </div>
                     <div class="form-group">

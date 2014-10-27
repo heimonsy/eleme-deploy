@@ -43,9 +43,11 @@
         </div>
         <div class="col-sm-9">
             <div class="row">
-                <div class="alert alert-dismissable alert-warning hidden">
+                {% if ok == true %}
+                <div class="alert alert-dismissable alert-success">
                     <button type="button" class="close" data-dismiss="alert">×</button>
-                    <h4>Warning!</h4>
-                    <p></p>
+                    <h4>Success!</h4>
+                    <p>配置保存成功</p>
                 </div>
+                {% endif %}
             </div>
