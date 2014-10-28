@@ -30,11 +30,11 @@ class DeployBranch
         Log::info("job id : {$job->getJobId()} start \n---------------------------");
         Log::info("new branch deploy: $id, $branch");
 
-        if (File::exists($branchPath)) {
-            $job->delete();
-            Log::info("{$job->getJobId()} finish!\n---------------------------");
-            return;
-        }
+//        if (File::exists($branchPath)) {
+//            $job->delete();
+//            Log::info("{$job->getJobId()} finish!\n---------------------------");
+//            return;
+//        }
 
         $defaultBranch = "develop";
         $developRoot = "{$root}/branch/{$defaultBranch}";

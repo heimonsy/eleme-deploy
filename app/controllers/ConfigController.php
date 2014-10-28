@@ -17,8 +17,8 @@ class ConfigController extends Controller
         $static_dir = $redis->get('deploy.static.dir');
         $default_branch = $redis->get('deploy.default.branch');
         $remote_user = $redis->get('deploy.remote.user');
-        $ssh_key = $redis->get('deploy.ssh.key');
-        $ssh_key_phrase = $redis->get('deploy.ssh.key.phrase');
+//        $ssh_key = $redis->get('deploy.ssh.key');
+//        $ssh_key_phrase = $redis->get('deploy.ssh.key.phrase');
         $service_name = $redis->get('deploy.service.name');
         $remote_app_dir = $redis->get('deploy.remote.app.dir');
         $remote_static_dir = $redis->get('deploy.remote.static.dir');
@@ -37,8 +37,8 @@ class ConfigController extends Controller
             'static_dir' => $static_dir,
             'default_branch' => $default_branch,
             'remote_user' => $remote_user,
-            'ssh_key' => $ssh_key,
-            'key_phrase' => $ssh_key_phrase,
+//            'ssh_key' => $ssh_key,
+//            'key_phrase' => $ssh_key_phrase,
             'service_name' => $service_name,
             'remote_app_dir' => $remote_app_dir,
             'remote_static_dir' => $remote_static_dir,
@@ -56,8 +56,8 @@ class ConfigController extends Controller
         $redis->set('deploy.static.dir', Input::get('staticDir'));
         $redis->set('deploy.default.branch', Input::get('defaultBranch'));
         $redis->set('deploy.remote.user', Input::get('remoteUser'));
-        $redis->set('deploy.ssh.key', Input::get('sshKey'));
-        $redis->set('deploy.ssh.key.phrase', Input::get('keyPhrase'));
+//        $redis->set('deploy.ssh.key', Input::get('sshKey'));
+//        $redis->set('deploy.ssh.key.phrase', Input::get('keyPhrase'));
         $redis->set('deploy.service.name', Input::get('serviceName'));
         $redis->set('deploy.remote.app.dir', Input::get('remoteAppDir'));
         $redis->set('deploy.remote.static.dir', Input::get('remoteStaticDir'));

@@ -21,8 +21,8 @@ class DeployFiles
         foreach($res as $m) {
             $static_hosts[] = json_decode($m, true);
         }
-        $ssh_key = $redis->get('deploy.ssh.key');
-        $key_phrase = $redis->get('deploy.ssh.key.phrase');
+//        $ssh_key = $redis->get('deploy.ssh.key');
+//        $key_phrase = $redis->get('deploy.ssh.key.phrase');
         $username = $redis->get('deploy.remote.user');
         $root = $redis->get('deploy.root') . '/commit';
         $static_dir = $redis->get('deploy.static.dir');
@@ -35,17 +35,20 @@ class DeployFiles
         $REMOTE_STATIC_DIR = $redis->get('deploy.remote.static.dir');
         $LOCAL_STATIC_DIR = "{$commit_path}/$static_dir";
 
+        $remoteProcess = function ($target, $script) {
+            $script = 'set -e'.PHP_EOL.$script;
+            return 'ssh '.$target.' \'bash -s\' << EOF
+'.$script.'
+EOF';
+        };
 
         foreach ($static_hosts as $host) {
             $name = $host['hostname'];
-            $host_ip = $host['hostip'];
-
             Log::info("deploying static files to {$name}.");
-            $connection = new Connection($name, $host_ip, $username, array('key' => $ssh_key, 'keyphrase' => $key_phrase));
-            $connection->run("sudo mkdir -p {$REMOTE_STATIC_DIR}");
-            $connection->run("sudo chown {$username} -R {$REMOTE_STATIC_DIR}");
+            (new Process($remoteProcess($name, "sudo mkdir -p {$REMOTE_STATIC_DIR}")))->mustRun();
+            (new Process($remoteProcess($name, "sudo chown {$username} -R {$REMOTE_STATIC_DIR}")))->mustRun();
             (new Process("rsync -az --progress --force --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_STATIC_DIR}/ {$name}:{$REMOTE_STATIC_DIR}/", $commit_path))->setTimeout(600)->mustRun();
-            $connection->run("sudo chown {$remote_owner} -R {$REMOTE_STATIC_DIR}");
+            (new Process($remoteProcess($name, "sudo chown {$remote_owner} -R {$REMOTE_STATIC_DIR}")))->mustRun();
         }
 
         $res = $redis->lrange('deploy.L.web.hosts.'.$hosttype, 0, -1);
@@ -60,13 +63,12 @@ class DeployFiles
         foreach ($web_hosts as $host) {
             $name = $host['hostname'];
             Log::info("deploying web apps to {$name}.");
-            $connection = new Connection($name, $host['hostip'], $username, array('key' => $ssh_key, 'keyphrase' => $key_phrase));
-            $connection->run("sudo service {$service_name} stop");
-            $connection->run("sudo mkdir -p {$REMOTE_DIR}");
-            $connection->run("sudo chown {$username} -R {$REMOTE_DIR}");
+            (new Process($remoteProcess($name, "sudo service {$service_name} stop")))->mustRun();
+            (new Process($remoteProcess($name, "sudo mkdir -p {$REMOTE_DIR}")))->mustRun();
+            (new Process($remoteProcess($name, "sudo chown {$username} -R {$REMOTE_DIR}")))->mustRun();
             (new Process("rsync -azq --progress --force --delete --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_DIR}/ {$name}:{$REMOTE_DIR}/", $commit_path))->setTimeout(600)->mustRun();
-            $connection->run("sudo chown {$remote_owner} -R {$REMOTE_DIR}");
-            $connection->run("sudo service {$service_name} start");
+            (new Process($remoteProcess($name, "sudo chown {$remote_owner} -R {$REMOTE_DIR}")))->mustRun();
+            (new Process($remoteProcess($name, "sudo service {$service_name} start")))->mustRun();
         }
     }
 }
