@@ -25,7 +25,7 @@
                     <select class="form-control input-sm" id="s-commit" name="commit">
                         <option value="">Commit Version...</option>
                         {% for ch in commit_version %}
-                        <option value="{{ ch }}">{{ ch }}</option>
+                        <option value="{{ ch[0] }}">{{ ch[0] }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -61,7 +61,7 @@
                 </thead>
                 <tbody>
                 {% for m in results %}
-                <tr {{ m.result=='success' ? 'text-success' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
+                <tr {{ m.result=='success' ? 'class="text-success"' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
                     <td>{{ m.id }}</td>
                     <td>{{ m.branch }}</td>
                     <td>{{ m.commit }}</td>
@@ -77,6 +77,31 @@
         </div>
     </div>
 </div>
+<script>
+$(function() {
+    var resultInterval = window.setInterval(function () {
+        var result = $(".table-deploy-list tbody tr:first").attr('data-result');
+        var id = $(".table-deploy-list tbody tr:first").attr('data-id');
+        if (result == 'success' || id == '') {
+            return ;
+        }
+
+        if (result != 'success') {
+            $.getJSON('/deploy/status?id=' + id, function (data) {
+                if (data.res == 0) {
+                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
+                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
+                    $(".table-deploy-list tbody tr:first td:eq(6)").html(data.last_time);
+                    if (data.result == 'success') {
+                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
+                    }
+                }
+            });
+        }
+
+    }, 2000);
+});
+</script>
 
 {{ include('footer.twig') }}
 

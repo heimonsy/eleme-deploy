@@ -23,10 +23,17 @@
                         </div>
                     </div>
                     <div class="form-group form-group-sm">
+                        <label for="rsyncExclude" class="col-lg-2 control-label">Rsync exclude</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="rsyncExclude" name="rsyncExclude" placeholder="Static Dir" type="text" value="{{ rsync_exclude }}">
+                            <span class="help-block">--exclude-from的文件，相对于项目目录的路径</span>
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm">
                         <label for="defaultBranch" class="col-lg-2 control-label">Default Branch</label>
                         <div class="col-lg-7">
                             <input class="form-control" id="defaultBranch" name="defaultBranch" placeholder="Default Branch" type="text" value="{{ default_branch }}">
-                            <span class="help-block">默认branch</span>
+                            <span class="help-block">默认branch名, 位于{$deploy_root}/branch/目录下</span>
                         </div>
                     </div>
                     <div class="form-group form-group-sm">
@@ -34,6 +41,13 @@
                         <div class="col-lg-7">
                             <input class="form-control" id="remoteUser" name="remoteUser" placeholder="Remote User" type="text" value="{{ remote_user }}">
                             <span class="help-block">远端用户名</span>
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <label for="remoteOwner" class="col-lg-2 control-label">Remote Owner</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="remoteOwner" name="remoteOwner" placeholder="Remote Owner" type="text" value="{{ remote_owner }}">
+                            <span class="help-block">远端文件的owner，如www-data</span>
                         </div>
                     </div>
                     <div class="form-group form-group-sm">

@@ -24,6 +24,9 @@ class ConfigController extends Controller
         $remote_static_dir = $redis->get('deploy.remote.static.dir');
         $build_command = $redis->get('deploy.build.command');
         $dist_command = $redis->get('deploy.dist.command');
+        $rsync_exclude = $redis->get('deploy.rsync.exclude');
+        $remote_owner = $redis->get('deploy.remote.owner');
+
 
         if ($ok = Session::get('save_ok', false)) {
             Session::forget('save_ok');
@@ -42,6 +45,8 @@ class ConfigController extends Controller
             'build_command' => $build_command,
             'dist_command' => $dist_command,
             'ok' => $ok,
+            'rsync_exclude' => $rsync_exclude,
+            'remote_owner' => $remote_owner,
         ));
     }
 
@@ -58,6 +63,9 @@ class ConfigController extends Controller
         $redis->set('deploy.remote.static.dir', Input::get('remoteStaticDir'));
         $redis->set('deploy.build.command', Input::get('buildCommand'));
         $redis->set('deploy.dist.command', Input::get('distributeCommand'));
+        $redis->set('deploy.rsync.exclude', Input::get('rsyncExclude'));
+        $redis->set('deploy.remote.owner', Input::get('remoteOwner'));
+
         Session::put('save_ok', true);
 
         return Redirect::to('/config');

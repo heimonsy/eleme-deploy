@@ -14,7 +14,7 @@ class DeployController extends Controller
         $redis = app('redis')->connection();
         $default_branch = $redis->get('deploy.default.branch');
 
-        $commit_version = $redis->lrange('deploy.l.commit.version', 0, 30);
+        $commit_version = $redis->zrevrange('deploy.Z.commit.version', 0, 30, 'WITHSCORES');
 
         $deploy_ids = $redis->lrange('deploy.L.result.ids', 0, 30);
         if (count($deploy_ids) == 0) {
@@ -26,7 +26,6 @@ class DeployController extends Controller
         foreach($res as $m) {
             $results[] = json_decode($m, true);
         }
-        Debugbar::info($results);
         return View::make('deploy', array(
             'default_branch' => $default_branch,
             'commit_version' => $commit_version,
@@ -46,7 +45,7 @@ class DeployController extends Controller
             'commit' => 'unknow',
             'type'   => 'branch',
             'hosttype' => 'staging',
-            'time'   => time(),
+            'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
             'result' => 'waiting',
         );
@@ -54,7 +53,8 @@ class DeployController extends Controller
         $redis->lpush('deploy.L.result.ids', $id);
         $redis->hset('deploy.h.results', $id, json_encode($deploy));
 
-        // queue 待完成
+
+        Queue::push('DeployBranch', array('branch' => $branch, 'id' => $id));
 
         return Redirect::to('/deploy');
     }
@@ -72,7 +72,7 @@ class DeployController extends Controller
             'commit' => $commit,
             'hosttype'   => $hosttype,
             'type'   => 'branch',
-            'time'   => time(),
+            'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
             'result' => 'waiting',
         );
@@ -80,8 +80,7 @@ class DeployController extends Controller
         $redis->lpush('deploy.L.result.ids', $id);
         $redis->hset('deploy.h.results', $id, json_encode($deploy));
 
-        // queue 待完成
-
+        Queue::push('DeployCommit', array('commit' => $commit, 'hosttype' => $hosttype, 'id' => $id));
 
         return Redirect::to('/deploy');
     }
@@ -99,6 +98,7 @@ class DeployController extends Controller
         return Response::json(array(
             'res' => 0,
             'result' => $post['result'],
+            'last_time' => $post['last_time'],
         ));
     }
 } 

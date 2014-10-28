@@ -64,7 +64,6 @@ $(function(){
             });
         });
 
-
         $(".delHost").unbind('click');
         $(".delHost").click(function(e) {
             var ttr = $(this).parent().parent();
@@ -88,25 +87,4 @@ $(function(){
         });
     };
     elemeInitBtn();
-
-
-    var resultInterval = window.setInterval(function(){
-        var result = $(".table-deploy-list tbody tr:first").attr('data-result');
-        if (result == 'success') {
-            window.clearInterval(resultInterval);
-        }
-        var id = $(".table-deploy-list tbody tr:first").attr('data-id');
-        if (result != 'success') {
-            $.getJSON('/deploy/status?id=' + id, function (data) {
-                if (data.res == 0) {
-                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
-                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
-                    if(data.result == 'success') {
-                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
-                    }
-                }
-            });
-        }
-
-    }, 5000);
 });
