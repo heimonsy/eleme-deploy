@@ -71,7 +71,7 @@ class DeployController extends Controller
             'branch' => 'unknow',
             'commit' => $commit,
             'hosttype'   => $hosttype,
-            'type'   => 'branch',
+            'type'   => 'commit',
             'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
             'result' => 'waiting',
