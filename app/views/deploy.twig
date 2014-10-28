@@ -91,6 +91,7 @@ $(function() {
                 if (data.res == 0) {
                     $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
                     $(".table-deploy-list tbody tr:first td:last").html(data.result);
+                    $(".table-deploy-list tbody tr:first td:eq(2)").html(data.commit);
                     $(".table-deploy-list tbody tr:first td:eq(6)").html(data.last_time);
                     if (data.result == 'success') {
                         $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
@@ -99,7 +100,7 @@ $(function() {
             });
         }
 
-    }, 2000);
+    }, 4000);
 });
 </script>
 

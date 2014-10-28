@@ -94,7 +94,6 @@ class ConfigController extends Controller
         $solve($web_hosts, $web_staging);
         $solve($web_hosts, $web_production);
 
-        Debugbar::info($static_hosts);
         return View::make('hostconfig', array(
             'static_hosts' => $static_hosts,
             'web_hosts' => $web_hosts,

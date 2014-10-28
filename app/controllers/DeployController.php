@@ -99,6 +99,7 @@ class DeployController extends Controller
             'res' => 0,
             'result' => $post['result'],
             'last_time' => $post['last_time'],
+            'commit' => $post['commit'],
         ));
     }
 } 
