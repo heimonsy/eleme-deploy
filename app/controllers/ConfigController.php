@@ -61,35 +61,27 @@ class ConfigController extends Controller
         $dc->set(DC::DEPLOY_WEB_SCRIPT, Input::get('webHostScript'));
 
 
-        return Redirect::to('/site/config/'.$siteId)->with('SCOK', true);
+        return Redirect::to('/site/config/'.$siteId)->with('SCOK', '站点发布配置保存成功');
     }
 
-    public function hostConfig()
+    public function hostConfig($siteId)
     {
-        $redis = app('redis')->connection();
-        $static_staging = $redis->lrange('deploy.L.static.hosts.staging', 0, -1);
-        $static_production = $redis->lrange('deploy.L.static.hosts.production', 0, -1);
+        $hostTypes = (new HostType())->getList();
 
-        $web_staging = $redis->lrange('deploy.L.web.hosts.staging', 0, -1);
-        $web_production = $redis->lrange('deploy.L.web.hosts.production', 0, -1);
+        $staticHosts = array();
+        $webHosts = array();
+        foreach ($hostTypes as $hostType) {
+            $staticHosts = array_merge($staticHosts, (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList());
+            $webHosts = array_merge($webHosts, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
+        }
 
-        $solve = function(&$arr, &$brr) {
-            foreach($brr as $m) {
-                $arr[] = json_decode($m, true);
-            }
-        };
-
-        $static_hosts = array();
-        $solve($static_hosts, $static_staging);
-        $solve($static_hosts, $static_production);
-
-        $web_hosts = array();
-        $solve($web_hosts, $web_staging);
-        $solve($web_hosts, $web_production);
-
-        return View::make('hostconfig', array(
-            'static_hosts' => $static_hosts,
-            'web_hosts' => $web_hosts,
+        return View::make('deploy.hostconfig', array(
+            'static_hosts' => $staticHosts,
+            'web_hosts' => $webHosts,
+            'siteId' => $siteId,
+            'hostTypes' => $hostTypes,
+            'hostStaticType' => SiteHost::STATIC_HOST,
+            'hostWebType'    => SiteHost::WEB_HOST
         ));
     }
 
@@ -97,35 +89,31 @@ class ConfigController extends Controller
     {
         $hostname = Input::get('hostname');
         $hostip = Input::get('hostip');
-        $hostport = Input::get('hostport');
+        $hostport = intval(Input::get('hostport'));
         $hosttype = Input::get('hosttype');
         $time = date('Y-m-d H:i:s');
+        $type = Input::get('type');
+        $siteId = Input::get('siteId');
 
-        $type = Input::get('type') ;
-
-        $host = array(
+        (new SiteHost($siteId, $hosttype, $type))->add(array(
             'hostname' => $hostname,
-            'hostip' => $hostip,
-            'hostport' => intval($hostport),
+            'hostip'   => $hostip,
             'hosttype' => $hosttype,
-            'type' => $type,
-            'time' => $time
-        );
+            'hostport' => $hostport,
+            'time'     => $time,
+            'type'     => $type,
+        ));
 
-        $redis = app('redis')->connection();
-        $jstr = json_encode($host);
-        $redis->lpush('deploy.L.'.$type.'.hosts.'.$hosttype, $jstr);
-
-        return Response::json(array_merge($host, array('jstr' => $jstr)));
+        return Redirect::to('/host/config/'.$siteId)->with('SCOK', '主机'.$hostname.'添加成功');
     }
 
     public function hostDel() {
-        // lrem deploy.L.static.hosts.production 1
-        $redis = app('redis')->connection();
+        $siteId = Input::get('siteId');
         $jstr = Input::get('jstr');
         $host = json_decode($jstr, true);
-        $res = $redis->lrem('deploy.L.'.$host['type'].'.hosts.'.$host['hosttype'], 1, $jstr);
 
-        return Response::json(array('res' => $res));
+        (new SiteHost($siteId, $host['hosttype'], $host['type']))->remove($host);
+
+        return Response::json(array('res' => 0));
     }
 }

@@ -33,13 +33,13 @@ Route::get('/site/config/{siteId}', 'ConfigController@config');
 
 Route::get('/deploy', 'DeployController@index');
 
-Route::get('/host/config', 'ConfigController@hostConfig');
-
-
-
-Route::get('/host/add', 'ConfigController@hostAdd');
-
+Route::get('/host/config/{siteId}', 'ConfigController@hostConfig');
+Route::post('/host/add', 'ConfigController@hostAdd');
 Route::post('/host/del', 'ConfigController@hostDel');
+
+
+
+
 
 
 Route::post('/deploy/branch', 'DeployController@branch');
