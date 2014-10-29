@@ -11,16 +11,20 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+Route::get('/', 'SystemController@index');
+
+Route::post('/hostType/add', 'SystemController@addHostType');
+Route::post('/hostType/del', 'SystemController@delHostType');
+Route::post('/site/add', 'SystemController@addSite');
+Route::post('/site/del', 'SystemController@delSite');
 
 Route::get('/test', function(){
     $array = array('test', 'haha', 'hehe'); 
     Debugbar::info($array);
     return View::make('test', array('hello' => 'hello i\'m twig'));
 });
+
+
 
 Route::get('/config', 'ConfigController@config');
 
