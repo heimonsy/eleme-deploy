@@ -35,6 +35,7 @@ class DeployController extends Controller
             'default_branch' => $default_branch,
             'commit_version' => $commit_version,
             'results' => $results,
+            'siteId' => $siteId,
         ));
     }
 
