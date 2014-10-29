@@ -1,0 +1,4 @@
+
+.nav li a.host-tag { position: relative; padding-right: 22px;}
+.host-tag .close { position:absolute; right: 4px; top: 0px;}
+.site-deploy-manager .help-block { margin-bottom: 0px;}

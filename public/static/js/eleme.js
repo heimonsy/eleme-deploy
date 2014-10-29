@@ -2,6 +2,14 @@
  * Created by heimonsy on 14-10-27.
  */
 $(function(){
+    jQuery.fn.isValueNotEmpty = function() {
+        if ($.trim($(this).val()) == "") {
+            $(this).focus();
+            alert($(this).attr('placeholder') + "不能为空");
+            return false;
+        }
+        return true;
+    };
     var elemeInitBtn = function() {
         $("#addStaticHost").unbind('click');
         $('#addStaticHost').click(function(event){
@@ -84,6 +92,53 @@ $(function(){
                 return false;
             }
             return true;
+        });
+
+        $('.delHostType').unbind('click');
+        $(".delHostType").click(function(e) {
+            var hostType = $(this).attr('data-id');
+            var hostTypeLi = $(this).parent().parent();
+            $.post('/hostType/del',{
+                'hostType' : hostType
+            }, function(data){
+                if (data.res == 0) {
+                    hostTypeLi.remove();
+                } else {
+                    alert('删除失败');
+                }
+            }, 'json');
+        });
+
+        $('#addHostType').unbind();
+        $('#addHostType').click(function(){
+            return $("#hostType").isValueNotEmpty();
+        });
+        $('#addSite').unbind();
+        $('#addSite').click(function(){
+            var siteId = $("#siteId").val();
+            if (/[\w\d_]+/i.test(siteId) == false) {
+                alert('Site Id格式错误');
+                return false;
+            }
+            return $('#siteName').isValueNotEmpty();
+
+        });
+        $('.delSite').unbind();
+        $('.delSite').click(function(){
+            var siteTr = $(this).parent().parent();
+            var siteName = $(this).attr("data-name");
+            if (confirm("确定要删除站点"+siteName+"吗？")) {
+                $.post('/site/del', {
+                    'siteId': $(this).attr("data-id"),
+                    'siteName': $(this).attr("data-name")
+                }, function (data) {
+                    if (data.res == 0) {
+                        siteTr.remove();
+                    } else {
+                        alert('删除失败');
+                    }
+                }, 'json');
+            }
         });
     };
     elemeInitBtn();
