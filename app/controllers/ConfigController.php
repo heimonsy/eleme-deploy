@@ -10,65 +10,58 @@
 class ConfigController extends Controller
 {
 
-    public function config()
+    public function __construct()
     {
-        $redis = app('redis')->connection();
-        $deploy_root = $redis->get('deploy.root');
-        $static_dir = $redis->get('deploy.static.dir');
-        $default_branch = $redis->get('deploy.default.branch');
-        $remote_user = $redis->get('deploy.remote.user');
-//        $ssh_key = $redis->get('deploy.ssh.key');
-//        $ssh_key_phrase = $redis->get('deploy.ssh.key.phrase');
-        $service_name = $redis->get('deploy.service.name');
-        $remote_app_dir = $redis->get('deploy.remote.app.dir');
-        $remote_static_dir = $redis->get('deploy.remote.static.dir');
-        $build_command = $redis->get('deploy.build.command');
-        $dist_command = $redis->get('deploy.dist.command');
-        $rsync_exclude = $redis->get('deploy.rsync.exclude');
-        $remote_owner = $redis->get('deploy.remote.owner');
+        $sites = (new WebSite())->getList();
+        View::share('sites', $sites);
+    }
+
+    public function config($siteId)
+    {
+        $dc = new DC($siteId);
+        $root = $dc->get(DC::ROOT);
+        $staticDir = $dc->get(DC::STATIC_DIR);
+        $SCOK = Session::get('SCOK', false);
 
 
-        if ($ok = Session::get('save_ok', false)) {
-            Session::forget('save_ok');
-        }
-
-        return View::make('config', array(
-            'deploy_root' => $deploy_root,
-            'static_dir' => $static_dir,
-            'default_branch' => $default_branch,
-            'remote_user' => $remote_user,
-//            'ssh_key' => $ssh_key,
-//            'key_phrase' => $ssh_key_phrase,
-            'service_name' => $service_name,
-            'remote_app_dir' => $remote_app_dir,
-            'remote_static_dir' => $remote_static_dir,
-            'build_command' => $build_command,
-            'dist_command' => $dist_command,
-            'ok' => $ok,
-            'rsync_exclude' => $rsync_exclude,
-            'remote_owner' => $remote_owner,
+        return View::make('deploy.config', array(
+            'deploy_root'       => $dc->get(DC::ROOT),
+            'static_dir'        => $dc->get(DC::STATIC_DIR),
+            'default_branch'    => $dc->get(DC::DEFAULT_BRANCH),
+            'remote_user'       => $dc->get(DC::REMOTE_USER),
+            'service_name'      => $dc->get(DC::SERVICE_NAME),
+            'remote_app_dir'    => $dc->get(DC::REMOTE_APP_DIR),
+            'remote_static_dir' => $dc->get(DC::REMOTE_STATIC_DIR),
+            'build_command'     => $dc->get(DC::BUILD_COMMAND),
+            'rsync_exclude'     => $dc->get(DC::RSYNC_EXCLUDE),
+            'remote_owner'      => $dc->get(DC::REMOTE_OWNER),
+            'staticScript'      => $dc->get(DC::DEPLOY_STATIC_SCRIPT),
+            'webScript'      => $dc->get(DC::DEPLOY_WEB_SCRIPT),
+            'SCOK' => $SCOK,
+            'siteId' => $siteId,
         ));
     }
 
-    public function saveConfig() {
-        $redis = app('redis')->connection();
-        $redis->set('deploy.root', Input::get('deployRoot'));
-        $redis->set('deploy.static.dir', Input::get('staticDir'));
-        $redis->set('deploy.default.branch', Input::get('defaultBranch'));
-        $redis->set('deploy.remote.user', Input::get('remoteUser'));
-//        $redis->set('deploy.ssh.key', Input::get('sshKey'));
-//        $redis->set('deploy.ssh.key.phrase', Input::get('keyPhrase'));
-        $redis->set('deploy.service.name', Input::get('serviceName'));
-        $redis->set('deploy.remote.app.dir', Input::get('remoteAppDir'));
-        $redis->set('deploy.remote.static.dir', Input::get('remoteStaticDir'));
-        $redis->set('deploy.build.command', Input::get('buildCommand'));
-        $redis->set('deploy.dist.command', Input::get('distributeCommand'));
-        $redis->set('deploy.rsync.exclude', Input::get('rsyncExclude'));
-        $redis->set('deploy.remote.owner', Input::get('remoteOwner'));
+    public function saveConfig()
+    {
+        $siteId = Input::get('siteId');
+        $dc = new DC($siteId);
 
-        Session::put('save_ok', true);
+        $dc->set(DC::ROOT, Input::get('deployRoot'));
+        $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
+        $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
+        $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));
+        $dc->set(DC::SERVICE_NAME, Input::get('serviceName'));
+        $dc->set(DC::REMOTE_APP_DIR, Input::get('remoteAppDir'));
+        $dc->set(DC::REMOTE_STATIC_DIR, Input::get('remoteStaticDir'));
+        $dc->set(DC::BUILD_COMMAND, Input::get('buildCommand'));
+        $dc->set(DC::RSYNC_EXCLUDE, Input::get('rsyncExclude'));
+        $dc->set(DC::REMOTE_OWNER, Input::get('remoteOwner'));
+        $dc->set(DC::DEPLOY_STATIC_SCRIPT, Input::get('staticHostScript'));
+        $dc->set(DC::DEPLOY_WEB_SCRIPT, Input::get('webHostScript'));
 
-        return Redirect::to('/config');
+
+        return Redirect::to('/site/config/'.$siteId)->with('SCOK', true);
     }
 
     public function hostConfig()

@@ -15,8 +15,11 @@ Route::get('/', 'SystemController@index');
 
 Route::post('/hostType/add', 'SystemController@addHostType');
 Route::post('/hostType/del', 'SystemController@delHostType');
+
 Route::post('/site/add', 'SystemController@addSite');
 Route::post('/site/del', 'SystemController@delSite');
+
+Route::post('/config/save', 'ConfigController@saveConfig');
 
 Route::get('/test', function(){
     $array = array('test', 'haha', 'hehe'); 
@@ -26,13 +29,13 @@ Route::get('/test', function(){
 
 
 
-Route::get('/config', 'ConfigController@config');
+Route::get('/site/config/{siteId}', 'ConfigController@config');
 
 Route::get('/deploy', 'DeployController@index');
 
 Route::get('/host/config', 'ConfigController@hostConfig');
 
-Route::post('/config/save', 'ConfigController@saveConfig');
+
 
 Route::get('/host/add', 'ConfigController@hostAdd');
 

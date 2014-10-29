@@ -123,6 +123,7 @@ return array(
 		'Illuminate\Workbench\WorkbenchServiceProvider',
         'TwigBridge\ServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
+        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 	),
 
 	/*
@@ -191,6 +192,7 @@ return array(
 		'View'              => 'Illuminate\Support\Facades\View',
         'Twig' => 'TwigBridge\Facade\Twig',
         'Debugbar' => 'Barryvdh\Debugbar\Facade',
+        'DC' => 'DeployConfig',
 	),
 
 );
