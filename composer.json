@@ -8,7 +8,8 @@
 		"laravel/framework": "4.2.*",
         "rcrowe/twigbridge": "0.6.*",
 		"barryvdh/laravel-debugbar": "~1.7",
-		"symfony/process": "~2.5"
+		"symfony/process": "~2.5",
+		"eleme/rlock": "~0.2"
 	},
 	"autoload": {
 		"classmap": [
