@@ -8,8 +8,13 @@
 
 class DeployController extends Controller
 {
+    public function __construct()
+    {
+        $sites = (new WebSite())->getList();
+        View::share('sites', $sites);
+    }
 
-    public function index()
+    public function index($siteId)
     {
         $redis = app('redis')->connection();
         $default_branch = $redis->get('deploy.default.branch');
@@ -26,7 +31,7 @@ class DeployController extends Controller
         foreach($res as $m) {
             $results[] = json_decode($m, true);
         }
-        return View::make('deploy', array(
+        return View::make('deploy.deploy', array(
             'default_branch' => $default_branch,
             'commit_version' => $commit_version,
             'results' => $results,

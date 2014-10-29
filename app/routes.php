@@ -31,7 +31,7 @@ Route::get('/test', function(){
 
 Route::get('/site/config/{siteId}', 'ConfigController@config');
 
-Route::get('/deploy', 'DeployController@index');
+Route::get('/deploy/{siteId}', 'DeployController@index');
 
 Route::get('/host/config/{siteId}', 'ConfigController@hostConfig');
 Route::post('/host/add', 'ConfigController@hostAdd');
