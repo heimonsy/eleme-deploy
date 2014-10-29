@@ -9,7 +9,8 @@
         "rcrowe/twigbridge": "0.6.*",
 		"barryvdh/laravel-debugbar": "~1.7",
 		"symfony/process": "~2.5",
-		"eleme/rlock": "~0.2"
+		"eleme/rlock": "~0.2",
+		"barryvdh/laravel-ide-helper": "~1.11"
 	},
 	"autoload": {
 		"classmap": [
@@ -30,6 +31,7 @@
 		],
 		"post-update-cmd": [
 			"php artisan clear-compiled",
+            "php artisan ide-helper:generate",
 			"php artisan optimize"
 		],
 		"post-create-project-cmd": [
