@@ -62,6 +62,15 @@ return array(
 			'driver' => 'redis',
 			'queue'  => 'web:deploy2',
 		),
+        'build' => array(
+            'driver' => 'redis',
+            'queue'  => 'DEPLOY:QUEUE:BUILD',
+        ),
+
+        'deploy' => array(
+            'driver' => 'redis',
+            'queue'  => 'DEPLOY:QUEUE:DEPLOY',
+        )
 
 	),
 

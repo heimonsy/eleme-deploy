@@ -16,96 +16,75 @@ class DeployController extends Controller
 
     public function index($siteId)
     {
-        $redis = app('redis')->connection();
-        $default_branch = $redis->get('deploy.default.branch');
+        $defaultBranch = (new DC($siteId))->get(DC::DEFAULT_BRANCH);
+        $commitVersion = (new CommitVersion($siteId))->getList();
+        $infoList = (new DeployInfo($siteId))->getList();
+        $hostTypes = (new HostType())->getList();
 
-        $commit_version = $redis->zrevrange('deploy.Z.commit.version', 0, 30, 'WITHSCORES');
-
-        $deploy_ids = $redis->lrange('deploy.L.result.ids', 0, 30);
-        if (count($deploy_ids) == 0) {
-            $deploy_ids = array(0);
-        }
-        $res = $redis->hmget('deploy.h.results', $deploy_ids);
-
-        $results = array();
-        foreach($res as $m) {
-            $results[] = json_decode($m, true);
-        }
         return View::make('deploy.deploy', array(
-            'default_branch' => $default_branch,
-            'commit_version' => $commit_version,
-            'results' => $results,
+            'defaultBranch' => $defaultBranch,
+            'commit_version' => $commitVersion,
+            'results' => $infoList,
+            'hostTypes' => $hostTypes,
             'siteId' => $siteId,
         ));
     }
 
     // deploy branch
     public function branch() {
-        $redis = app('redis')->connection();
-
+        $siteId = Input::get('siteId');
         $branch = Input::get('branch');
-        $id = $redis->incr('deploy.id');
+
         $deploy = array(
-            'id' => $id,
             'branch' => $branch,
-            'commit' => 'unknow',
-            'type'   => 'branch',
-            'hosttype' => 'staging',
+            'commit' => '---',
+            'type'   => 'Build',
+            'hostType' => '---',
             'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
-            'result' => 'waiting',
+            'result' => 'Build Waiting',
         );
+        $id = (new DeployInfo($siteId))->add($deploy);
 
-        $redis->lpush('deploy.L.result.ids', $id);
-        $redis->hset('deploy.h.results', $id, json_encode($deploy));
-
-
-        Queue::push('DeployBranch', array('branch' => $branch, 'id' => $id));
-
-        return Redirect::to('/deploy');
+        Queue::push('BuildBranch', array('siteId' => $siteId, 'branch' => $branch, 'id' => $id), DeployInfo::BUILD_QUEUE);
+        return Redirect::to('/deploy/' . $siteId);
     }
 
     //deploy commit
     public function commit() {
-        $redis = app('redis')->connection();
-
+        $siteId = Input::get('siteId');
         $commit = Input::get('commit');
-        $hosttype = Input::get('remote');
-        $id = $redis->incr('deploy.id');
+        $hostType = Input::get('remote');
         $deploy = array(
-            'id' => $id,
-            'branch' => 'unknow',
+            'branch' => '---',
             'commit' => $commit,
-            'hosttype'   => $hosttype,
-            'type'   => 'commit',
+            'hosttype'   => $hostType,
+            'type'   => 'Deploy To ' . $hostType,
             'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
-            'result' => 'waiting',
+            'result' => 'Deploy Waiting',
         );
+        $id = (new DeployInfo($siteId))->add($deploy);
 
-        $redis->lpush('deploy.L.result.ids', $id);
-        $redis->hset('deploy.h.results', $id, json_encode($deploy));
+        Queue::push('DeployCommit', array(
+            'siteId' => $siteId,
+            'commit' => $commit,
+            'hosttype' => $hostType,
+            'id' => $id
+        ), DeployInfo::DEPLOY_QUEUE);
 
-        Queue::push('DeployCommit', array('commit' => $commit, 'hosttype' => $hosttype, 'id' => $id));
-
-        return Redirect::to('/deploy');
+        return Redirect::to('/deploy/' . $siteId);
     }
 
     //deploy status
     public function status() {
-        $id = Input::get('id');
-        $redis = app('redis')->connection();
-        $jstr = $redis->hget('deploy.h.results', $id);
-        if ($jstr == NULL) {
-            return Response::json(array('res' => 1));
-        }
-        $post = json_decode($jstr, true);
+        $ids = Input::get('ids');
+        $siteId = Input::get('siteId');
+        $hosts = (new DeployInfo($siteId))->get($ids);
 
         return Response::json(array(
             'res' => 0,
-            'result' => $post['result'],
-            'last_time' => $post['last_time'],
-            'commit' => $post['commit'],
+            'hosts' => $hosts,
         ));
     }
 } 

@@ -8,35 +8,31 @@
 
 use Symfony\Component\Process\Process;
 
-class DeployBranch
+class BuildBranch
 {
     public function fire($job, $message)
     {
-        $redis = app('redis')->connection();
-        $id = $message['id'];
+        $siteId = $message['siteId'];
+        $buildId = $message['id'];
         $branch = $message['branch'];
-        $root= $redis->get('deploy.root');
+
+        $dc = new DC($siteId);
+        $df = new DeployInfo($siteId);
+        $root = $dc->get(DC::ROOT);
         $commitRoot = "{$root}/commit/";
         $branchPath = "{$commitRoot}/{$branch}";
 
-        $result = json_decode($redis->hget('deploy.h.results', $id), true);
-        $result['result'] = 'deploying';
-        $result['last_time'] = date('Y-m-d H:i:s');
-        $redis->hset('deploy.h.results', $id, json_encode($result));
+        $build = $df->get($buildId);
+        $build['result'] = 'Fetch Origin';
+        $build['last_time'] = date('Y-m-d H:i:s');
+        $df->save($build);
 
-        $build_command = $redis->get('deploy.build.command');
-        $dist_command = $redis->get('deploy.dist.command');
+        $buildCommand = 'make deploy';
 
-        Log::info("job id : {$job->getJobId()} start \n---------------------------");
-        Log::info("new branch deploy: $id, $branch");
+        Log::info("job id : {$job->getJobId()} start");
+        Log::info("Build {$siteId} branch:  {$branch}");
 
-//        if (File::exists($branchPath)) {
-//            $job->delete();
-//            Log::info("{$job->getJobId()} finish!\n---------------------------");
-//            return;
-//        }
-
-        $defaultBranch = "develop";
+        $defaultBranch = $dc->get(DC::DEFAULT_BRANCH);
         $developRoot = "{$root}/branch/{$defaultBranch}";
 
         Log::info("git fetch origin");
@@ -50,12 +46,18 @@ class DeployBranch
             File::deleteDirectory($branchPath);
             $job->delete();
             Log::info("{$job->getJobId()} finish!\n---------------------------");
+            $build['result'] = 'ERROR 1';
+            $build['last_time'] = date('Y-m-d H:i:s');
+            $df->save($build);
             return;
         }
 
         $commit = trim($revParseProcess->getOutput());
         $commitPath = "{$commitRoot}/{$commit}";
 
+        $build['result'] = 'Building';
+        $build['last_time'] = date('Y-m-d H:i:s');
+        $df->save($build);
         $needBuild = true;
         if ($commit !== $branch) {
             if (File::exists($commitPath)) {
@@ -68,21 +70,16 @@ class DeployBranch
         if ($needBuild) {
             (new Process("git checkout {$commit}", $commitPath))->mustRun();
 
-            Log::info("make build");
-            (new Process($build_command, $commitPath))->setTimeout(600)->mustRun();
-
-            Log::info("make dist");
-            (new Process($dist_command, $commitPath))->mustRun();
+            Log::info("make deploy");
+            (new Process($buildCommand, $commitPath))->setTimeout(600)->mustRun();
         }
 
-        $redis->zadd('deploy.Z.commit.version', time(), $commit);
+        (new CommitVersion($siteId))->add($commit);
 
-        DeployFiles::deploy($commit, 'staging');
-
-        $result['commit'] = $commit;
-        $result['result'] = 'success';
-        $result['last_time'] = date('Y-m-d H:i:s');
-        $redis->hset('deploy.h.results', $id, json_encode($result));
+        $build['commit'] = $commit;
+        $build['result'] = 'Build Success';
+        $build['last_time'] = date('Y-m-d H:i:s');
+        $df->save($build);
 
         Log::info($job->getJobId()." finish\n---------------------------");
         $job->delete();

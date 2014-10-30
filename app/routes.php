@@ -28,38 +28,6 @@ Route::get('/test', function(){
 //    if ($revParseProcess->isSuccessful()) {
 //        echo $revParseProcess->getOutput() . '  hehe';
 //    }
-
-    var_dump(unserialize('siteId=web1&deployRoot=%2Fhome%2Fvagrant%2Fdeploy%2F&staticDir=&rsyncExclude=&defaultBranch=&remoteUser=&remoteOwner=&serviceName=php5-fpm&remoteAppDir=&remoteStaticDir=&buildCommand=build+deploy&staticHostScript=%40after%3Aremote%0D%0A%40after%3Alocal&webHostScript='));
-    exit();
-    $str = <<<EOT
-
-@before:remote
-ls {{root}}
-git branch
-sudo service {{serviceName}} start
-
-@after:remote
-sudo service {{serviceName}} stop
-ll
-
-@remote
-
-@after:remote
-dir
-date
-
-@before:remote
-EOT;
-    try {
-        $list = ScriptCommand::complie($str, 'web1');
-        Debugbar::info($list);
-
-    } catch(Exception $e){
-
-        echo $e->getMessage();
-    }
-
-    return "---";
 });
 
 
@@ -77,6 +45,6 @@ Route::post('/host/del', 'ConfigController@hostDel');
 
 
 
-Route::post('/deploy/branch', 'DeployController@branch');
-Route::post('/deploy/commit', 'DeployController@commit');
-Route::get('/deploy/status', 'DeployController@status');
+Route::post('/branch/deploy', 'DeployController@branch');
+Route::post('/commit/deploy', 'DeployController@commit');
+Route::post('/status/deploy', 'DeployController@status');

@@ -2,15 +2,16 @@
 
 <div class="row">
     <div class="panel panel-default">
-        <div class="panel-heading">Branch Deploy</div>
+        <div class="panel-heading">Branch Build</div>
         <div class="panel-body">
-            <form class="form-inline" role="form" action="/deploy/branch" method="post">
+            <form class="form-inline" role="form" action="/branch/deploy" method="post">
+                <input type="hidden" name="siteId" value="{{ siteId }}">
                 <div class="form-group form-group-sm">
                     <label class="control-label" for="branch">Branch Name</label>
-                    <input class="form-control input-sm" id="branch" name="branch" placeholder="Branch Name" value="{{ default_branch }}">
+                    <input class="form-control input-sm" id="branch" name="branch" placeholder="Branch Name" value="{{ defaultBranch }}">
                 </div>
                 <div class="form-group">
-                    <button type="submit" id="deployBranch" class="btn btn-sm btn-info">Deploy</button>
+                    <button type="submit" id="buildBranch" class="btn btn-sm btn-info">Build</button>
                 </div>
             </form>
         </div>
@@ -19,7 +20,8 @@
     <div class="panel panel-default">
         <div class="panel-heading">Commit Deploy</div>
         <div class="panel-body">
-            <form class="form-inline" role="form" action="/deploy/commit" method="post">
+            <form class="form-inline" role="form" action="/commit/deploy" method="post">
+                <input type="hidden" name="siteId" value="{{ siteId }}">
                 <div class="form-group form-group-sm">
                     <label class="sr-only" for="commit">Commit Version</label>
                     <select class="form-control input-sm" id="s-commit" name="commit">
@@ -32,8 +34,9 @@
                 <div class="form-group form-group-sm">
                     <label class="sr-only" for="remote">remote</label>
                     <select class="form-control input-sm" id="remote" name="remote">
-                        <option value="staging">Staging</option>
-                        <option value="production">Production</option>
+                        {% for m in hostTypes %}
+                        <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="form-group form-group-sm">
@@ -44,7 +47,7 @@
     </div>
 
     <div class="panel panel-default">
-        <div class="panel-heading">Deploy List</div>
+        <div class="panel-heading">Build/Deploy Logs</div>
         <div class="panel-body">
             <table class="table table-striped table-hover table-deploy-list">
                 <thead>
@@ -52,21 +55,19 @@
                     <th>#</th>
                     <th>Branch</th>
                     <th>Commit Version</th>
-                    <th>Deploy Type</th>
-                    <th>Host Type</th>
-                    <th>Deploy Time</th>
+                    <th>Type</th>
+                    <th>Time</th>
                     <th>Last Update</th>
                     <th>Result</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for m in results %}
-                <tr {{ m.result=='success' ? 'class="text-success"' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
+                <tr {{ m.result=='Build Success' or m.result=='Deploy Success'  ? 'class="text-success"' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
                     <td>{{ m.id }}</td>
                     <td>{{ m.branch }}</td>
                     <td>{{ m.commit }}</td>
                     <td>{{ m.type }}</td>
-                    <td>{{ m.hosttype }}</td>
                     <td>{{ m.time }}</td>
                     <td>{{ m.last_time }}</td>
                     <td>{{ m.result }}</td>
@@ -79,25 +80,46 @@
 </div>
 <script>
 $(function() {
-    var resultInterval = window.setInterval(function () {
-        var result = $(".table-deploy-list tbody tr:first").attr('data-result');
-        var id = $(".table-deploy-list tbody tr:first").attr('data-id');
-        if (result == 'success' || id == '') {
-            return ;
-        }
+    jQuery.fn.isSuccess = function() {
+        return /[\w\d]+ Success/i.test($(this).attr('data-result'));
+    };
 
-        if (result != 'success') {
-            $.getJSON('/deploy/status?id=' + id, function (data) {
+    var resultInterval = window.setInterval(function () {
+        var idList = [];
+        var obs    = [];
+        $(".table-deploy-list tbody tr").each(function( index ) {
+            if (!$(this).isSuccess()) {
+                var id = Number.parseInt($(this).attr('data-id'));
+                idList.push(id);
+                obs[id] = $(this);
+            }
+        });
+
+        if (idList.length > 0) {
+            $.post('/status/deploy', {
+                'siteId' : '{{ siteId }}',
+                'ids'    : idList
+            }, function (data) {
                 if (data.res == 0) {
-                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
-                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
-                    $(".table-deploy-list tbody tr:first td:eq(2)").html(data.commit);
-                    $(".table-deploy-list tbody tr:first td:eq(6)").html(data.last_time);
-                    if (data.result == 'success') {
-                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
+                    for (var i in data.hosts) {
+                        var tr = obs[Number.parseInt(data.hosts[i].id)];
+                        if (tr == undefined) continue;
+                        tr.children('td:last').html(data.hosts[i].result);
+                        tr.children('td:eq(2)').html(data.hosts[i].commit);
+                        tr.children('td:eq(5)').html(data.hosts[i].last_time);
                     }
                 }
-            });
+                //console.log(data.res);
+//                if (data.res == 0) {
+//                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
+//                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
+//                    $(".table-deploy-list tbody tr:first td:eq(2)").html(data.commit);
+//                    $(".table-deploy-list tbody tr:first td:eq(5)").html(data.last_time);
+//                    if (data.result == 'success') {
+//                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
+//                    }
+//                }
+            }, 'json');
         }
 
     }, 4000);
