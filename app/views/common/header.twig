@@ -33,7 +33,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="download">站点<span class="caret"></span></a>
                     <ul class="dropdown-menu" aria-labelledby="download">
                         {% for m in sites %}
-                        <li><a href="/site/config/{{ m.siteId }}">{{ m.siteName }}</a></li>
+                        <li><a href="/deploy/{{ m.siteId }}">{{ m.siteName }}</a></li>
                         {% endfor %}
                     </ul>
                 </li>

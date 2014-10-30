@@ -13,6 +13,8 @@
 
 Route::get('/', 'SystemController@index');
 
+Route::post('/system/config/save', 'SystemController@systemConfig');
+
 Route::post('/hostType/add', 'SystemController@addHostType');
 Route::post('/hostType/del', 'SystemController@delHostType');
 

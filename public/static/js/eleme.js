@@ -134,6 +134,18 @@ $(function(){
                 }
             }, 'json');
         });
+
+        $('#saveSysConfig').unbind();
+        $('#saveSysConfig').click(function(){
+            $.post('/system/config/save', $("#systemConfigForm").serialize() , function (data) {
+                if (data.res == 0) {
+                    $('.systemConfigInfo').fadeIn('slow');
+                } else {
+                    alert(data.errMsg);
+                }
+            }, 'json');
+
+        });
     };
     elemeInitBtn();
 });

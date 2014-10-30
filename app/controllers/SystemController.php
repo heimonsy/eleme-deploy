@@ -11,6 +11,7 @@ class SystemController extends Controller
 
     public function index()
     {
+        $sc = new SystemConfig();
         $hostTypes = (new HostType())->getList();
         $sites = (new WebSite())->getList();
 
@@ -20,6 +21,18 @@ class SystemController extends Controller
             'hostTypes' => $hostTypes,
             'sites' => $sites,
             'success' => $success,
+            'workRoot' => $sc->get(SystemConfig::WORK_ROOT_FIELD),
+        ));
+    }
+
+    public function systemConfig()
+    {
+        $sc = new SystemConfig();
+
+        $sc->set(SystemConfig::WORK_ROOT_FIELD, Input::get('workRoot'));
+
+        return Response::json(array(
+            'res' => 0,
         ));
     }
 
