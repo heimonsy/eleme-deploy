@@ -6,7 +6,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">Basic Config</div>
         <div class="panel-body">
-            <form class="form-horizontal" action="/config/save" method="post">
+            <form id="configSaveForm" class="form-horizontal" action="/config/save" method="post">
                 <fieldset>
                     <input type="hidden" name="siteId" value="{{ siteId }}">
                     <div class="form-group form-group-sm">
@@ -86,7 +86,7 @@
 //同步之前远端执行的命令
 @before:local
 //同步之后远端执行的命令
-</code>remote和local都是每次同步要执行的命令，而handle命令是只执行一次的本地命令。支持上面配置变量, 如ls &#123;&#123;remoteStaticDir&#125;&#125;。</span>
+</code>remote和local都是每次同步要执行的命令，而handle命令是只执行一次的本地命令。支持上面配置变量, 如ls &#123;&#123;remoteStaticDir&#125;&#125;。<br>对于需要更改工作目录的命令，请使用<code>cd 目录 && 命令</code>的方式执行</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -100,7 +100,8 @@
 
                     <div class="form-group form-group-sm">
                         <div class="col-lg-10 col-lg-offset-2">
-                            <button type="submit" class="btn btn-info">保存配置</button>
+                            <button type="button" id="siteConfigSave" class="btn btn-info">保存配置</button>
+                            &nbsp;&nbsp;<span class="text-success saveConfigInfo" style="display: none;">保存成功</span>
                         </div>
                     </div>
                 </fieldset>

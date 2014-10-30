@@ -57,11 +57,24 @@ class ConfigController extends Controller
         $dc->set(DC::BUILD_COMMAND, Input::get('buildCommand'));
         $dc->set(DC::RSYNC_EXCLUDE, Input::get('rsyncExclude'));
         $dc->set(DC::REMOTE_OWNER, Input::get('remoteOwner'));
-        $dc->set(DC::DEPLOY_STATIC_SCRIPT, Input::get('staticHostScript'));
+        $staticHostScript = Input::get('staticHostScript');
+        $webHostScript = Input::get('webHostScript');
+        $compile = 'Static Host';
+        try {
+            $list = ScriptCommand::complie($staticHostScript, $siteId);
+            $compile = 'Web Host';
+            $list = ScriptCommand::complie($webHostScript, $siteId);
+
+        } catch(Exception $e) {
+            return Response::json(array(
+                'res' => 1,
+                'errMsg' => "[{$compile} Script] ".$e->getMessage()
+            ));
+        }
+        $dc->set(DC::DEPLOY_STATIC_SCRIPT, $staticHostScript);
         $dc->set(DC::DEPLOY_WEB_SCRIPT, Input::get('webHostScript'));
 
-
-        return Redirect::to('/site/config/'.$siteId)->with('SCOK', '站点发布配置保存成功');
+        return Response::json(array('res' => 0));
     }
 
     public function hostConfig($siteId)

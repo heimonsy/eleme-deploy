@@ -123,6 +123,17 @@ $(function(){
                 }, 'json');
             }
         });
+        $('#siteConfigSave').unbind();
+        $('#siteConfigSave').click(function(){
+            $('.saveConfigInfo').hide();
+            $.post('/config/save', $("#configSaveForm").serialize() , function (data) {
+                if (data.res == 0) {
+                    $('.saveConfigInfo').fadeIn('slow');
+                } else {
+                    alert(data.errMsg);
+                }
+            }, 'json');
+        });
     };
     elemeInitBtn();
 });

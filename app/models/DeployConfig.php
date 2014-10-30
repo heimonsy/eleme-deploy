@@ -46,4 +46,19 @@ class DeployConfig
         return $this->redis->hset($this->key, $field, $value);
     }
 
+    public function getList()
+    {
+        return array(
+            'root' => $this->get(self::ROOT),
+            'staticDir' => $this->get(self::STATIC_DIR),
+            'rsyncExclude' => $this->get(self::RSYNC_EXCLUDE),
+            'defaultBranch' => $this->get(self::DEFAULT_BRANCH),
+            'remoteUser' => $this->get(self::REMOTE_USER),
+            'remoteOwner' => $this->get(self::REMOTE_OWNER),
+            'serviceName' => $this->get(self::SERVICE_NAME),
+            'remoteAppDir' => $this->get(self::REMOTE_APP_DIR),
+            'remoteStaticDir' => $this->get(self::REMOTE_STATIC_DIR)
+        );
+    }
+
 } 
