@@ -24,7 +24,7 @@ class DeployCommit
         $remoteUser = $dc->get(DC::REMOTE_USER);
         $remoteOwner = $dc->get(DC::REMOTE_OWNER);
         $staticDir = $dc->get(DC::STATIC_DIR);
-        $root = $dc->get(DC::ROOT) . '/commit';
+        $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/commit';
         $commitPath = "{$root}/{$commit}";
 
         $RSYNC_EXCLUDE = "{$commitPath}/" . $dc->get(DC::RSYNC_EXCLUDE);

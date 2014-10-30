@@ -18,7 +18,8 @@ class BuildBranch
 
         $dc = new DC($siteId);
         $df = new DeployInfo($siteId);
-        $root = $dc->get(DC::ROOT);
+
+        $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId;
         $commitRoot = "{$root}/commit/";
         $branchPath = "{$commitRoot}/{$branch}";
 

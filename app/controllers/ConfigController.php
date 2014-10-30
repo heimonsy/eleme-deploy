@@ -19,8 +19,6 @@ class ConfigController extends Controller
     public function config($siteId)
     {
         $dc = new DC($siteId);
-        $root = $dc->get(DC::ROOT);
-        $staticDir = $dc->get(DC::STATIC_DIR);
         $SCOK = Session::get('SCOK', false);
 
 
@@ -47,7 +45,6 @@ class ConfigController extends Controller
         $siteId = Input::get('siteId');
         $dc = new DC($siteId);
 
-        $dc->set(DC::ROOT, Input::get('deployRoot'));
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
         $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));
