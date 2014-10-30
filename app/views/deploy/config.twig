@@ -12,8 +12,8 @@
                     <div class="form-group form-group-sm">
                         <label for="deployRoot" class="col-lg-2 control-label">Deploy Root</label>
                         <div class="col-lg-7">
-                            <input class="form-control" id="deployRoot" name="deployRoot" placeholder="Deploy Root" type="text" value="{{ deploy_root }}">
-                            <span class="help-block">&#123;&#123;root&#125;&#125; , 本机的deploy根目录，必须包含commit和branch两个子目录</span>
+                            <input class="form-control" id="deployRoot" placeholder="Deploy Root" type="text" value="{{ workRoot }}/{{ siteId }}" readonly>
+                            <span class="help-block">&#123;&#123;root&#125;&#125; , 根据Work Root自动生成</span>
                         </div>
                     </div>
                     <div class="form-group form-group-sm">

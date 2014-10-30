@@ -25,7 +25,7 @@ class ConfigController extends Controller
 
 
         return View::make('deploy.config', array(
-            'deploy_root'       => $dc->get(DC::ROOT),
+            'workRoot'       => (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD),
             'static_dir'        => $dc->get(DC::STATIC_DIR),
             'default_branch'    => $dc->get(DC::DEFAULT_BRANCH),
             'remote_user'       => $dc->get(DC::REMOTE_USER),

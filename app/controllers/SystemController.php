@@ -6,6 +6,8 @@
  * Time: 下午9:36
  */
 
+use Symfony\Component\Process\Process;
+
 class SystemController extends Controller
 {
 
@@ -28,11 +30,20 @@ class SystemController extends Controller
     public function systemConfig()
     {
         $sc = new SystemConfig();
+        $workRoot = trim(Input::get('workRoot'));
 
-        $sc->set(SystemConfig::WORK_ROOT_FIELD, Input::get('workRoot'));
+        if (File::isWritable($workRoot)) {
+            $sc->set(SystemConfig::WORK_ROOT_FIELD, $workRoot);
+        } else {
+            return Response::json(array(
+                'res' => 1,
+                'errMsg' => 'Work Root目录不可写!',
+            ));
+        }
 
         return Response::json(array(
             'res' => 0,
+            'write' => File::isWritable($workRoot),
         ));
     }
 
