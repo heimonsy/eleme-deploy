@@ -52,13 +52,6 @@
                         </div>
                     </div>
                     <div class="form-group form-group-sm">
-                        <label for="serviceName" class="col-lg-2 control-label">Service Name</label>
-                        <div class="col-lg-7">
-                            <input class="form-control" id="serviceName" name="serviceName" placeholder="Service Name" type="text" value="{{ service_name }}">
-                            <span class="help-block">&#123;&#123;serviceName&#125;&#125; , WEB服务名</span>
-                        </div>
-                    </div>
-                    <div class="form-group form-group-sm">
                         <label for="remoteAppDir" class="col-lg-2 control-label">远程APP目录</label>
                         <div class="col-lg-7">
                             <input class="form-control" id="remoteAppDir" name="remoteAppDir" placeholder="Remote App Dir" type="text" value="{{ remote_app_dir }}">
@@ -86,7 +79,7 @@
 //同步之前远端执行的命令
 @before:local
 //同步之后远端执行的命令
-</code>remote和local都是每次同步要执行的命令，而handle命令是只执行一次的本地命令。支持上面配置变量, 如ls &#123;&#123;remoteStaticDir&#125;&#125;。<br>对于需要更改工作目录的命令，请使用<code>cd 目录 && 命令</code>的方式执行</span>
+</code>remote和local都是每次同步每个主机都要执行的命令，而handle命令是只执行一次的本地命令。支持上面配置变量, 如ls &#123;&#123;remoteStaticDir&#125;&#125;。<br>对于需要更改工作目录的命令，请使用<code>cd 目录 && 命令</code>的方式执行</span>
                         </div>
                     </div>
                     <div class="form-group">

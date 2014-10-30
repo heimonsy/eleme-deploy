@@ -69,7 +69,7 @@ class DeployController extends Controller
         Queue::push('DeployCommit', array(
             'siteId' => $siteId,
             'commit' => $commit,
-            'hosttype' => $hostType,
+            'hostType' => $hostType,
             'id' => $id
         ), DeployInfo::DEPLOY_QUEUE);
 

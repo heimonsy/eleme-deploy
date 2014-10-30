@@ -29,7 +29,7 @@ class ConfigController extends Controller
             'static_dir'        => $dc->get(DC::STATIC_DIR),
             'default_branch'    => $dc->get(DC::DEFAULT_BRANCH),
             'remote_user'       => $dc->get(DC::REMOTE_USER),
-            'service_name'      => $dc->get(DC::SERVICE_NAME),
+            //'service_name'      => $dc->get(DC::SERVICE_NAME),
             'remote_app_dir'    => $dc->get(DC::REMOTE_APP_DIR),
             'remote_static_dir' => $dc->get(DC::REMOTE_STATIC_DIR),
             'build_command'     => $dc->get(DC::BUILD_COMMAND),
@@ -51,7 +51,7 @@ class ConfigController extends Controller
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
         $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));
-        $dc->set(DC::SERVICE_NAME, Input::get('serviceName'));
+        //$dc->set(DC::SERVICE_NAME, Input::get('serviceName'));
         $dc->set(DC::REMOTE_APP_DIR, Input::get('remoteAppDir'));
         $dc->set(DC::REMOTE_STATIC_DIR, Input::get('remoteStaticDir'));
         $dc->set(DC::BUILD_COMMAND, Input::get('buildCommand'));

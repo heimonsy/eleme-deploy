@@ -10,6 +10,7 @@ class JobLock
 {
     private static $BUILD_LOCK_PREFIX = "DEPLOY:LOCK:BUILD:";
     private static $DEPLOY_LOCK_PREFIX = "DEPLOY:LOCK:BUILD:";
+    private static $HOST_RSYNC_LOCK_PREFIX = "DEPLOY:LOCK:RSYNC";
 
     /**
      * 不同的项目，使用$commitPath目录作为build锁
@@ -20,5 +21,10 @@ class JobLock
     {
         return  self::$BUILD_LOCK_PREFIX . $commitPath;
     }
-    
+
+
+    public static function rsyLock($hostIp)
+    {
+        return self::$HOST_RSYNC_LOCK_PREFIX . $hostIp;
+    }
 }

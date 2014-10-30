@@ -22,7 +22,8 @@ Route::post('/site/del', 'SystemController@delSite');
 Route::post('/config/save', 'ConfigController@saveConfig');
 
 Route::get('/test', function(){
-
+    //$redis = app('redis')->connection();
+    //new \Eleme\Rlock\Lock($redis, 'HEHE', array('blocking' => ));
 //    $revParseProcess = new \Symfony\Component\Process\Process('cd /home/vagrant/heimonsy-develop/web-deploy2.eleme.local/ && git branch');
 //    $revParseProcess->mustRun();
 //    if ($revParseProcess->isSuccessful()) {

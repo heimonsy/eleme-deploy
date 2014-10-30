@@ -27,7 +27,7 @@
                     <select class="form-control input-sm" id="s-commit" name="commit">
                         <option value="">Commit Version...</option>
                         {% for ch in commit_version %}
-                        <option value="{{ ch[0] }}">{{ ch[0] }}</option>
+                        <option value="{{ ch }}">{{ ch }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -104,21 +104,15 @@ $(function() {
                     for (var i in data.hosts) {
                         var tr = obs[Number.parseInt(data.hosts[i].id)];
                         if (tr == undefined) continue;
+                        tr.attr('data-result', data.hosts[i].result);
                         tr.children('td:last').html(data.hosts[i].result);
                         tr.children('td:eq(2)').html(data.hosts[i].commit);
                         tr.children('td:eq(5)').html(data.hosts[i].last_time);
+                        if (tr.isSuccess()) {
+                            tr.attr('class', 'text-success');
+                        }
                     }
                 }
-                //console.log(data.res);
-//                if (data.res == 0) {
-//                    $(".table-deploy-list tbody tr:first").attr('data-result', data.result);
-//                    $(".table-deploy-list tbody tr:first td:last").html(data.result);
-//                    $(".table-deploy-list tbody tr:first td:eq(2)").html(data.commit);
-//                    $(".table-deploy-list tbody tr:first td:eq(5)").html(data.last_time);
-//                    if (data.result == 'success') {
-//                        $(".table-deploy-list tbody tr:first").attr('class', 'text-success');
-//                    }
-//                }
             }, 'json');
         }
 

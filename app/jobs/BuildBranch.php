@@ -68,10 +68,14 @@ class BuildBranch
             }
         }
         if ($needBuild) {
+            $redis = app('redis')->connection();
+            $buildLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath));
+            $buildLock->acquire();
             (new Process("git checkout {$commit}", $commitPath))->mustRun();
 
             Log::info("make deploy");
             (new Process($buildCommand, $commitPath))->setTimeout(600)->mustRun();
+            $buildLock->release();
         }
 
         (new CommitVersion($siteId))->add($commit);

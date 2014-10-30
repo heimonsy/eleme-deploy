@@ -30,7 +30,7 @@ class SiteHost
     /**
      * @param $siteId
      * @param $hostType
-     * @param $type STATIC_HOST|WEB_HOST
+     * @param $type string
      */
     public function __construct($siteId, $hostType, $type)
     {
