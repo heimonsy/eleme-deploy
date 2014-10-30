@@ -22,6 +22,7 @@ class DeployConfig
     const REMOTE_OWNER = 'REMOTE_OWNER';
     const DEPLOY_STATIC_SCRIPT = 'DEPLOY:STATIC:SCRIPT';
     const DEPLOY_WEB_SCRIPT = 'DEPLOY:WEB:SCRIPT';
+    const GIT_ORIGIN = 'GIT:ORIGIN';
 
     private $prefix = 'deploy:H:config:';
     private $key;

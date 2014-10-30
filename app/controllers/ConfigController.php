@@ -34,7 +34,8 @@ class ConfigController extends Controller
             'rsync_exclude'     => $dc->get(DC::RSYNC_EXCLUDE),
             'remote_owner'      => $dc->get(DC::REMOTE_OWNER),
             'staticScript'      => $dc->get(DC::DEPLOY_STATIC_SCRIPT),
-            'webScript'      => $dc->get(DC::DEPLOY_WEB_SCRIPT),
+            'webScript'         => $dc->get(DC::DEPLOY_WEB_SCRIPT),
+            'gitOrigin'         => $dc->get(DC::GIT_ORIGIN),
             'SCOK' => $SCOK,
             'siteId' => $siteId,
         ));

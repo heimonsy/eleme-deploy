@@ -65,9 +65,18 @@ class SystemController extends Controller
 
     public function addSite()
     {
+        $workRoot = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD);
+        if ($workRoot == '') {
+            return Redirect::to('/')->with('SCS', 'Work Root未配置！');
+        }
+
         $siteId = trim(Input::get('siteId'));
         $siteName = trim(Input::get('siteName'));
+        $gitOrigin = trim(Input::get('gitOrigin'));
+        (new Process("mkdir -p '{$workRoot}/$siteName/commit' "))->mustRun();
+        (new Process("mkdir -p '{$workRoot}/$siteName/branch' "))->mustRun();
 
+        (new DC($siteId))->set(DC::GIT_ORIGIN, $gitOrigin);
         (new WebSite())->add(array(
             'siteId' => $siteId,
             'siteName' => $siteName,
