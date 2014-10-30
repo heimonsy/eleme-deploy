@@ -30,7 +30,7 @@ class ScriptCommand
             if (empty($line)) continue;
             $scriptLines[] = $line;
         }
-        $startPattern = '/^@(after|before):(remote|local|bundle)$/i';
+        $startPattern = '/^@(after|before):(remote|local|handle)$/i';
         $len = count($scriptLines);
         for ($psl=0; $psl<$len;) {
             while ($psl < $len && $scriptLines[$psl][0] <> '@') $psl++;
