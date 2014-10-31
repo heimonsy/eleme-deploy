@@ -21,11 +21,21 @@ class DeployController extends Controller
         $infoList = (new DeployInfo($siteId))->getList();
         $hostTypes = (new HostType())->getList();
 
+        $hostList = array();
+        foreach ($hostTypes as $hostType) {
+            $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList());
+            $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
+        }
+        $existHostTypes = array();
+        foreach ($hostList as $host) {
+            $existHostTypes[$host['hosttype']] = $host['hosttype'];
+        }
+
         return View::make('deploy.deploy', array(
             'defaultBranch' => $defaultBranch,
             'commit_version' => $commitVersion,
             'results' => $infoList,
-            'hostTypes' => $hostTypes,
+            'hostTypes' => $existHostTypes,
             'siteId' => $siteId,
         ));
     }
