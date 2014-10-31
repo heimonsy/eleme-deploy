@@ -26,6 +26,7 @@ class ConfigController extends Controller
             'workRoot'       => (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD),
             'static_dir'        => $dc->get(DC::STATIC_DIR),
             'remote_user'       => $dc->get(DC::REMOTE_USER),
+            'defaultBranch'       => $dc->get(DC::DEFAULT_BRANCH),
             //'service_name'      => $dc->get(DC::SERVICE_NAME),
             'remote_app_dir'    => $dc->get(DC::REMOTE_APP_DIR),
             'remote_static_dir' => $dc->get(DC::REMOTE_STATIC_DIR),
@@ -46,7 +47,7 @@ class ConfigController extends Controller
         $dc = new DC($siteId);
 
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
-        //$dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
+        $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));
         //$dc->set(DC::SERVICE_NAME, Input::get('serviceName'));
         $dc->set(DC::REMOTE_APP_DIR, Input::get('remoteAppDir'));
