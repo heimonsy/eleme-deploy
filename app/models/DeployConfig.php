@@ -49,9 +49,11 @@ class DeployConfig
 
     public function getList()
     {
+        $root = $this->get(self::ROOT);
         return array(
-            'root' => $this->get(self::ROOT),
+            'root' => $root,
             'staticDir' => $this->get(self::STATIC_DIR),
+            'gitOrigin' => $this->get(self::GIT_ORIGIN),
             'rsyncExclude' => $this->get(self::RSYNC_EXCLUDE),
             'defaultBranch' => $this->get(self::DEFAULT_BRANCH),
             'remoteUser' => $this->get(self::REMOTE_USER),

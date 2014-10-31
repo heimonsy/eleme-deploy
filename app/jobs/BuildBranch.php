@@ -22,6 +22,7 @@ class BuildBranch
         $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId;
         $commitRoot = "{$root}/commit/";
         $branchPath = "{$commitRoot}/{$branch}";
+        $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
         $build = $df->get($buildId);
         $build['result'] = 'Fetch Origin';
@@ -31,10 +32,15 @@ class BuildBranch
         $buildCommand = 'make deploy';
 
         Log::info("job id : {$job->getJobId()} start");
-        Log::info("Build {$siteId} branch:  {$branch}");
 
-        $defaultBranch = $dc->get(DC::DEFAULT_BRANCH);
+        $defaultBranch = 'default';
         $developRoot = "{$root}/branch/{$defaultBranch}";
+
+        if (!File::exists($developRoot)) {
+            (new Process('mkdir -p '.$commitRoot))->mustRun();
+            (new Process('mkdir -p '.$developRoot))->mustRun();
+            (new Process('git clone ' . $gitOrigin . ' ' . $developRoot))->mustRun();
+        }
 
         Log::info("git fetch origin");
         (new Process("git fetch origin", $developRoot))->setTimeout(600)->mustRun();
@@ -69,6 +75,7 @@ class BuildBranch
             }
         }
         if ($needBuild) {
+            Log::info("Build {$siteId} branch:  {$branch}");
             $redis = app('redis')->connection();
             $buildLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath));
             $buildLock->acquire();
