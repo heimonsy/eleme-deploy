@@ -110,6 +110,12 @@ $(function() {
                         tr.children('td:eq(5)').html(data.hosts[i].last_time);
                         if (tr.isSuccess()) {
                             tr.attr('class', 'text-success');
+                            if (data.hosts[i].type == "Build") {
+                                $("#s-commit").append('<option value="' + data.hosts[i].commit + '" >'+
+                                    data.hosts[i].commit +'</option>');
+                                $("#s-commit").val(data.hosts[i].commit);
+                                $
+                            }
                         }
                     }
                 }
