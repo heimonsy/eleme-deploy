@@ -41,6 +41,8 @@ class SystemController extends Controller
 //            ));
 //        }
 
+        $sc->set(SystemConfig::WORK_ROOT_FIELD, $workRoot);
+
         return Response::json(array(
             'res' => 0,
             'write' => File::isWritable($workRoot),
