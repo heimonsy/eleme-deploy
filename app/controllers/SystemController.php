@@ -75,8 +75,8 @@ class SystemController extends Controller
         $siteId = trim(Input::get('siteId'));
         $siteName = trim(Input::get('siteName'));
         $gitOrigin = trim(Input::get('gitOrigin'));
-        (new Process("mkdir -p '{$workRoot}/$siteId/commit' "))->mustRun();
-        (new Process("mkdir -p '{$workRoot}/$siteId/branch' "))->mustRun();
+//        (new Process("mkdir -p '{$workRoot}/$siteId/commit' "))->mustRun();
+//        (new Process("mkdir -p '{$workRoot}/$siteId/branch' "))->mustRun();
 
         (new DC($siteId))->set(DC::GIT_ORIGIN, $gitOrigin);
         (new WebSite())->add(array(

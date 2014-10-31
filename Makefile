@@ -4,3 +4,4 @@ requirements:
 
 build: requirements
 build-dist: requirements
+deploy: requirements
