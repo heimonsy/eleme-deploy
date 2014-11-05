@@ -32,6 +32,7 @@ class BuildBranch
         $buildCommand = 'make deploy';
 
         Log::info("job id : {$job->getJobId()} start");
+        $progress = 0;
         try {
 
             $defaultBranch = 'default';
@@ -45,19 +46,14 @@ class BuildBranch
 
             Log::info("git fetch origin");
             (new Process("git fetch origin", $developRoot))->setTimeout(600)->mustRun();
+            $progress = 1;
             (new Process("cp -r {$developRoot} {$branchPath}", $commitRoot))->mustRun();
+
 
             $revParseProcess = new Process("git rev-parse origin/{$branch}", $branchPath);
             $revParseProcess->run();
             if (!$revParseProcess->isSuccessful()) {
-                Log::info("{$branch} do not exists!");
-                File::deleteDirectory($branchPath);
-                $job->delete();
-                Log::info("{$job->getJobId()} finish!\n---------------------------");
-                $build['result'] = 'ERROR 1';
-                $build['last_time'] = date('Y-m-d H:i:s');
-                $df->save($build);
-                return;
+                throw new Exception('Error Message : ' . $revParseProcess->getErrorOutput());
             }
 
             $commit = trim($revParseProcess->getOutput());
@@ -72,6 +68,7 @@ class BuildBranch
                     File::deleteDirectory($branchPath);
                     $needBuild = false;
                 } else {
+                    $progress = 2;
                     File::move($branchPath, $commitPath);
                 }
             }
@@ -101,6 +98,14 @@ class BuildBranch
             $build['result'] = 'Error';
             $build['last_time'] = date('Y-m-d H:i:s');
             $df->save($build);
+
+            switch($progress) {
+                case 2 :
+                    (new Process('rm -f ' . $branchPath))->run();
+                case 1 :
+                    (new Process('rm -f ' . $commitPath))->run();
+
+            }
 
             Log::error($e->getMessage());
             Log::info($job->getJobId() . " Error Finish\n---------------------------");
