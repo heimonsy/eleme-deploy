@@ -101,9 +101,9 @@ class BuildBranch
 
             switch($progress) {
                 case 2 :
-                    (new Process('rm -f ' . $branchPath))->run();
+                    (new Process('rm -rf ' . $commitPath))->run();
                 case 1 :
-                    (new Process('rm -f ' . $commitPath))->run();
+                    (new Process('rm -rf ' . $branchPath))->run();
 
             }
 
