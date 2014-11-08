@@ -6,8 +6,6 @@
  * Time: 3:03 PM
  */
 
-use Eleme\Redis\Clearable;
-
 class GithubUser
 {
 
@@ -20,6 +18,7 @@ class GithubUser
     public $email;
     public $token;
     public $teams;
+    public $permissions;
 
 
     public function __construct($login, $email, $token, $teams){
@@ -27,6 +26,7 @@ class GithubUser
         $this->email = $email;
         $this->token = $token;
         $this->teams = $teams;
+        $this->permissions = $this->getPermissions();
 
         $this->redis = app('redis')->connection();
         $this->expires = 60 * 60 * 24;
@@ -45,6 +45,17 @@ class GithubUser
     public function key()
     {
         return self::$keyPrefix . $this->login;
+    }
+
+    public function getPermissions()
+    {
+        if (empty($this->permissions)) {
+            $this->permissions = array();
+            foreach ($this->teams as $team) {
+                $this->permissions[$team->permission] = $team->permission;
+            }
+        }
+        return $this->permissions;
     }
 
 
