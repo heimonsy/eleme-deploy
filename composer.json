@@ -10,7 +10,8 @@
 		"barryvdh/laravel-debugbar": "~1.7",
 		"symfony/process": "~2.5",
 		"eleme/rlock": "~0.2",
-		"barryvdh/laravel-ide-helper": "~1.11"
+		"barryvdh/laravel-ide-helper": "~1.11",
+		"guzzlehttp/guzzle": "~5.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -22,7 +23,10 @@
 			"app/tests/TestCase.php",
             "app/jobs",
             "app/deploy"
-		]
+		],
+        "psr-0" : {
+            "Eleme\\" : "app/"
+        }
 	},
 	"scripts": {
 		"post-install-cmd": [
