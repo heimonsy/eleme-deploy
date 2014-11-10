@@ -118,4 +118,4 @@ Route::post('/host/del', 'ConfigController@hostDel');
 
 Route::post('/branch/deploy', 'DeployController@branch');
 Route::post('/commit/deploy', 'DeployController@commit');
-Route::post('/status/deploy', 'DeployController@status');
+Route::get('/status/deploy', 'DeployController@status');

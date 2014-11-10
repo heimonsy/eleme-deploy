@@ -11,7 +11,8 @@
                     <input class="form-control input-sm" id="branch" name="branch" placeholder="Branch Name" value="{{ defaultBranch }}">
                 </div>
                 <div class="form-group">
-                    <button type="submit" id="buildBranch" class="btn btn-sm btn-info">Build</button>
+                    <button type="button" id="buildBranch" class="btn btn-sm btn-info">Build</button>
+                    &nbsp;&nbsp;<span id="buildBranchInfo" class="text-success"></span>
                 </div>
             </form>
         </div>
@@ -40,7 +41,8 @@
                     </select>
                 </div>
                 <div class="form-group form-group-sm">
-                    <button type="submit" id="deployCommit" class="btn btn-sm btn-info">Deploy</button>
+                    <button type="button" id="deployCommit" class="btn btn-sm btn-info">Deploy</button>
+                    &nbsp;&nbsp;<span id="deployCommitInfo" class="text-success"></span>
                 </div>
             </form>
         </div>
@@ -133,25 +135,26 @@ $(function() {
         var obs    = [];
         $(".table-deploy-list tbody tr").each(function( index ) {
             if (!$(this).isSuccess() && !$(this).isError()) {
-                var id = Number.parseInt($(this).attr('data-id'));
+                var id = parseInt($(this).attr('data-id'));
                 idList.push(id);
                 obs[id] = $(this);
             }
         });
 
         if (idList.length > 0) {
-            $.post('/status/deploy', {
+            $.getJSON('/status/deploy', {
                 'siteId' : '{{ siteId }}',
                 'ids'    : idList
             }, function (data) {
                 if (data.res == 0) {
                     for (var i in data.hosts) {
-                        var tr = obs[Number.parseInt(data.hosts[i].id)];
+                        var tr = obs[parseInt(data.hosts[i].id)];
                         if (tr == undefined) continue;
                         tr.attr('data-result', data.hosts[i].result);
                         tr.children('td:last').html(data.hosts[i].result);
                         tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 16));
                         tr.children('td:eq(6)').html(data.hosts[i].last_time);
+                        console.log(tr.isSuccess());
                         if (tr.isSuccess()) {
                             tr.attr('class', 'text-success');
                             if (data.hosts[i].type == "Build") {
@@ -168,16 +171,42 @@ $(function() {
                         }
                     }
                 }
-            }, 'json');
+            });
         }
 
     }, 4000);
     $("#buildBranch").click(function(e){
-        $(this).attr({"disabled":"disabled"});
-        return true;
+        $(this).button('loading');
+        $.post('/branch/deploy', {
+            siteId : "{{ siteId }}",
+            branch : $("#branch").val()
+        }, function(data){
+            if (data.res == 0) {
+                $('#buildBranchInfo').html('Build Request Success');
+                window.setTimeout(function(){
+                    location.href = location.href;
+                }, 700);
+            }
+        });
     });
     $("#deployCommit").click(function(e){
-        $(this).attr({"disabled":"disabled"});
+        if ($('#s-commit').val()=='') {
+            alert('请选择commit version');
+            return false;
+        }
+        $(this).button('loading');
+        $.post('/commit/deploy', {
+            siteId : "{{ siteId }}",
+            commit : $('#s-commit').val(),
+            remote : $('#remote').val()
+        }, function(data){
+            if (data.res == 0) {
+                $('#deployCommitInfo').html('Deploy Request Success');
+                window.setTimeout(function(){
+                    location.href = location.href;
+                }, 700);
+            }
+        });
         return true;
     });
 });

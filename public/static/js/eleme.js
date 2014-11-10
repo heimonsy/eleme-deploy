@@ -68,15 +68,6 @@ $(function(){
             }, 'json');
         });
 
-        $('#deployCommit').unbind('click');
-        $("#deployCommit").click(function(e) {
-            if ($('#s-commit').val()=='') {
-                alert('请选择commit version');
-                return false;
-            }
-            return true;
-        });
-
         $('.delHostType').unbind('click');
         $(".delHostType").click(function(e) {
             var hostType = $(this).attr('data-id');

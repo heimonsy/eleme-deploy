@@ -58,7 +58,7 @@ class DeployController extends Controller
         $id = (new DeployInfo($siteId))->add($deploy);
 
         Queue::push('BuildBranch', array('siteId' => $siteId, 'branch' => $branch, 'id' => $id), DeployInfo::BUILD_QUEUE);
-        return Redirect::to('/deploy/' . $siteId);
+        return Response::json(array('res' => 0));
     }
 
     //deploy commit
@@ -85,7 +85,7 @@ class DeployController extends Controller
             'id' => $id
         ), DeployInfo::DEPLOY_QUEUE);
 
-        return Redirect::to('/deploy/' . $siteId);
+        return Response::json(array('res' => 0));
     }
 
     //deploy status
