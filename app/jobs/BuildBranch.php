@@ -39,9 +39,10 @@ class BuildBranch
             $developRoot = "{$root}/branch/{$defaultBranch}";
 
             if (!File::exists($developRoot)) {
+                Log::info('Git clone');
                 (new Process('mkdir -p ' . $commitRoot))->mustRun();
                 (new Process('mkdir -p ' . $developRoot))->mustRun();
-                (new Process('git clone ' . $gitOrigin . ' ' . $developRoot))->mustRun();
+                (new Process('git clone ' . $gitOrigin . ' ' . $developRoot))->setTimeout(600)->mustRun();
             }
 
             Log::info("git fetch origin");
