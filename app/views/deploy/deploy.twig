@@ -69,7 +69,7 @@
                     <td>{{ m.branch }}</td>
                     <td>{{ m.commit[:16] }}</td>
                     <td>{{ m.type }}</td>
-                    <td>{{ m.user }}</td>
+                    <td><a href="https://github.com/{{ m.user }}" target="_blank">{{ m.user }}</a></td>
                     <td>{{ m.time }}</td>
                     <td>{{ m.last_time }}</td>
                     {% if m.result == 'Error' %}
