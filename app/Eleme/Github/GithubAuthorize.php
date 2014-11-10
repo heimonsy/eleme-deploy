@@ -43,7 +43,7 @@ class GithubAuthorize
     public static function authorizeUrl($scope)
     {
         $client_id = \Config::get('github.client_id');
-        $callBackUrl = \Config::get('app.url') . '/login/callback';
+        $callBackUrl = \Config::get('app.url') . '/github/oauth/callback';
 
         return 'https://github.com/login/oauth/authorize?type=web_server&client_id='
         . $client_id . '&redirect_uri=' . $callBackUrl

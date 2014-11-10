@@ -1,11 +1,10 @@
 <?php
 
 App::before(function($request){
-    $preg = '/^\/login\/callback|\/logout/';
+    $preg = '/^\/github\/oauth|\/logout/';
     $check =  GithubLogin::check();
     if (!$check && preg_match($preg, $request->getRequestUri()) == 0) {
-        return Redirect::to(GithubLogin::authorizeUrl());
-
+        return Redirect::to('/github/oauth/confirm');
     } else if($check) {
         $user = GithubLogin::getLoginUser();
         View::share('login', $user->login);
@@ -23,12 +22,26 @@ App::before(function($request){
 |
 */
 
-Route::get('/logout', function(){
-    $cookie = GithubLogin::logout();
-    return Response::make('<center>logout success</center>')->withCookie($cookie);
+Route::get('/github/oauth/confirm', function(){
+    if (GithubLogin::check()) {
+        return Redirect::to('/');
+    }
+    return Response::view('oauth-confirm');
 });
 
-Route::get('/login/callback', function(){
+Route::get('/github/oauth', function(){
+    if (GithubLogin::check()) {
+        return Redirect::to('/');
+    }
+    return Redirect::to(GithubLogin::authorizeUrl());
+});
+
+Route::get('/logout', function(){
+    $cookie = GithubLogin::logout();
+    return Redirect::to('/github/oauth/confirm')->withCookie($cookie);
+});
+
+Route::get('/github/oauth/callback', function(){
     if (GithubLogin::check()) {
         return Redirect::to('/');
     }
