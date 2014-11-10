@@ -34,7 +34,7 @@ class TeamRepos
                             $m->id,
                             $m->name,
                             $m->full_name,
-                            $m->git_url
+                            $m->ssh_url
                         );
                     }
                 }
