@@ -7,3 +7,5 @@ textarea.form-control { resize: none; }
 .help-block code { white-space: pre; }
 
 a.showErrorLog { color: #e74c3c;}
+
+#s-commit, .cv-font { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 14px;}

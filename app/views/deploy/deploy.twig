@@ -28,7 +28,7 @@
                     <select class="form-control input-sm" id="s-commit" name="commit">
                         <option value="">Commit Version...</option>
                         {% for ch in commit_version %}
-                        <option value="{{ ch }}">{{ ch }}</option>
+                        <option value="{{ ch }}">{{ ch[:7] }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -56,7 +56,7 @@
                 <tr>
                     <th>#</th>
                     <th>Branch</th>
-                    <th>Commit Version</th>
+                    <th>Commit</th>
                     <th>Type</th>
                     <th>User</th>
                     <th>Time</th>
@@ -69,7 +69,7 @@
                 <tr {{ m.result == "Error" ? 'class="text-danger"' : '' }}  {{ m.result=='Build Success' or m.result=='Deploy Success'  ? 'class="text-success"' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
                     <td>{{ m.id }}</td>
                     <td>{{ m.branch }}</td>
-                    <td>{{ m.commit[:16] }}</td>
+                    <td class="cv-font">{{ m.commit[:7] }}</td>
                     <td>{{ m.type }}</td>
                     <td><a href="https://github.com/{{ m.user }}" target="_blank">{{ m.user }}</a></td>
                     <td>{{ m.time }}</td>
