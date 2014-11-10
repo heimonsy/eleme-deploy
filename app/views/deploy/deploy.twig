@@ -172,6 +172,14 @@ $(function() {
         }
 
     }, 4000);
+    $("#buildBranch").click(function(e){
+        $(this).attr({"disabled":"disabled"});
+        return true;
+    });
+    $("#deployCommit").click(function(e){
+        $(this).attr({"disabled":"disabled"});
+        return true;
+    });
 });
 </script>
 
