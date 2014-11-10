@@ -91,7 +91,9 @@
                                         </div>
                                         <div class="form-group">
                                             <div class="col-lg-10">
-                                                <input class="form-control input-sm" id="gitOrigin" name="gitOrigin" placeholder="Git Origin" value="">
+                                                <select class="form-control input-sm" id="gitOrigin" name="gitOrigin">
+                                                    <option>正在拉取...</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -133,5 +135,18 @@
     </div>
 </div>
 
+<script>
+$(function(){
+    $.getJSON('/user/team/repos', function(data){
+        if (data.res == 0) {
+            var html = "";
+            for(var i in data.data) {
+                html += '<option value="'+data.data[i].gitUrl+'">'+ data.data[i].name +'</option>';
+            }
 
+            $("#gitOrigin").html(html);
+        }
+    });
+});
+</script>
 {{ include('common/footer.twig') }}

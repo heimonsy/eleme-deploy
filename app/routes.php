@@ -61,6 +61,16 @@ Route::get('/login/callback', function(){
     }
 });
 
+Route::get('/user/team/repos', function(){
+    $repos = array();
+    $user = GithubLogin::getLoginUser();
+    foreach ($user->teams as $team) {
+        $repos = array_merge($repos, (new TeamRepos($team->id))->repos());
+    }
+    //var_dump($repos);
+    return Response::json(array('res' => 0, 'data' => $repos));
+});
+
 Route::get('/', 'SystemController@index');
 
 Route::post('/system/config/save', 'SystemController@systemConfig');
