@@ -56,6 +56,7 @@
                     <th>Branch</th>
                     <th>Commit Version</th>
                     <th>Type</th>
+                    <th>User</th>
                     <th>Time</th>
                     <th>Last Update</th>
                     <th>Result</th>
@@ -66,8 +67,9 @@
                 <tr {{ m.result == "Error" ? 'class="text-danger"' : '' }}  {{ m.result=='Build Success' or m.result=='Deploy Success'  ? 'class="text-success"' : 'class="text-warning"' }} data-result="{{ m.result }}" data-id="{{ m.id }}">
                     <td>{{ m.id }}</td>
                     <td>{{ m.branch }}</td>
-                    <td>{{ m.commit }}</td>
+                    <td>{{ m.commit[:16] }}</td>
                     <td>{{ m.type }}</td>
+                    <td>{{ m.user }}</td>
                     <td>{{ m.time }}</td>
                     <td>{{ m.last_time }}</td>
                     {% if m.result == 'Error' %}
@@ -148,10 +150,8 @@ $(function() {
                         if (tr == undefined) continue;
                         tr.attr('data-result', data.hosts[i].result);
                         tr.children('td:last').html(data.hosts[i].result);
-                        //alert(data.hosts[i].result);
-                        //return ;
-                        tr.children('td:eq(2)').html(data.hosts[i].commit);
-                        tr.children('td:eq(5)').html(data.hosts[i].last_time);
+                        tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 16));
+                        tr.children('td:eq(6)').html(data.hosts[i].last_time);
                         if (tr.isSuccess()) {
                             tr.attr('class', 'text-success');
                             if (data.hosts[i].type == "Build") {
