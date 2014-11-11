@@ -21,12 +21,15 @@ class GithubUser
     public $permissions;
 
 
-    public function __construct($login, $email, $token, $teams){
+    public function __construct($login, $email, $token, $teams, $permissions = NULL){
         $this->login = $login;
         $this->email = $email;
         $this->token = $token;
         $this->teams = $teams;
-        $this->sitePermission();
+        if ($this->permissions == NULL) {
+            $this->sitePermission();
+        }
+
 
         $this->redis = app('redis')->connection();
         $this->expires = 60 * 60 * 24;
@@ -60,7 +63,7 @@ class GithubUser
             return NULL;
         }
         $jsonObject = json_decode($jstr);
-        return new GithubUser($jsonObject->login, $jsonObject->email, $jsonObject->token, $jsonObject->teams);
+        return new GithubUser($jsonObject->login, $jsonObject->email, $jsonObject->token, $jsonObject->teams, $jsonObject->permissions);
     }
 
     private function sitePermission()
