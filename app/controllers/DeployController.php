@@ -6,12 +6,11 @@
  * Time: 下午7:47
  */
 
-class DeployController extends Controller
+class DeployController extends BaseController
 {
     public function __construct()
     {
-        $sites = (new WebSite())->getList();
-        View::share('sites', $sites);
+        parent::__construct();
     }
 
     public function index($siteId)

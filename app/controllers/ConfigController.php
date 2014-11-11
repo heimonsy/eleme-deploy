@@ -7,13 +7,12 @@
  */
 
 
-class ConfigController extends Controller
+class ConfigController extends BaseController
 {
 
     public function __construct()
     {
-        $sites = (new WebSite())->getList();
-        View::share('sites', $sites);
+        parent::__construct();
     }
 
     public function config($siteId)

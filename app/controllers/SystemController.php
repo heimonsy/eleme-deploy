@@ -8,20 +8,22 @@
 
 use Symfony\Component\Process\Process;
 
-class SystemController extends Controller
+class SystemController extends BaseController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     public function index()
     {
         $sc = new SystemConfig();
         $hostTypes = (new HostType())->permissionList();
-        $sites = (new WebSite())->getList();
 
         $success = Session::get('SCS', false);
 
         return View::make('index', array(
             'hostTypes' => $hostTypes,
-            'sites' => $sites,
             'success' => $success,
             'workRoot' => $sc->get(SystemConfig::WORK_ROOT_FIELD),
         ));

@@ -69,7 +69,7 @@ class GithubUser
     private function sitePermission()
     {
         $siteList = (new WebSite())->getList();
-        $pattern = '/:([\w\d]+\/[\w\d]+)\.git$/i';
+        $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';
         $this->permissions = array();
         foreach ($siteList as $m) {
             $dc = new DC($m['siteId']);
