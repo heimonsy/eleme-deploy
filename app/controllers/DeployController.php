@@ -30,7 +30,8 @@ class DeployController extends BaseController
         $hp = (new HostType())->permissionList();
         foreach ($hostList as $host) {
             //Debugbar::info($user->permissions[$siteId] . ' ' . $hp[$host['hosttype']]);
-            if (DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
+            if (!empty($user->permissions[$siteId]) &&
+                DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
                 $existHostTypes[$host['hosttype']] = $host['hosttype'];
             }
         }
