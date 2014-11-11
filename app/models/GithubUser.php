@@ -82,7 +82,7 @@ class GithubUser
 
     public function maxPermissionOfRepo($repoFullName)
     {
-        $maxPermission = DeployPermissions::DENY;
+        $maxPermission = DeployPermissions::PULL;
         foreach ($this->teams as $team) {
             $repos = new TeamRepos($team->id);
             foreach ($repos->repos() as $repo) {
