@@ -83,16 +83,17 @@ class GithubUser
     public function maxPermissionOfRepo($repoFullName)
     {
         $maxPermission = DeployPermissions::PULL;
+        $flag = false;
         foreach ($this->teams as $team) {
             $repos = new TeamRepos($team->id);
             foreach ($repos->repos() as $repo) {
                 if ($repo->fullName == $repoFullName && DeployPermissions::havePermission($maxPermission, $team->permission)) {
+                    $flag =true;
                     $maxPermission = $team->permission;
                 }
             }
         }
-
-        return $maxPermission;
+        return $flag ? $maxPermission : NULL;
     }
 
 }
