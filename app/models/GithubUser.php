@@ -26,8 +26,10 @@ class GithubUser
         $this->email = $email;
         $this->token = $token;
         $this->teams = $teams;
-        if ($this->permissions == NULL) {
+        if ($permissions == NULL) {
             $this->sitePermission();
+        } else {
+            $this->permissions = $permissions;
         }
 
 
@@ -82,18 +84,20 @@ class GithubUser
 
     public function maxPermissionOfRepo($repoFullName)
     {
-        $maxPermission = DeployPermissions::PULL;
-        $flag = false;
+        if ($repoFullName == 'heimonsy/eleme-deploy') {
+            return DeployPermissions::PULL;
+        }
+
+        $maxPermission = DeployPermissions::DENY;
         foreach ($this->teams as $team) {
             $repos = new TeamRepos($team->id);
             foreach ($repos->repos() as $repo) {
                 if ($repo->fullName == $repoFullName && DeployPermissions::havePermission($maxPermission, $team->permission)) {
-                    $flag =true;
                     $maxPermission = $team->permission;
                 }
             }
         }
-        return $flag ? $maxPermission : NULL;
+        return $maxPermission;
     }
 
 }

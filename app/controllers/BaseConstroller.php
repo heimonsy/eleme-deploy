@@ -19,7 +19,6 @@ class BaseController extends Controller
                 $validSites[] = $m;
             }
         }
-
         View::share('sites', $validSites);
     }
 }
