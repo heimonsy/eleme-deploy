@@ -4,37 +4,25 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "62fd1c46ac28a218dcac35c6a4920f21",
+    "hash": "aaa22cbb363a577f590386d5f35cc9bd",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
-            "version": "v1.7.7",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "1f6f74832546841915a052b535dfb3d6957ac7c9",
-                "mirrors": [
-                    {
-                        "url": "/%package%/%normalizedUrl%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "reference": "97d92e663c5e8e391f701629a515951280e1b724"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/1f6f74832546841915a052b535dfb3d6957ac7c9",
-                "reference": "1f6f74832546841915a052b535dfb3d6957ac7c9",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/97d92e663c5e8e391f701629a515951280e1b724",
+                "reference": "97d92e663c5e8e391f701629a515951280e1b724",
+                "shasum": ""
             },
             "require": {
-                "laravel/framework": "~4.0|5.0",
-                "maximebf/debugbar": "~1.9.15",
+                "laravel/framework": "4.*|5.0.*",
+                "maximebf/debugbar": "1.10.*",
                 "php": ">=5.3.0",
                 "symfony/finder": "~2.3"
             },
@@ -70,7 +58,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2014-09-15 09:59:30"
+            "time": "2014-10-31 20:36:44"
         },
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -254,29 +242,17 @@
         },
         {
             "name": "eleme/rlock",
-            "version": "v0.2.1",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thbourlove/rlock.git",
-                "reference": "930e28c53a2e860f536f0a07afb65e86d63bcdf0",
-                "mirrors": [
-                    {
-                        "url": "/%package%/%normalizedUrl%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "reference": "0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thbourlove/rlock/zipball/930e28c53a2e860f536f0a07afb65e86d63bcdf0",
-                "reference": "930e28c53a2e860f536f0a07afb65e86d63bcdf0",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/thbourlove/rlock/zipball/0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1",
+                "reference": "0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3",
@@ -286,6 +262,7 @@
                 "illuminate/support": "~4.0",
                 "mockery/mockery": "0.9.1",
                 "phpunit/phpunit": "~4.0",
+                "satooshi/php-coveralls": "0.6.1",
                 "silex/silex": "~1.1"
             },
             "type": "library",
@@ -306,7 +283,7 @@
                 }
             ],
             "description": "redis lock",
-            "time": "2014-08-18 14:55:18"
+            "time": "2014-08-16 06:28:55"
         },
         {
             "name": "filp/whoops",
@@ -812,29 +789,17 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "1.9.15",
+            "version": "1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "5d08b313576056234d464bedbba8ce1b26bcd918",
-                "mirrors": [
-                    {
-                        "url": "/%package%/%normalizedUrl%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "reference": "348b49b3617c8295badef7f9fdb0aea15918154d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/5d08b313576056234d464bedbba8ce1b26bcd918",
-                "reference": "5d08b313576056234d464bedbba8ce1b26bcd918",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/348b49b3617c8295badef7f9fdb0aea15918154d",
+                "reference": "348b49b3617c8295badef7f9fdb0aea15918154d",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
@@ -851,7 +816,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.10-dev"
                 }
             },
             "autoload": {
@@ -875,7 +840,7 @@
             "keywords": [
                 "debug"
             ],
-            "time": "2014-08-20 15:25:30"
+            "time": "2014-10-31 19:59:37"
         },
         {
             "name": "monolog/monolog",
@@ -1078,29 +1043,17 @@
         },
         {
             "name": "patchwork/utf8",
-            "version": "v1.1.25",
+            "version": "v1.1.26",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nicolas-grekas/Patchwork-UTF8.git",
-                "reference": "2d43bd047b120279511d45e76e61c5a9812d9a83",
-                "mirrors": [
-                    {
-                        "url": "/%package%/%normalizedUrl%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://github.com/tchwork/utf8.git",
+                "reference": "6b8e46603b49ee87ad6bceb314da94cc04ffcdce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nicolas-grekas/Patchwork-UTF8/zipball/2d43bd047b120279511d45e76e61c5a9812d9a83",
-                "reference": "2d43bd047b120279511d45e76e61c5a9812d9a83",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/tchwork/utf8/zipball/6b8e46603b49ee87ad6bceb314da94cc04ffcdce",
+                "reference": "6b8e46603b49ee87ad6bceb314da94cc04ffcdce",
+                "shasum": ""
             },
             "require": {
                 "lib-pcre": ">=7.3",
@@ -1123,26 +1076,26 @@
                     "Normalizer": "class/"
                 }
             },
-            "notification-url": "/downloads/",
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "(Apache-2.0 or GPL-2.0)"
             ],
             "authors": [
                 {
                     "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com",
-                    "role": "Developer"
+                    "email": "p@tchwork.com"
                 }
             ],
-            "description": "Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP",
-            "homepage": "https://github.com/nicolas-grekas/Patchwork-UTF8",
+            "description": "Portable and performant UTF-8, Unicode and Grapheme Clusters for PHP",
+            "homepage": "https://github.com/tchwork/utf8",
             "keywords": [
+                "grapheme",
                 "i18n",
                 "unicode",
                 "utf-8",
                 "utf8"
             ],
-            "time": "2014-08-05 08:00:32"
+            "time": "2014-11-08 10:13:25"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1207,29 +1160,17 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "0.3.8",
+            "version": "0.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "5085202f1f37769aae59f9711c423f28159c9b29",
-                "mirrors": [
-                    {
-                        "url": "/%package%/%normalizedUrl%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "reference": "c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/5085202f1f37769aae59f9711c423f28159c9b29",
-                "reference": "5085202f1f37769aae59f9711c423f28159c9b29",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1",
+                "reference": "c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.0.0"
@@ -1313,7 +1254,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2014-09-13 02:42:45"
+            "time": "2014-11-10 03:08:59"
         },
         {
             "name": "predis/predis",
