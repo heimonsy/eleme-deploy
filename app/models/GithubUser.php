@@ -25,7 +25,14 @@ class GithubUser
         $this->login = $login;
         $this->email = $email;
         $this->token = $token;
-        $this->teams = $teams;
+        $this->teams = array();
+        foreach ($teams as $t) {
+            if (is_array($t)) {
+                $this->teams[] = GithubTeam::makeTeam($t['name'], $t['id'], $t['permission'], $t['repositoriesUrl']);
+            } else {
+                $this->teams[] = $t;
+            }
+        }
         if ($permissions == NULL) {
             $this->sitePermission();
         } else {
@@ -64,8 +71,8 @@ class GithubUser
         if (empty($jstr)) {
             return NULL;
         }
-        $jsonObject = json_decode($jstr);
-        return new GithubUser($jsonObject->login, $jsonObject->email, $jsonObject->token, $jsonObject->teams, $jsonObject->permissions);
+        $jsonObject = json_decode($jstr, true);
+        return new GithubUser($jsonObject['login'], $jsonObject['email'], $jsonObject['token'], $jsonObject['teams'], $jsonObject['permissions']);
     }
 
     private function sitePermission()
@@ -97,7 +104,7 @@ class GithubUser
                 }
             }
         }
-        return $maxPermission;
+        return $maxPermission == DeployPermissions::DENY ? NULL : $maxPermission;
     }
 
 }
