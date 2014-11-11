@@ -152,14 +152,14 @@ $(function() {
                         if (tr == undefined) continue;
                         tr.attr('data-result', data.hosts[i].result);
                         tr.children('td:last').html(data.hosts[i].result);
-                        tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 16));
+                        tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 7));
                         tr.children('td:eq(6)').html(data.hosts[i].last_time);
                         console.log(tr.isSuccess());
                         if (tr.isSuccess()) {
                             tr.attr('class', 'text-success');
                             if (data.hosts[i].type == "Build") {
-                                $("#s-commit").append('<option value="' + data.hosts[i].commit + '" >'+
-                                    data.hosts[i].commit +'</option>');
+                                $("#s-commit").prepend('<option value="' + data.hosts[i].commit + '" >'+
+                                    data.hosts[i].commit.slice(0, 7) +'</option>');
                                 $("#s-commit").val(data.hosts[i].commit);
                             }
                         }
