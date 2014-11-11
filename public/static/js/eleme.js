@@ -68,15 +68,23 @@ $(function(){
             }, 'json');
         });
 
-        $('.delHostType').unbind('click');
-        $(".delHostType").click(function(e) {
-            var hostType = $(this).attr('data-id');
-            var hostTypeLi = $(this).parent().parent();
+        $(".editHostType").unbind('click');
+        $(".editHostType").click(function(e) {
+            var hostType = $(this).attr('data-hosttype');
+            var permission = $(this).attr('data-permission');
+            $("#hostType").val(hostType);
+            $("#permission").val(permission);
+            $("#hostType").focus();
+        });
+
+        $('#delHostType').unbind('click');
+        $("#delHostType").click(function(e) {
+            var hostType = $("#hostType").val();
             $.post('/hostType/del',{
                 'hostType' : hostType
             }, function(data){
                 if (data.res == 0) {
-                    hostTypeLi.remove();
+                    $(".host-tag button[data-hosttype="+hostType+"]").parent().parent().remove();
                 } else {
                     alert('删除失败');
                 }

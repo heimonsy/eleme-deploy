@@ -15,7 +15,7 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="panel panel-default">
                     <div class="panel-heading">全局配置</div>
                     <div class="panel-body">
@@ -25,7 +25,7 @@
                                     <label for="workRoot<" class="col-lg-2 control-label">Work Root</label>
                                     <div class="col-lg-10">
                                         <input type="text" class="form-control" id="workRoot" name="workRoot" placeholder="Work Root" value="{{ workRoot }}">
-                                        <span class="help-block">所有的WEB站点文件都放在此目录下, 该目录必须存在并且执行work的用户可写</span>
+                                        <span class="help-block">所有WEB站点文件放在此目录下, 该目录必须存在并且执行work的用户可写</span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <div class="panel panel-default">
                     <div class="panel-heading">部署主机类型</div>
                     <div class="panel-body">
@@ -50,7 +50,15 @@
                                         <input class="form-control input-sm" id="hostType" name="hostType" placeholder="Host Type" value="">
                                     </div>
                                     <div class="form-group">
-                                        <button type="submit" id="addHostType" class="btn btn-sm btn-info">添加</button>
+                                        <select class="form-control input-sm" name="permission" id="permission">
+                                            <option value="admin">admin</option>
+                                            <option value="write">write</option>
+                                            <option value="pull">pull</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        &nbsp;<button type="submit" id="addHostType" class="btn btn-sm btn-info">保存</button>
+                                        &nbsp;<buddon type="button" id="delHostType" class="btn btn-sm btn-danger" >删除</buddon>
                                     </div>
                                 </form>
                             </div>
@@ -59,8 +67,8 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <ul class="nav nav-pills">
-                                    {% for m in hostTypes %}
-                                    <li><a class="host-tag">{{ m }} <button type="button" data-id="{{ m }}" class="close delHostType"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button></a></li>
+                                    {% for m, permission in hostTypes %}
+                                    <li><a class="host-tag">{{ m }} <button type="button" data-hosttype="{{ m }}" data-permission="{{ permission }}" class="close editHostType"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span><span class="sr-only">Close</span></button></a></li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -149,4 +157,5 @@ $(function(){
     });
 });
 </script>
+
 {{ include('common/footer.twig') }}

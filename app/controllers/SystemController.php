@@ -14,7 +14,7 @@ class SystemController extends Controller
     public function index()
     {
         $sc = new SystemConfig();
-        $hostTypes = (new HostType())->getList();
+        $hostTypes = (new HostType())->permissionList();
         $sites = (new WebSite())->getList();
 
         $success = Session::get('SCS', false);
@@ -52,9 +52,10 @@ class SystemController extends Controller
     public function addHostType()
     {
         $hostType = trim(Input::get('hostType'));
-        (new HostType())->add($hostType);
+        $permission = Input::get('permission');
+        (new HostType())->add($hostType, $permission);
 
-        return Redirect::to('/')->with('SCS', '添加Host Type成功');
+        return Redirect::to('/')->with('SCS', '保存Host Type成功');
     }
 
     public function delHostType()
