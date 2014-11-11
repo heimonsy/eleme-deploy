@@ -26,7 +26,7 @@ class GithubUser
         $this->email = $email;
         $this->token = $token;
         $this->teams = $teams;
-        $this->permissions = $this->getPermissions();
+        $this->sitePermission();
 
         $this->redis = app('redis')->connection();
         $this->expires = 60 * 60 * 24;
@@ -47,17 +47,6 @@ class GithubUser
         return self::$keyPrefix . $this->login;
     }
 
-    public function getPermissions()
-    {
-        if (empty($this->permissions)) {
-            $this->permissions = array();
-            foreach ($this->teams as $team) {
-                $this->permissions[$team->permission] = $team->permission;
-            }
-        }
-        return $this->permissions;
-    }
-
 
     public static function loadFromRedis($login)
     {
@@ -72,6 +61,35 @@ class GithubUser
         }
         $jsonObject = json_decode($jstr);
         return new GithubUser($jsonObject->login, $jsonObject->email, $jsonObject->token, $jsonObject->teams);
+    }
+
+    private function sitePermission()
+    {
+        $siteList = (new WebSite())->getList();
+        $pattern = '/:([\w\d]+\/[\w\d]+)\.git$/i';
+        $this->permissions = array();
+        foreach ($siteList as $m) {
+            $dc = new DC($m['siteId']);
+            if (preg_match($pattern, $dc->get(DC::GIT_ORIGIN), $matchs)) {
+                $this->permissions[$m['siteId']] = $this->maxPermissionOfRepo($matchs[1]);
+            }
+        }
+    }
+
+
+    public function maxPermissionOfRepo($repoFullName)
+    {
+        $maxPermission = DeployPermissions::DENY;
+        foreach ($this->teams as $team) {
+            $repos = new TeamRepos($team->id);
+            foreach ($repos->repos() as $repo) {
+                if ($repo->fullName == $repoFullName && DeployPermissions::havePermission($maxPermission, $team->permission)) {
+                    $maxPermission = $team->permission;
+                }
+            }
+        }
+
+        return $maxPermission;
     }
 
 }

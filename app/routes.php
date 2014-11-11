@@ -97,8 +97,7 @@ Route::post('/site/del', 'SystemController@delSite');
 Route::post('/config/save', 'ConfigController@saveConfig');
 
 Route::get('/test', function(){
-    $user = GithubUser::create('sadfsdaf', 'asdfsdaf', 'asdfdsf');
-    return $user->json();
+    return '';
 });
 
 

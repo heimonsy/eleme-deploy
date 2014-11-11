@@ -27,8 +27,13 @@ class DeployController extends Controller
             $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
         }
         $existHostTypes = array();
+        $user = GithubLogin::getLoginUser();
+        $hp = (new HostType())->permissionList();
         foreach ($hostList as $host) {
-            $existHostTypes[$host['hosttype']] = $host['hosttype'];
+            //Debugbar::info($user->permissions[$siteId] . ' ' . $hp[$host['hosttype']]);
+            if (DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
+                $existHostTypes[$host['hosttype']] = $host['hosttype'];
+            }
         }
 
         return View::make('deploy.deploy', array(
