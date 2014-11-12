@@ -42,6 +42,7 @@ class DeployController extends BaseController
             'results' => $infoList,
             'hostTypes' => $existHostTypes,
             'siteId' => $siteId,
+            'leftNavActive' => 'deploy',
         ));
     }
 

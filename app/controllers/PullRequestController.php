@@ -19,6 +19,7 @@ class PullRequestController extends BaseController
         return View::make('pullrequest.info', array(
             'siteId' => $siteId,
             'pullRequests' => (new PullRequest($siteId))->getList(),
+            'leftNavActive' => 'pullRequestInfo',
         ));
     }
 
@@ -26,6 +27,7 @@ class PullRequestController extends BaseController
     {
         return View::make('pullrequest.deploy', array(
             'siteId' => $siteId,
+            'leftNavActive' => 'pullRequestDeploy',
         ));
     }
 

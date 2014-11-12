@@ -2,11 +2,11 @@
     <div class="row">
         <div class="col-sm-2">
             <div class="list-group">
-                <a class="list-group-item" href="/site/config/{{ siteId }}">Config</a>
-                <a class="list-group-item" href="/host/config/{{ siteId }}">Host Config</a>
-                <a class="list-group-item" href="/deploy/{{ siteId }}">Deploy</a>
-                <a class="list-group-item" href="/{{ siteId }}/pull_request/info">PR Build</a>
-                <a class="list-group-item" href="/{{ siteId }}/pull_request/deploy">PR Deploy</a>
+                <a class="list-group-item {{ leftNavActive=='config' ? 'active' : ''}}" href="/site/config/{{ siteId }}">Config</a>
+                <a class="list-group-item {{ leftNavActive=='hostConfig' ? 'active' : ''}}" href="/host/config/{{ siteId }}">Host Config</a>
+                <a class="list-group-item {{ leftNavActive=='deploy' ? 'active' : ''}}" href="/deploy/{{ siteId }}">Deploy</a>
+                <a class="list-group-item {{ leftNavActive=='pullRequestInfo' ? 'active' : ''}}" href="/{{ siteId }}/pull_request/info">PR Build</a>
+                <a class="list-group-item {{ leftNavActive=='pullRequestDeploy' ? 'active' : ''}}" href="/{{ siteId }}/pull_request/deploy">PR Deploy</a>
             </div>
         </div>
         <div class="col-sm-10">

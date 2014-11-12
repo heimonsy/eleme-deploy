@@ -38,6 +38,7 @@ class ConfigController extends BaseController
             'testCommand'       => $dc->get(DC::TEST_COMMAND),
             'SCOK' => $SCOK,
             'siteId' => $siteId,
+            'leftNavActive' => 'config',
         ));
     }
 
@@ -93,7 +94,8 @@ class ConfigController extends BaseController
             'siteId' => $siteId,
             'hostTypes' => $hostTypes,
             'hostStaticType' => SiteHost::STATIC_HOST,
-            'hostWebType'    => SiteHost::WEB_HOST
+            'hostWebType'    => SiteHost::WEB_HOST,
+            'leftNavActive' => 'hostConfig',
         ));
     }
 
