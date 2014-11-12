@@ -7,20 +7,20 @@
                 <thead>
                 <tr>
                     <th>#</th>
+                    <th>Commit</th>
                     <th>Title</th>
                     <th>User</th>
                     <th>Open Time</th>
                     <th>Status</th>
-                    <th>Last Commit</th>
                     <th>Build status</th>
                     <th>Operation</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for m in pullRequests %}
-                <tr class="{{ m.status=='closed' ? '' : (m.commitBuild=='Success' ? 'text-success' : (m.commitBuild=='Waiting' ? 'text-warning' : 'text-danger')) }}">
-
-                        <td><a href="{{ m.url }}" target="_blank">{{ m.id }}</a></td>
+                <tr class="{{ m.status=='closed' ? '' : (m.buildStatus=='Success' ? 'text-success' : (m.buildStatus=='Waiting' ? 'text-warning' : 'text-danger')) }}">
+                        <td><a href="{{ m.url }}" target="_blank">{{ m.prId }}</a></td>
+                        <td class="cv-font">{{ m.commit[0:7] }}</td>
                         <td>{{ m.title }}</td>
                         <td><a href="https://github.com/{{ m.repo }}/tree/{{ m.branch }}" target="_blank">{{ m.user }}</td>
                         <td>{{ m.createAt }}</td>
@@ -29,8 +29,7 @@
                         {%else%}
                             <td>Merged By <a href="https://github.com/{{ m.mergedBy }}" target="_blank">{{ m.mergedBy }}</a></td>
                         {% endif %}
-                        <td class="cv-font">{{ m.lastCommit[0:7] }}</td>
-                        <td>{{ m.commitBuild }}</td>
+                        <td>{{ m.buildStatus }}</td>
                         <td><button class="btn btn-info btn-xs">Rebuild</button></td>
 
                 </tr>

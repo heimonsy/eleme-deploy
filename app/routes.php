@@ -25,22 +25,33 @@ App::before(function($request){
 Route::post('/playload', function() {
     if (Request::header('X-GitHub-Event') == 'pull_request') {
         $content = file_get_contents('php://input');
-        $jopr = json_decode($content);
-        $repoFullName = $jopr->pull_request->base->repo->full_name;
+        $notifyObject = json_decode($content);
+        $repoFullName = $notifyObject->pull_request->base->repo->full_name;
         $siteId = WebSite::getSiteIdByFullName($repoFullName);
+        $commit = $notifyObject->pull_request->head->sha;
         if ($siteId !== NULL) {
             $pr = new PullRequest($siteId);
-            $have = $pr->get($jopr->pull_request->id);
+            $have = $pr->get($commit);
             if($have !== NULL) {
-                if($jopr->action == 'synchronize'){
-                    $have->lastCommit = $jopr->pull_request->head->sha;
+                if($notifyObject->action == 'closed'){
+                    $mgb = $notifyObject->pull_request->merged_by;
+                    $have->mergedBy = empty($mgb) ? '' : $mgb->login;
+                    $commitList = $pr->getListByPRId($notifyObject->pull_request->id);
+                    foreach ($commitList as $m) {
+                        $m->status = 'closed';
+                        $pr->save($m);
+                    }
+                } else if($notifyObject->action == 'reopened') {
+                    $commitList = $pr->getListByPRId($notifyObject->pull_request->id);
+                    foreach ($commitList as $m) {
+                        $m->status = 'open';
+                        $pr->save($m);
+                    }
                 }
-                $mgb = $jopr->pull_request->merged_by;
-                $have->mergedBy = empty($mgb) ? '' : $mgb->login;
-                $have->status = $jopr->pull_request->state;
+                $have->status = $notifyObject->pull_request->state;
                 $pr->save($have);
             } else {
-                $pr->add($jopr);
+                $pr->add($notifyObject);
             }
         }
     }
