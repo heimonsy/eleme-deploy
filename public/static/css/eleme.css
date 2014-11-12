@@ -10,3 +10,11 @@ textarea.form-control { resize: none; }
 a.showErrorLog { color: #e74c3c;}
 
 #s-commit, .cv-font { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 14px;}
+
+
+.pull-request-list thead tr th { font-size: 14px; padding: 4px;}
+.pull-request-list tbody tr td { font-size: 14px; padding: 4px;}
+
+.pull-request-list .cv-font { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 14px;}
+
+td a { color: inherit;}

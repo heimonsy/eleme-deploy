@@ -47,4 +47,19 @@ class WebSite
         ksort($site);
         return json_encode($site);
     }
+
+    public static function getSiteIdByFullName($repoFullName)
+    {
+        $siteList = (new WebSite())->getList();
+        $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';
+        foreach ($siteList as $m) {
+            $dc = new DC($m['siteId']);
+            if (preg_match($pattern, $dc->get(DC::GIT_ORIGIN), $matchs)) {
+                if ($matchs[1] == $repoFullName) {
+                    return $m['siteId'];
+                }
+            }
+        }
+        return NULL;
+    }
 }

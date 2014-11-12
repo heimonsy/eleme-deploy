@@ -1,7 +1,7 @@
 <?php
 
 App::before(function($request){
-    $preg = '/^\/github\/oauth|\/logout/';
+    $preg = '/^\/github\/oauth|\/logout|\/playload/';
     $check =  GithubLogin::check();
     if (!$check && preg_match($preg, $request->getRequestUri()) == 0) {
         return Redirect::to('/github/oauth/confirm');
@@ -21,6 +21,31 @@ App::before(function($request){
 | and give it the Closure to execute when that URI is requested.
 |
 */
+
+Route::post('/playload', function() {
+    if (Request::header('X-GitHub-Event') == 'pull_request') {
+        $content = file_get_contents('php://input');
+        $jopr = json_decode($content);
+        $repoFullName = $jopr->pull_request->base->repo->full_name;
+        $siteId = WebSite::getSiteIdByFullName($repoFullName);
+        if ($siteId !== NULL) {
+            $pr = new PullRequest($siteId);
+            $have = $pr->get($jopr->pull_request->id);
+            if($have !== NULL) {
+                if($jopr->action == 'synchronize'){
+                    $have->lastCommit = $jopr->pull_request->head->sha;
+                }
+                $mgb = $jopr->pull_request->merged_by;
+                $have->mergedBy = empty($mgb) ? '' : $mgb->login;
+                $have->status = $jopr->pull_request->state;
+                $pr->save($have);
+            } else {
+                $pr->add($jopr);
+            }
+        }
+    }
+    return  "";
+});
 
 Route::get('/github/oauth/confirm', function(){
     if (GithubLogin::check()) {
@@ -111,10 +136,10 @@ Route::post('/host/add', 'ConfigController@hostAdd');
 Route::post('/host/del', 'ConfigController@hostDel');
 
 
-
-
-
-
 Route::post('/branch/deploy', 'DeployController@branch');
 Route::post('/commit/deploy', 'DeployController@commit');
 Route::get('/status/deploy', 'DeployController@status');
+
+// PR
+Route::get('/{siteId}/pull_request/info', 'PullRequestController@info');
+Route::get('/{siteId}/pull_request/deploy', 'PullRequestController@depoy');

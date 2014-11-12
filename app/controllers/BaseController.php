@@ -19,9 +19,6 @@ class BaseController extends Controller
                 $validSites[] = $m;
             }
         }
-        Debugbar::info($user->teams);
-        Debugbar::info($user->permissions);
-        Debugbar::info($sites);
         View::share('sites', $validSites);
     }
 }
