@@ -78,6 +78,12 @@
                             <input class="form-control" id="buildCommand" name="buildCommand" placeholder="Build Command" type="text" value="make deploy" readonly>
                         </div>
                     </div>
+                    <div class="form-group form-group-sm">
+                        <label for="buildCommand" class="col-lg-2 control-label">Test Command</label>
+                        <div class="col-lg-7">
+                            <input class="form-control" id="testCommand" name="testCommand" placeholder="Test Command" type="text" value="{{ testCommand }}">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="staticHostScript" class="col-lg-2 control-label">Static Host 同步前后执行的命令</label>
                         <div class="col-lg-7">

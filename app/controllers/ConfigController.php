@@ -35,6 +35,7 @@ class ConfigController extends BaseController
             'staticScript'      => $dc->get(DC::DEPLOY_STATIC_SCRIPT),
             'webScript'         => $dc->get(DC::DEPLOY_WEB_SCRIPT),
             'gitOrigin'         => $dc->get(DC::GIT_ORIGIN),
+            'testCommand'       => $dc->get(DC::TEST_COMMAND),
             'SCOK' => $SCOK,
             'siteId' => $siteId,
         ));
@@ -53,6 +54,7 @@ class ConfigController extends BaseController
         $dc->set(DC::REMOTE_STATIC_DIR, Input::get('remoteStaticDir'));
         $dc->set(DC::BUILD_COMMAND, Input::get('buildCommand'));
         $dc->set(DC::RSYNC_EXCLUDE, Input::get('rsyncExclude'));
+        $dc->set(DC::TEST_COMMAND, Input::get('testCommand'));
         $dc->set(DC::REMOTE_OWNER, Input::get('remoteOwner'));
         $staticHostScript = Input::get('staticHostScript');
         $webHostScript = Input::get('webHostScript');

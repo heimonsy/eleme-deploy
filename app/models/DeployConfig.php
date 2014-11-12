@@ -23,6 +23,7 @@ class DeployConfig
     const DEPLOY_STATIC_SCRIPT = 'DEPLOY:STATIC:SCRIPT';
     const DEPLOY_WEB_SCRIPT = 'DEPLOY:WEB:SCRIPT';
     const GIT_ORIGIN = 'GIT:ORIGIN';
+    CONST TEST_COMMAND = 'TEST:COMMAND';
 
     private $prefix = 'deploy:H:config:';
     private $key;
@@ -60,7 +61,8 @@ class DeployConfig
             'remoteOwner' => $this->get(self::REMOTE_OWNER),
             'serviceName' => $this->get(self::SERVICE_NAME),
             'remoteAppDir' => $this->get(self::REMOTE_APP_DIR),
-            'remoteStaticDir' => $this->get(self::REMOTE_STATIC_DIR)
+            'remoteStaticDir' => $this->get(self::REMOTE_STATIC_DIR),
+            'testCommand' => $this->get(self::TEST_COMMAND),
         );
     }
 
