@@ -33,7 +33,7 @@ class GithubAuthorize
 
         $values = array();
         parse_str($response->getBody(), $values);
-        return $values['access_token'];
+        return isset($values['access_token']) ? $values['access_token'] : NULL;
     }
 
     /**

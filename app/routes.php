@@ -89,6 +89,9 @@ Route::get('/github/oauth/callback', function(){
     }
 
     $accessToken = \Eleme\Github\GithubAuthorize::accessToken($code);
+    if ($accessToken == NULL) {
+        echo "CODE ERROR";
+    }
     $client = new \Eleme\Github\GithubClient($accessToken);
     $teams = $client->request('user/teams');
     $haveEleme = false;
