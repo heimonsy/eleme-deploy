@@ -43,12 +43,13 @@
                         {% endif %}
                         </td>
                         <td>
+                        {% if m.status ==  'open' %}
                             {% if m.testStatus=='Success' %}
                                 <a href="/{{ siteId }}/pull_request/deploy?toDeploy={{ m.commit }}" class="btn btn-info btn-xs">Deploy</a>
                             {% elseif m.testStatus == 'Error' or m.buildStatus == 'Error' %}
                                 <button class="btn btn-info btn-xs prRebuild" data-commit="{{ m.commit }}">Rebuild</button>
                             {% endif %}
-
+                        {% endif %}
                         </td>
 
                 </tr>
