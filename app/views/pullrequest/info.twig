@@ -12,13 +12,14 @@
                     <th>User</th>
                     <th>Open Time</th>
                     <th>Status</th>
-                    <th>Build status</th>
+                    <th>Build</th>
+                    <th>Test</th>
                     <th>Operation</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for m in pullRequests %}
-                <tr class="{{ m.status=='closed' ? '' : (m.buildStatus=='Success' ? 'text-success' : (m.buildStatus=='Waiting' ? 'text-warning' : 'text-danger')) }}">
+                <tr class="{{ m.status=='closed' ? '' : (m.testStatus=='Success' ? 'text-success' : (m.testStatus=='Error' ? 'text-danger' : 'text-warning')) }}">
                         <td><a href="{{ m.url }}" target="_blank">{{ m.prId }}</a></td>
                         <td class="cv-font">{{ m.commit[0:7] }}</td>
                         <td>{{ m.title }}</td>
@@ -30,7 +31,15 @@
                             <td>Merged By <a href="https://github.com/{{ m.mergedBy }}" target="_blank">{{ m.mergedBy }}</a></td>
                         {% endif %}
                         <td>{{ m.buildStatus }}</td>
-                        <td><button class="btn btn-info btn-xs">Rebuild</button></td>
+                        <td>{{ m.testStatus }}</td>
+                        <td>
+                            {% if m.testStatus=='Success' %}
+                                <a href="/{{ siteId }}/pull_request/deploy?toDeploy={{ m.commit }}" class="btn btn-info btn-xs">Deploy</a>
+                            {% else %}
+                                <button class="btn btn-info btn-xs" data-commit="{{ m.commit }}" class="prRebuild">Rebuild</button>
+                            {% endif %}
+
+                        </td>
 
                 </tr>
                 {% endfor %}
@@ -40,3 +49,4 @@
     </div>
 </div>
 {{ include('deploy/footer.twig') }}
+

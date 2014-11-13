@@ -24,11 +24,6 @@ class BuildBranch
         $branchPath = "{$commitRoot}/{$branch}";
         $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
-        $build = $df->get($buildId);
-        $build['result'] = 'Fetch Origin';
-        $build['last_time'] = date('Y-m-d H:i:s');
-        $df->save($build);
-
         $buildCommand = 'make deploy';
 
         Log::info("job id : {$job->getJobId()} start");
@@ -44,6 +39,11 @@ class BuildBranch
                 (new Process('mkdir -p ' . $developRoot))->mustRun();
                 (new Process('git clone ' . $gitOrigin . ' ' . $developRoot))->setTimeout(600)->mustRun();
             }
+
+            $build = $df->get($buildId);
+            $build['result'] = 'Fetch Origin';
+            $build['last_time'] = date('Y-m-d H:i:s');
+            $df->save($build);
 
             Log::info("git fetch origin");
             (new Process("git fetch origin", $developRoot))->setTimeout(600)->mustRun();

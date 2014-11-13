@@ -20,9 +20,11 @@ class PullRequestCommit
     public $status;
     public $url;
     public $mergedBy;
+    public $testStatus;
+    public $errorMsg;
 
     public function __construct($prId, $title, $user, $repo, $branch, $commit, $createAt, $lastUpdateAt,
-        $buildStatus, $status, $url, $mergedBy = '')
+        $buildStatus, $status, $url, $testStatus, $mergedBy = '')
     {
         $this->prId = $prId;
         $this->title = $title;
@@ -36,6 +38,7 @@ class PullRequestCommit
         $this->status = $status;
         $this->url = $url;
         $this->mergedBy = $mergedBy;
+        $this->testStatus = $testStatus;
     }
 
     public function json()
@@ -48,7 +51,7 @@ class PullRequestCommit
         $o = json_decode($json);
         return new PullRequestCommit(
             $o->prId, $o->title, $o->user, $o->repo, $o->branch, $o->commit, $o->createAt,$o->lastUpdateAt, $o->buildStatus,
-            $o->status, $o->url, $o->mergedBy
+            $o->status, $o->url, $o->testStatus, $o->mergedBy
         );
     }
 }
@@ -82,7 +85,7 @@ class PullRequest
 
         $date = date('Y-m-d H:i:s');
         $pro = new PullRequestCommit($pr->id, $pr->title, $pr->user->login, $pr->head->repo->full_name, $pr->head->ref,
-            $pr->head->sha, $date, $date, 'Waiting', $pr->state, $pr->html_url, $mergedBy);
+            $pr->head->sha, $date, $date, 'Waiting', $pr->state, $pr->html_url, 'Waiting', $mergedBy);
 
         $this->redis->hset($this->storeKey(), $pr->head->sha, $pro->json());
         $this->redis->lpush($this->listKey(), $pr->head->sha);
