@@ -158,3 +158,5 @@ Route::get('/status/deploy', 'DeployController@status');
 // PR
 Route::get('/{siteId}/pull_request/info', 'PullRequestController@info');
 Route::get('/{siteId}/pull_request/deploy', 'PullRequestController@deploy');
+Route::get('/{siteId}/status/pull_request/build', 'PullRequestController@buildStatus');
+Route::post('/{siteId}/pull_request/rebuild', 'PullRequestController@rebuild');

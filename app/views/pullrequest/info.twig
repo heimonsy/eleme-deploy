@@ -19,7 +19,7 @@
                 </thead>
                 <tbody>
                 {% for m in pullRequests %}
-                <tr class="{{ m.status=='closed' ? '' : (m.testStatus=='Success' ? 'text-success' : (m.testStatus=='Error' ? 'text-danger' : 'text-warning')) }}">
+                <tr data-commit="{{ m.commit }}" data-result="{{ m.testStatus }}" class="{{ m.status=='closed' ? '' : (m.testStatus=='Success' ? 'text-success' : (m.testStatus=='Error' or m.testStatus=='Abort' ? 'text-danger' : 'text-warning')) }}">
                         <td><a href="{{ m.url }}" target="_blank">{{ m.prId }}</a></td>
                         <td class="cv-font">{{ m.commit[0:7] }}</td>
                         <td>{{ m.title }}</td>
@@ -30,13 +30,23 @@
                         {%else%}
                             <td>Merged By <a href="https://github.com/{{ m.mergedBy }}" target="_blank">{{ m.mergedBy }}</a></td>
                         {% endif %}
-                        <td>{{ m.buildStatus }}</td>
-                        <td>{{ m.testStatus }}</td>
+                        <td>
+                        {% if m.buildStatus=='Error' %}
+                            <a class="showErrorLog" href="#" data-info="{{ m.errorMsg }}">Error</a>
+                        {% else %} {{ m.buildStatus }}{% endif %}
+                        </td>
+                        <td>
+                        {% if m.testStatus == 'Error' %}
+                            <a class="showErrorLog" href="#" data-info="{{ m.errorMsg }}">Error</a>
+                        {% else %}
+                            {{ m.testStatus }}
+                        {% endif %}
+                        </td>
                         <td>
                             {% if m.testStatus=='Success' %}
                                 <a href="/{{ siteId }}/pull_request/deploy?toDeploy={{ m.commit }}" class="btn btn-info btn-xs">Deploy</a>
-                            {% else %}
-                                <button class="btn btn-info btn-xs" data-commit="{{ m.commit }}" class="prRebuild">Rebuild</button>
+                            {% elseif m.testStatus == 'Error' or m.buildStatus == 'Error' %}
+                                <button class="btn btn-info btn-xs prRebuild" data-commit="{{ m.commit }}">Rebuild</button>
                             {% endif %}
 
                         </td>
@@ -48,5 +58,114 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="showErrorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Error</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function(){
+    jQuery.fn.isSuccess = function() {
+        return /Success/i.test($(this).attr('data-result'));
+    };
+    jQuery.fn.isError = function() {
+        return $(this).attr('data-result') == 'Error' || $(this).attr('data-result') == 'Abort';
+    };
+    var escapeHtml = function (unsafe) {
+        return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    };
+
+    var initBuild = function(){
+        $('.prRebuild').click(function() {
+            $(this).button('loading');
+            var btn = ($this);
+            var tr = $(this).parent().parent();
+            var commit = $(this).attr("data-commit");
+
+            $.post('/{{ siteId }}/pull_request/rebuild', {
+                'commit' : commit
+            }, function(data){
+                if (data.res == 0) {
+                    tr.attr('class', 'text-warning');
+                    tr.attr('data-result', 'Waiting');
+                    tr.children("td:eq(6)").html('Waiting');
+                    tr.children("td:eq(7)").html('Waiting');
+                    btn.remove();
+                } else {
+                    alert(data.info);
+                }
+            }, 'json');
+
+            return false;
+        });
+        $('.showErrorLog').click(function(e) {
+            $('#showErrorModal .modal-body').html($(this).attr('data-info'));
+            $('#showErrorModal').modal("show");
+            return false;
+        });
+    };
+    var stateInterval = window.setInterval(function(){
+        var idList = [];
+        var obs    = [];
+        $(".pull-request-list tbody tr").each(function( index ) {
+            if (!$(this).isSuccess() && !$(this).isError()) {
+                var commit = $(this).attr('data-commit');
+                idList.push(commit);
+                obs[commit] = $(this);
+            }
+            if (idList.length > 0) {
+                $.getJSON('/{{ siteId }}/status/pull_request/build', {
+                    'commits'    : idList
+                }, function (data) {
+                    for (var i in data.commits) {
+                        var commit = data.commits[i];
+                        var tr = obs[commit.commit];
+                        if (tr == undefined) continue;
+                        tr.attr('data-result', commit.testStatus);
+                        tr.children('td:eq(6)').html(commit.buildStatus);
+                        tr.children('td:eq(7)').html(commit.testStatus);
+                        var html ='';
+
+                        if (commit.testStatus == 'Success') {
+                            tr.attr('class', 'text-success');
+                            html += '<a href="/{{ siteId }}/pull_request/deploy?commit=' + commit.commit + '" class="btn btn-info btn-xs">Deploy</a>';
+                        } else if (commit.testStatus == 'Error') {
+                            html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
+                            tr.attr('class', 'text-danger');
+                            var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
+                            tr.children('td:eq(7)').html(showError);
+                        } else if(commit.buildStatus == 'Error') {
+                            html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
+                            tr.attr('class', 'text-danger');
+                            var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
+                            tr.children('td:eq(6)').html(showError);
+                        }
+                        _ = html == '' ? '' : tr.children('td:last').html(html);
+                        initBuild();
+                    }
+                });
+            }
+        });
+
+    }, 3000);
+    initBuild();
+});
+</script>
 {{ include('deploy/footer.twig') }}
 
