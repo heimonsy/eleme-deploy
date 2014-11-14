@@ -25,9 +25,48 @@ class PullRequestController extends BaseController
 
     public function deploy($siteId)
     {
+        $pr = new PullRequest($siteId);
+        $commits = $pr->getList();
+        $commitList = array();
+        foreach ($commits as $m) {
+            if ($m->testStatus == 'Success' && $m->status == 'open') {
+                $commitList[] = array(
+                    'title' => $m->title,
+                    'commit' => $m->commit,
+                );
+            }
+        }
+        $ht = new HostType();
+        $hostTypes = $ht->permissionList();
+        $hostTypeList = array();
+        foreach ($hostTypes as $hostType => $permission) {
+            if ($permission == DeployPermissions::PULL) {
+                $hostTypeList[] = $hostType;
+            }
+        }
+
+        $pr = new PullRequest($siteId);
+        $list = $pr->getList();
+        $prList = array();
+        foreach ($list as &$m) {
+            $prList[$m->commit] = array(
+                'url' => $m->url,
+                'repo' => $m->repo,
+                'branch' => $m->branch,
+            );
+        }
+
+        $prd = new PullRequestDeploy($siteId);
+        $prdList = $prd->getList();
+
         return View::make('pullrequest.deploy', array(
             'siteId' => $siteId,
             'leftNavActive' => 'pullRequestDeploy',
+            'commitList' =>  $commitList,
+            'hostTypeList' => $hostTypeList,
+            'toDeploy' => Input::get('toDeploy'),
+            'prdList' => $prdList,
+            'prList' => $prList,
         ));
     }
 
@@ -67,6 +106,35 @@ class PullRequestController extends BaseController
         return Response::json(array(
             'res' => $res,
             'info' => $info
+        ));
+    }
+
+    public function toDeploy($siteId)
+    {
+        $commit = Input::get('commit');
+        $hostType = Input::get('remote');
+        $date = date('Y-m-d H:i:s');
+
+        $user = GithubLogin::getLoginUser();
+
+        $pr = new PullRequest($siteId);
+        $prCommit = $pr->get($commit);
+        $prd = new PullRequestDeploy($siteId);
+        $pri = $prd->add($prCommit->prId, $prCommit->title, $commit, $prCommit->user, $user->login, $hostType, $date, $date, 'Waiting');
+
+        Queue::push('DeployCommit', array('id' => $pri->id, 'type' => DeployCommit::TYPE_PULL_REQUEST, 'hostType' => $hostType, 'siteId' => $siteId, 'commit' => $commit), DeployInfo::DEPLOY_QUEUE);
+        return Response::json(array('res' => 0));
+    }
+
+    public function deployStatus($siteId)
+    {
+        $ids = Input::get('ids');
+        $prd = new PullRequestDeploy($siteId);
+        $priList = $prd->get($ids);
+
+        return Response::json(array(
+            'res' => 0,
+            'infos' => $priList,
         ));
     }
 

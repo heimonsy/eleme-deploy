@@ -1,4 +1,163 @@
 {{ include('deploy/header.twig') }}
 <div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">Commit Deploy</div>
+        <div class="panel-body">
+            <form class="form-inline" role="form" action="/{{ siteId }}/pull_request/deploy" method="post">
+                <div class="form-group form-group-sm">
+                    <label class="sr-only" for="commit">Commit Version</label>
+                    <select class="form-control input-sm" id="s-commit" name="commit">
+                        <option value="">Commit Version...</option>
+                        {% for ch in commitList %}
+                            <option {{ ch.commit==toDeploy ? 'selected' : '' }} value="{{ ch.commit }}">{{ ch.commit[:7] }} [{{ ch.title }}]</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group form-group-sm">
+                    <label class="sr-only" for="remote">remote</label>
+                    <select class="form-control input-sm" id="remote" name="remote">
+                        {% for m in hostTypeList %}
+                            <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group form-group-sm">
+                    <button type="button" id="deployCommit" class="btn btn-sm btn-info">Deploy</button>
+                    &nbsp;&nbsp;<span id="deployCommitInfo" class="text-success"></span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Build/Deploy Logs</div>
+        <div class="panel-body">
+            <table class="table table-striped table-hover pr-deploy-list">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Commit</th>
+                    <th>Title</th>
+                    <th>User</th>
+                    <th>Deploy User</th>
+                    <th>Time</th>
+                    <th>Update At</th>
+                    <th>Result</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for m in prdList %}
+                    <tr {{ m.status == "Error" ? 'class="text-danger"' : (m.status=='Build Success' or m.status=='Deploy Success'  ? 'class="text-success"' : 'class="text-warning"') }} data-result="{{ m.status }}" data-id="{{ m.id }}">
+                        <td><a href="{{ prList[m.commit].url }}" target="_blank">{{ m.prId }}</a></td>
+                        <td>{{ m.commit[:7] }}</td>
+                        <td>{{ m.prTitle }}</td>
+                        <td><a href="https://github.com/{{ prList[m.commit].repo }}/tree/{{ prList[m.commit].branch }}" target="_blank">{{ m.prUser }}</a></td>
+                        <td><a href="https://github.com/{{ m.operateUser }}" target="_blank">{{ m.operateUser }}</a></td>
+                        <td>{{ m.time }}</td>
+                        <td>{{ m.updateTime }}</td>
+                        <td>{{ m.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+<div class="modal fade" id="showErrorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Error</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(function(){
+    jQuery.fn.isSuccess = function() {
+        return /Success/i.test($(this).attr('data-result'));
+    };
+    jQuery.fn.isError = function() {
+        return $(this).attr('data-result') == 'Error';
+    };
+    var escapeHtml = function (unsafe) {
+        return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    };
+
+    var initErrorMsg = function(){
+        $('.showErrorLog').click(function(e) {
+            $('#showErrorModal .modal-body').html($(this).attr('data-info'));
+            $('#showErrorModal').modal("show");
+            return false;
+        });
+    };
+
+    var stateInterval = window.setInterval(function(){
+        var idList = [];
+        var obs    = [];
+        $(".pr-deploy-list tbody tr").each(function( index ) {
+            if (!$(this).isSuccess() && !$(this).isError()) {
+                var id = parseInt($(this).attr('data-id'));
+                idList.push(id);
+                obs[id] = $(this);
+            }
+        });
+        if (idList.length > 0) {
+            $.getJSON('/{{ siteId }}/status/pull_request/deploy', {
+                'ids'    : idList
+            }, function (data) {
+                for (var i in data.infos) {
+                    var info = data.infos[i];
+                    var tr = obs[parseInt(info.id)];
+                    if (tr == undefined) continue;
+                    tr.attr('data-result', info.status);
+                    tr.children('td:eq(6)').html(info.updateTime);
+                    var html = info.status;
+
+                    if (info.status == 'Error') {
+                        tr.attr('class', 'text-danger');
+                        html = '<a href="#" class="showErrorLog" data-info="'+ escapeHtml(info.errorMsg) +'" >Error</a>';
+                    } else if (info.status == 'Deploy Success'){
+                        tr.attr('class', 'text-success');
+                    }
+                    tr.children('td:last').html(html);
+                    initErrorMsg();
+                }
+            });
+        }
+    }, 3000);
+
+    initErrorMsg();
+
+    $("#deployCommit").click(function(e){
+        if ($('#s-commit').val()=='') {
+            alert('请选择commit version');
+            return false;
+        }
+        $(this).button('loading');
+        $.post('/{{ siteId }}/pull_request/deploy', {
+            commit : $('#s-commit').val(),
+            remote : $('#remote').val()
+        }, function(data){
+            if (data.res == 0) {
+                $('#deployCommitInfo').html('Deploy Request Success');
+                window.setTimeout(function(){
+                    location.href = location.href;
+                }, 700);
+            }
+        });
+        return true;
+    });
+});
+</script>
 {{ include('deploy/footer.twig') }}

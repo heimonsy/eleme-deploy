@@ -130,40 +130,39 @@ $(function(){
                 idList.push(commit);
                 obs[commit] = $(this);
             }
-            if (idList.length > 0) {
-                $.getJSON('/{{ siteId }}/status/pull_request/build', {
-                    'commits'    : idList
-                }, function (data) {
-                    for (var i in data.commits) {
-                        var commit = data.commits[i];
-                        var tr = obs[commit.commit];
-                        if (tr == undefined) continue;
-                        tr.attr('data-result', commit.testStatus);
-                        tr.children('td:eq(6)').html(commit.buildStatus);
-                        tr.children('td:eq(7)').html(commit.testStatus);
-                        var html ='';
-
-                        if (commit.testStatus == 'Success') {
-                            tr.attr('class', 'text-success');
-                            html += '<a href="/{{ siteId }}/pull_request/deploy?commit=' + commit.commit + '" class="btn btn-info btn-xs">Deploy</a>';
-                        } else if (commit.testStatus == 'Error') {
-                            html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
-                            tr.attr('class', 'text-danger');
-                            var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
-                            tr.children('td:eq(7)').html(showError);
-                        } else if(commit.buildStatus == 'Error') {
-                            html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
-                            tr.attr('class', 'text-danger');
-                            var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
-                            tr.children('td:eq(6)').html(showError);
-                        }
-                        _ = html == '' ? '' : tr.children('td:last').html(html);
-                        initBuild();
-                    }
-                });
-            }
         });
+        if (idList.length > 0) {
+            $.getJSON('/{{ siteId }}/status/pull_request/build', {
+                'commits'    : idList
+            }, function (data) {
+                for (var i in data.commits) {
+                    var commit = data.commits[i];
+                    var tr = obs[commit.commit];
+                    if (tr == undefined) continue;
+                    tr.attr('data-result', commit.testStatus);
+                    tr.children('td:eq(6)').html(commit.buildStatus);
+                    tr.children('td:eq(7)').html(commit.testStatus);
+                    var html ='';
 
+                    if (commit.testStatus == 'Success') {
+                        tr.attr('class', 'text-success');
+                        html += '<a href="/{{ siteId }}/pull_request/deploy?commit=' + commit.commit + '" class="btn btn-info btn-xs">Deploy</a>';
+                    } else if (commit.testStatus == 'Error') {
+                        html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
+                        tr.attr('class', 'text-danger');
+                        var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
+                        tr.children('td:eq(7)').html(showError);
+                    } else if(commit.buildStatus == 'Error') {
+                        html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
+                        tr.attr('class', 'text-danger');
+                        var showError = '<a href="#" class="showErrorLog" data-info="'+escapeHtml(commit.errorMsg)+'" >Error</a>';
+                        tr.children('td:eq(6)').html(showError);
+                    }
+                    _ = html == '' ? '' : tr.children('td:last').html(html);
+                    initBuild();
+                }
+            });
+        }
     }, 3000);
     initBuild();
 });

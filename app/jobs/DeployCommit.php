@@ -10,39 +10,77 @@ use Symfony\Component\Process\Process;
 
 class DeployCommit
 {
+    const TYPE_PULL_REQUEST = 'pull_request';
+    CONST TYPE_NORMAL_DEPLOY = 'normal';
+
+    private $deployInfo;
+    private $prDeployInfo;
+    private $pr;
+    private $type;
+    private $dfManger;
+
+    public function updateStatus($status, $errorMsg = NULL)
+    {
+        $date = date('Y-m-d H:i:s');
+        if ($this->type == self::TYPE_PULL_REQUEST) {
+            $this->prDeployInfo->status = $status;
+            $this->prDeployInfo->updateTime = $date;
+            $this->prDeployInfo->errorMsg = $errorMsg;
+            $this->pr->save($this->prDeployInfo);
+        } else {
+            $this->deployInfo['result'] = $status;
+            $this->deployInfo['last_time'] = $date;
+            $this->deployInfo['errMsg'] = $errorMsg;
+            $this->dfManger->save($this->deployInfo);
+        }
+    }
+
     public function fire($job, $message)
     {
-        $id = $message['id'];
         $commit = $message['commit'];
         $hostType = $message['hostType'];
         $siteId = $message['siteId'];
 
         $dc = new DC($siteId);
-        $df = new DeployInfo($siteId);
-        $deploy = $df->get($id);
+        $staticDir = $dc->get(DC::STATIC_DIR);
+
+        if (isset($message['type']) && $message['type'] == self::TYPE_PULL_REQUEST) {
+            $id = $message['id'];
+            $this->type = self::TYPE_PULL_REQUEST;
+            $this->pr = new PullRequestDeploy($siteId);
+            $this->prDeployInfo = $this->pr->get($id);
+
+            $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/pull_requests';
+            $commitPath = "$root/commit/$commit";
+
+        } else {
+            $this->type = self::TYPE_NORMAL_DEPLOY;
+            $this->dfManger = new DeployInfo($siteId);
+            $id = $message['id'];
+            $this->deployInfo = $this->dfManger->get($id);
+
+            $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/commit';
+            $commitPath = "{$root}/{$commit}";
+        }
+
+        $LOCAL_STATIC_DIR = "{$commitPath}/{$staticDir}";
+        $LOCAL_DIR = $commitPath;
+
 
         $remoteUser = $dc->get(DC::REMOTE_USER);
         $remoteOwner = $dc->get(DC::REMOTE_OWNER);
-        $staticDir = $dc->get(DC::STATIC_DIR);
-        $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/commit';
-        $commitPath = "{$root}/{$commit}";
 
         $RSYNC_EXCLUDE = "{$commitPath}/" . $dc->get(DC::RSYNC_EXCLUDE);
         $REMOTE_STATIC_DIR = $dc->get(DC::REMOTE_STATIC_DIR);
-        $LOCAL_STATIC_DIR = "{$commitPath}/{$staticDir}";
-
         $REMOTE_DIR = $dc->get(DC::REMOTE_APP_DIR);
-        $LOCAL_DIR = $commitPath;
 
         $staticScript = ScriptCommand::complie($dc->get(DC::DEPLOY_STATIC_SCRIPT), $siteId);
         $webScript    = ScriptCommand::complie($dc->get(DC::DEPLOY_WEB_SCRIPT), $siteId);
 
-        $deploy['result'] = 'Deploying';
-        $deploy['last_time'] = date('Y-m-d H:i:s');
-        $df->save($deploy);
+        $this->updateStatus('Deploying');
 
         Log::info("job id : {$job->getJobId()} start \n---------------------------");
-        Log::info("commit deploy: {$id}, {$commit}");
+        Log::info("commit deploy: {$commit}");
         try {
             $hosts = (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList();
             $staticHosts = new SplQueue();
@@ -137,17 +175,12 @@ class DeployCommit
 
             $commitLock->release();
 
-            $deploy['result'] = 'Deploy Success';
-            $deploy['last_time'] = date('Y-m-d H:i:s');
-            $df->save($deploy);
+            $this->updateStatus('Deploy Success');
 
             Log::info($job->getJobId()." finish");
 
         } catch (Exception $e) {
-            $deploy['errMsg'] = $e->getMessage();
-            $deploy['result'] = 'Error';
-            $deploy['last_time'] = date('Y-m-d H:i:s');
-            $df->save($deploy);
+            $this->updateStatus('Error', $e->getMessage());
 
             Log::error($e->getMessage());
             Log::info($job->getJobId() . " Error Finish\n---------------------------");
