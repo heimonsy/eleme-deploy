@@ -105,7 +105,8 @@ Route::get('/github/oauth/callback', function(){
 
     if ($haveEleme) {
         $user = $client->request('user');
-        $cookie = GithubLogin::login($user->login, $user->email, $accessToken, $orgTeams);
+        $email = isset($user->email) ? $user->email : '';
+        $cookie = GithubLogin::login($user->login, $email, $accessToken, $orgTeams);
 
         return Redirect::to('/')->withCookie($cookie);
 
