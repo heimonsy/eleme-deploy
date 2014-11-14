@@ -39,7 +39,7 @@ class PullRequestBuild
                 (new Process($cmd))->mustRun();
                 $progress = 1;
                 $cmd = "git clone $gitOrigin $branchRoot";
-                (new Process($cmd))->setTimeout(1200)->mustRun();
+                (new Process($cmd))->setTimeout(600)->mustRun();
                 $progress = 2;
             }
 
