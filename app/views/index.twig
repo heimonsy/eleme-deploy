@@ -13,6 +13,7 @@
 {% endif %}
 
 <div class="row">
+    {% if isSuperUser %}
     <div class="col-lg-12">
         <div class="row">
             <div class="col-lg-7">
@@ -77,6 +78,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-default site-deploy-manager">
@@ -127,7 +129,9 @@
                                         <td>{{ m.siteId }}</td>
                                         <td>{{ m.siteName }}</td>
                                         <td>
+                                            {% if m.siteId in adminSites or isSuperUser  %}
                                             <button data-id="{{ m.siteId }}" data-name="{{ m.siteName }}" class="btn btn-xs btn-warning delSite">删除</button>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
