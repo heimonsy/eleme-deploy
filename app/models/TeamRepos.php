@@ -14,8 +14,12 @@ class TeamRepos
     private $redis;
     private $expires;
 
-    public function __construct($teamId)
+    public function __construct($teamId, $userToken= null)
     {
+        if ($userToken == NULL) {
+            $user = GithubLogin::getLoginUser();
+            $userToken = $user->token;
+        }
         $this->teamId = $teamId;
         $this->redis = app('redis')->connection();
 
@@ -23,8 +27,8 @@ class TeamRepos
 
         $jstr = $this->redis->get($this->key());
         if (empty($jstr)) {
-            $user = GithubLogin::getLoginUser();
-            $client = new \Eleme\Github\GithubClient($user->token);
+            //$user = GithubLogin::getLoginUser();
+            $client = new \Eleme\Github\GithubClient($userToken);
             $tempRepos = $client->request('teams/' . $teamId . '/repos');
             $this->repos = array();
             if (empty($tempRepos->message)) {

@@ -39,7 +39,6 @@ class GithubUser
             $this->permissions = $permissions;
         }
 
-
         $this->redis = app('redis')->connection();
         $this->expires = 60 * 60 * 24;
     }
@@ -97,7 +96,7 @@ class GithubUser
 
         $maxPermission = DeployPermissions::DENY;
         foreach ($this->teams as $team) {
-            $repos = new TeamRepos($team->id);
+            $repos = new TeamRepos($team->id, $this->token);
             foreach ($repos->repos() as $repo) {
                 if ($repo->fullName == $repoFullName && DeployPermissions::havePermission($maxPermission, $team->permission)) {
                     $maxPermission = $team->permission;

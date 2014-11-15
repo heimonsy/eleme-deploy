@@ -119,7 +119,7 @@ Route::get('/user/team/repos', function(){
     $repos = array();
     $user = GithubLogin::getLoginUser();
     foreach ($user->teams as $team) {
-        $repos = array_merge($repos, (new TeamRepos($team->id))->repos());
+        $repos = array_merge($repos, (new TeamRepos($team->id, $user->token))->repos());
     }
     //var_dump($repos);
     return Response::json(array('res' => 0, 'data' => $repos));
