@@ -9,7 +9,7 @@
         "rcrowe/twigbridge": "0.6.*",
 		"barryvdh/laravel-debugbar": "~1.7",
 		"symfony/process": "~2.5",
-		"eleme/rlock": "0.2.0",
+		"eleme/rlock": "0.3.2",
 		"barryvdh/laravel-ide-helper": "~1.11",
 		"guzzlehttp/guzzle": "~5.0"
 	},

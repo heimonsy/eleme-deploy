@@ -4,21 +4,33 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aaa22cbb363a577f590386d5f35cc9bd",
+    "hash": "ada8b4eac63b0505ee5b44d7de136542",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
-            "version": "v1.8.0",
+            "version": "v1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "97d92e663c5e8e391f701629a515951280e1b724"
+                "reference": "5eb06e09a2086c0254b4b808cb5544d140284374",
+                "mirrors": [
+                    {
+                        "url": "/%package%/%normalizedUrl%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/97d92e663c5e8e391f701629a515951280e1b724",
-                "reference": "97d92e663c5e8e391f701629a515951280e1b724",
-                "shasum": ""
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/5eb06e09a2086c0254b4b808cb5544d140284374",
+                "reference": "5eb06e09a2086c0254b4b808cb5544d140284374",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "laravel/framework": "4.*|5.0.*",
@@ -29,7 +41,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7-dev"
+                    "dev-master": "1.8-dev"
                 }
             },
             "autoload": {
@@ -58,7 +70,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2014-10-31 20:36:44"
+            "time": "2014-11-14 07:51:09"
         },
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -242,17 +254,29 @@
         },
         {
             "name": "eleme/rlock",
-            "version": "v0.2.0",
+            "version": "v0.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thbourlove/rlock.git",
-                "reference": "0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1"
+                "reference": "f3e08f680839760a61a9bb3d155ca07905199f02",
+                "mirrors": [
+                    {
+                        "url": "/%package%/%normalizedUrl%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thbourlove/rlock/zipball/0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1",
-                "reference": "0e38fa3be35ca8e0c634d2b6d2a35b2abfe5fab1",
-                "shasum": ""
+                "url": "https://api.github.com/repos/thbourlove/rlock/zipball/f3e08f680839760a61a9bb3d155ca07905199f02",
+                "reference": "f3e08f680839760a61a9bb3d155ca07905199f02",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "http://pkg.phpcomposer.com/repo/packagist/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "php": ">=5.3",
@@ -262,7 +286,6 @@
                 "illuminate/support": "~4.0",
                 "mockery/mockery": "0.9.1",
                 "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "0.6.1",
                 "silex/silex": "~1.1"
             },
             "type": "library",
@@ -283,7 +306,7 @@
                 }
             ],
             "description": "redis lock",
-            "time": "2014-08-16 06:28:55"
+            "time": "2014-11-15 03:48:02"
         },
         {
             "name": "filp/whoops",
