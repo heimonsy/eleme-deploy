@@ -26,12 +26,21 @@ class BuildBranch
 
         $buildCommand = 'make deploy';
 
-        Log::info("job id : {$job->getJobId()} start");
-        $progress = 0;
-        try {
+        $defaultBranch = 'default';
+        $developRoot = "{$root}/branch/{$defaultBranch}";
 
-            $defaultBranch = 'default';
-            $developRoot = "{$root}/branch/{$defaultBranch}";
+        Log::info("\n---------------------------\njob id : {$job->getJobId()} start");
+        $progress = 0;
+        $redis = app('redis')->connection();
+        $lock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($developRoot), array('blocking' => false));
+
+        if (!$lock->acquire()) {
+            Log::info("Job : {$job->getJobId()} Release");
+            $job->release(30);
+            return;
+        }
+
+        try {
 
             if (!File::exists($developRoot)) {
                 Log::info('Git clone');
@@ -75,14 +84,11 @@ class BuildBranch
             }
             if ($needBuild) {
                 Log::info("Build {$siteId} branch:  {$branch}");
-                $redis = app('redis')->connection();
-                $buildLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath));
-                $buildLock->acquire();
+
                 (new Process("git checkout {$commit}", $commitPath))->mustRun();
 
                 Log::info("make deploy");
                 (new Process($buildCommand, $commitPath))->setTimeout(600)->mustRun();
-                $buildLock->release();
             }
 
             (new CommitVersion($siteId))->add($commit);
@@ -111,6 +117,7 @@ class BuildBranch
             Log::error($e->getMessage());
             Log::info($job->getJobId() . " Error Finish\n---------------------------");
         }
+        $lock->release();
         $job->delete();
     }
 }

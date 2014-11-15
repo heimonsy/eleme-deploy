@@ -79,8 +79,17 @@ class DeployCommit
 
         $this->updateStatus('Deploying');
 
-        Log::info("job id : {$job->getJobId()} start \n---------------------------");
+        Log::info("\n---------------------------\njob id : {$job->getJobId()} start ");
         Log::info("commit deploy: {$commit}");
+
+        //本地同步锁，不能在同一个commit下同步
+        $redis = app('redis')->connection();
+        $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath), array('blocking' => false));
+        if (!$commitLock->acquire()) {
+            Log::info("Job : {$job->getJobId()} Release");
+            $job->release(30);
+        }
+        $rsyLock = NULL;
         try {
             $hosts = (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList();
             $staticHosts = new SplQueue();
@@ -92,11 +101,6 @@ class DeployCommit
             foreach ($hosts as $h) {
                 $webHosts->push($h);
             }
-
-            //本地同步锁，不能在同一个commit下同步
-            $redis = app('redis')->connection();
-            $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath));
-            $commitLock->acquire();
 
             /*****************************************
              *
@@ -128,6 +132,7 @@ class DeployCommit
                     $this->processCommands($staticScript['after']['remote'], $HOST_NAME);
 
                     $rsyLock->release();
+                    $rsyLock = null;
                 } else {
                     // 正在同步，重新放回队列
                     $staticHosts->push($host);
@@ -166,6 +171,7 @@ class DeployCommit
                     $this->processCommands($webScript['after']['remote'], $HOST_NAME);
 
                     $rsyLock->release();
+                    $rsyLock = null;
                 } else {
                     $webHosts->push($host);
                 }
@@ -173,19 +179,18 @@ class DeployCommit
             //执行同步后本地命令
             $this->processCommands($webScript['after']['handle']);
 
-            $commitLock->release();
-
             $this->updateStatus('Deploy Success');
 
             Log::info($job->getJobId()." finish");
 
         } catch (Exception $e) {
+            if ($rsyLock != null) $rsyLock->release();
             $this->updateStatus('Error', $e->getMessage());
 
             Log::error($e->getMessage());
             Log::info($job->getJobId() . " Error Finish\n---------------------------");
         }
-
+        $commitLock->release();
         $job->delete();
     }
 

@@ -12,7 +12,7 @@ class PullRequestBuild
 {
     public function fire($job, $message)
     {
-        Log::info("job id : {$job->getJobId()} start");
+        Log::info("\n---------------------------\njob id : {$job->getJobId()} start");
         $commit = $message['commit'];
         $siteId = $message['siteId'];
         $pr = new PullRequest($siteId);
@@ -27,10 +27,16 @@ class PullRequestBuild
         $commitPath = "{$root}/pull_requests/commit/{$commit}";
         $progress = 0;
         $cmd = '';
-        $lock = NULL;
+
+        $lock = new Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($repoName), array('blocking' => false));
+        if (!$lock->acquire()) {
+            Log::info("Job : {$job->getJobId()} Release");
+            $job->release(30);
+            return;
+        }
+
         try{
-            $lock = new Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($repoName));
-            $lock->acquire();
+
             if (!File::exists($branchRoot)) {
                 Log::info('Git clone');
                 $cmd = 'mkdir -p ' . $branchRoot;
@@ -55,8 +61,6 @@ class PullRequestBuild
             $cmd = "cp -r $branchRoot $commitPath";
             Log::info($cmd);
             (new Process($cmd))->setTimeout(600)->mustRun();
-            $lock->release();
-            $lock = NULL;
 
             $cmd = "git checkout {$commit}";
             Log::info($cmd);
@@ -79,12 +83,13 @@ class PullRequestBuild
                 Log::info($cmd);
                 (new Process($cmd, $commitPath))->setTimeout(600)->mustRun();
             }
+
             $commitInfo->testStatus = 'Success';
             $pr->save($commitInfo);
 
+
         } catch (Exception $e) {
             Log::info("ERROR!!! : " . $e->getMessage());
-            if ($lock !== NULL) $lock->release();
 
             $commitInfo->buildStatus = 'Error';
             $commitInfo->testStatus = 'Error';
@@ -106,6 +111,8 @@ class PullRequestBuild
             }
             $pr->save($commitInfo);
         }
+        $lock->release();
+
         Log::info("progress : $progress");
         Log::info("job id : {$job->getJobId()} finish");
         $job->delete();
