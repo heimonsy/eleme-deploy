@@ -146,7 +146,7 @@ $(function(){
 
                     if (commit.testStatus == 'Success') {
                         tr.attr('class', 'text-success');
-                        html += '<a href="/{{ siteId }}/pull_request/deploy?commit=' + commit.commit + '" class="btn btn-info btn-xs">Deploy</a>';
+                        html += '<a href="/{{ siteId }}/pull_request/deploy?toDeploy=' + commit.commit + '" class="btn btn-info btn-xs">Deploy</a>';
                     } else if (commit.testStatus == 'Error') {
                         html += '<button class="btn btn-info btn-xs prRebuild" data-commit="' + commit.commit + '">Rebuild</button> ';
                         tr.attr('class', 'text-danger');
