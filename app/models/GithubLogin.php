@@ -47,7 +47,7 @@ class GithubLogin
      */
     public static function login($login, $email, $token, $teams)
     {
-        $expire = 60*60*24*5;
+        $expire = 60 * 60 * 24 * 30;
 
         $user = new GithubUser($login, $email, $token, $teams);
         self::sessionUser($user);

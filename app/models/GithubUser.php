@@ -40,7 +40,7 @@ class GithubUser
         }
 
         $this->redis = app('redis')->connection();
-        $this->expires = 60 * 60 * 24;
+        $this->expires = 60 * 60 * 24 * 30;
     }
 
     public function set()
@@ -69,6 +69,7 @@ class GithubUser
     {
         if (empty($jstr)) {
             return NULL;
+
         }
         $jsonObject = json_decode($jstr, true);
         return new GithubUser($jsonObject['login'], $jsonObject['email'], $jsonObject['token'], $jsonObject['teams'], $jsonObject['permissions']);
