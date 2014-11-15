@@ -114,25 +114,29 @@ class DeployCommit
                 $host = $staticHosts->shift();
                 $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('blocking' => false));
                 if ($rsyLock->acquire()) {
-                    $HOST_NAME = $host['hostname'];
-                    //执行同步前每次都执行的本地命令
-                    $this->processCommands($staticScript['before']['local']);
-                    //执行同步前每次都执行的远端命令
-                    $this->processCommands($staticScript['before']['remote'], $HOST_NAME);
+                    try{
+                        $HOST_NAME = $host['hostname'];
+                        //执行同步前每次都执行的本地命令
+                        $this->processCommands($staticScript['before']['local']);
+                        //执行同步前每次都执行的远端命令
+                        $this->processCommands($staticScript['before']['remote'], $HOST_NAME);
 
-                    Log::info("deploying static files to {$HOST_NAME}.");
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo mkdir -p {$REMOTE_STATIC_DIR}")))->mustRun();
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}")))->mustRun();
-                    (new Process("rsync -az --progress --force --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_STATIC_DIR}/ {$HOST_NAME}:{$REMOTE_STATIC_DIR}/", $commitPath))->setTimeout(600)->mustRun();
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}")))->mustRun();
+                        Log::info("deploying static files to {$HOST_NAME}.");
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo mkdir -p {$REMOTE_STATIC_DIR}")))->mustRun();
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}")))->mustRun();
+                        (new Process("rsync -az --progress --force --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_STATIC_DIR}/ {$HOST_NAME}:{$REMOTE_STATIC_DIR}/", $commitPath))->setTimeout(600)->mustRun();
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}")))->mustRun();
 
-                    //执行同步后每次都执行的本地命令
-                    $this->processCommands($staticScript['after']['local']);
-                    //执行同步后每次都执行的远端命令
-                    $this->processCommands($staticScript['after']['remote'], $HOST_NAME);
+                        //执行同步后每次都执行的本地命令
+                        $this->processCommands($staticScript['after']['local']);
+                        //执行同步后每次都执行的远端命令
+                        $this->processCommands($staticScript['after']['remote'], $HOST_NAME);
 
-                    $rsyLock->release();
-                    $rsyLock = null;
+                        $rsyLock->release();
+                    } catch (Exception $e) {
+                        $rsyLock->release();
+                        throw $e;
+                    }
                 } else {
                     // 正在同步，重新放回队列
                     $staticHosts->push($host);
@@ -153,25 +157,29 @@ class DeployCommit
                 $host = $webHosts->shift();
                 $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('blocking' => false));
                 if ($rsyLock->acquire()) {
-                    $HOST_NAME = $host['hostname'];
-                    //执行同步前每次都执行的本地命令
-                    $this->processCommands($webScript['before']['local']);
-                    //执行同步前每次都执行的远端命令
-                    $this->processCommands($webScript['before']['remote'], $HOST_NAME);
+                    try {
+                        $HOST_NAME = $host['hostname'];
+                        //执行同步前每次都执行的本地命令
+                        $this->processCommands($webScript['before']['local']);
+                        //执行同步前每次都执行的远端命令
+                        $this->processCommands($webScript['before']['remote'], $HOST_NAME);
 
-                    Log::info("deploying web apps to {$HOST_NAME}.");
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo mkdir -p {$REMOTE_DIR}")))->mustRun();
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteUser} -R {$REMOTE_DIR}")))->mustRun();
-                    (new Process("rsync -azq --progress --force --delete --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_DIR}/ {$HOST_NAME}:{$REMOTE_DIR}/", $commitPath))->setTimeout(600)->mustRun();
-                    (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}")))->mustRun();
+                        Log::info("deploying web apps to {$HOST_NAME}.");
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo mkdir -p {$REMOTE_DIR}")))->mustRun();
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteUser} -R {$REMOTE_DIR}")))->mustRun();
+                        (new Process("rsync -azq --progress --force --delete --delay-updates --exclude-from={$RSYNC_EXCLUDE} {$LOCAL_DIR}/ {$HOST_NAME}:{$REMOTE_DIR}/", $commitPath))->setTimeout(600)->mustRun();
+                        (new Process($this->remoteProcess($HOST_NAME, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}")))->mustRun();
 
-                    //执行同步后每次都执行的本地命令
-                    $this->processCommands($webScript['after']['local']);
-                    //执行同步后每次都执行的远端命令
-                    $this->processCommands($webScript['after']['remote'], $HOST_NAME);
+                        //执行同步后每次都执行的本地命令
+                        $this->processCommands($webScript['after']['local']);
+                        //执行同步后每次都执行的远端命令
+                        $this->processCommands($webScript['after']['remote'], $HOST_NAME);
 
-                    $rsyLock->release();
-                    $rsyLock = null;
+                        $rsyLock->release();
+                    } catch (Exception $e) {
+                        $rsyLock->release();
+                        throw $e;
+                    }
                 } else {
                     $webHosts->push($host);
                 }
@@ -184,7 +192,7 @@ class DeployCommit
             Log::info($job->getJobId()." finish");
 
         } catch (Exception $e) {
-            if ($rsyLock != null) $rsyLock->release();
+            //if ($rsyLock != null) $rsyLock->release();
             $this->updateStatus('Error', $e->getMessage());
 
             Log::error($e->getMessage());
