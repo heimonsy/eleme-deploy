@@ -37,7 +37,7 @@ class BuildBranch
                 Log::info('Git clone');
                 (new Process('mkdir -p ' . $commitRoot))->mustRun();
                 (new Process('mkdir -p ' . $developRoot))->mustRun();
-                (new Process('git clone ' . $gitOrigin . ' ' . $developRoot))->setTimeout(600)->mustRun();
+                (new Process('git clone ' . $gitOrigin . ' ' . $developRoot . ' --depth 20'))->setTimeout(600)->mustRun();
             }
 
             $build = $df->get($buildId);

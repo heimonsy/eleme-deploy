@@ -38,13 +38,13 @@ class PullRequestBuild
                 $cmd = "mkdir -p {$root}/pull_requests/commit/";
                 (new Process($cmd))->mustRun();
                 $progress = 1;
-                $cmd = "git clone $gitOrigin $branchRoot";
+                $cmd = "git clone $gitOrigin $branchRoot --depth 10";
                 (new Process($cmd))->setTimeout(600)->mustRun();
                 $progress = 2;
             }
 
             Log::info("git fetch origin");
-            $cmd = "git fetch origin";
+            $cmd = "git fetch origin --depth 10";
             (new Process($cmd, $branchRoot))->setTimeout(600)->mustRun();
 
             if (File::exists($commitPath)) {
