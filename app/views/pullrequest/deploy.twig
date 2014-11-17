@@ -95,6 +95,7 @@ $(function(){
     };
 
     var initErrorMsg = function(){
+        $(".showErrorLog").unbind('click');
         $('.showErrorLog').click(function(e) {
             $('#showErrorModal .modal-body').html($(this).attr('data-info'));
             $('#showErrorModal').modal("show");

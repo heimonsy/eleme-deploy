@@ -104,7 +104,7 @@ class PullRequestBuild
                     $commitInfo->buildStatus = 'Success';
                     break;
                 case 4 :
-                    (new Process("rm -rf $commitPath"))->run();
+                    //(new Process("rm -rf $commitPath"))->run();
                 case 3 :
                 case 2:
                     $commitInfo->testStatus = 'Abort';

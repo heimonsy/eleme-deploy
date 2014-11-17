@@ -93,6 +93,7 @@ $(function(){
     };
 
     var initBuild = function(){
+        $('.prRebuild').unbind('click');
         $('.prRebuild').click(function() {
             $(this).button('loading');
             var btn = $(this);
@@ -116,6 +117,7 @@ $(function(){
 
             return false;
         });
+        $(".showErrorLog").unbind('click');
         $('.showErrorLog').click(function(e) {
             $('#showErrorModal .modal-body').html($(this).attr('data-info'));
             $('#showErrorModal').modal("show");
