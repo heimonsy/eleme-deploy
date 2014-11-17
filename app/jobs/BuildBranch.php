@@ -32,7 +32,7 @@ class BuildBranch
         Log::info("\n---------------------------\njob id : {$job->getJobId()} start");
         $progress = 0;
         $redis = app('redis')->connection();
-        $lock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($developRoot), array('blocking' => false));
+        $lock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($developRoot), array('timeout' => 600000, 'blocking' => false));
 
         if (!$lock->acquire()) {
             Log::info("Job : {$job->getJobId()} Release");

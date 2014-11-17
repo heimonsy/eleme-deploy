@@ -29,7 +29,7 @@ class PullRequestBuild
         $progress = 0;
         $cmd = '';
 
-        $lock = new Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($repoName), array('blocking' => false));
+        $lock = new Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($repoName), array('timeout' => 600000, 'blocking' => false));
         if (!$lock->acquire()) {
             Log::info("Job : {$job->getJobId()} Release");
             $job->release(30);
@@ -104,7 +104,7 @@ class PullRequestBuild
                     $commitInfo->buildStatus = 'Success';
                     break;
                 case 4 :
-                    //(new Process("rm -rf $commitPath"))->run();
+                    (new Process("rm -rf $commitPath"))->run();
                 case 3 :
                 case 2:
                     $commitInfo->testStatus = 'Abort';

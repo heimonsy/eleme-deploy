@@ -84,7 +84,7 @@ class DeployCommit
 
         //本地同步锁，不能在同一个commit下同步
         $redis = app('redis')->connection();
-        $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath), array('blocking' => false));
+        $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath), array('timeout' => 600000, 'blocking' => false));
         if (!$commitLock->acquire()) {
             Log::info("Job : {$job->getJobId()} Release");
             $job->release(30);
@@ -112,7 +112,7 @@ class DeployCommit
             $this->processCommands($staticScript['before']['handle']);
             while (!$staticHosts->isEmpty()) {
                 $host = $staticHosts->shift();
-                $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('blocking' => false));
+                $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('timeout' => 600000, 'blocking' => false));
                 if ($rsyLock->acquire()) {
                     try{
                         $HOST_NAME = $host['hostname'];
@@ -155,7 +155,7 @@ class DeployCommit
             $this->processCommands($webScript['before']['handle']);
             while (!$webHosts->isEmpty()) {
                 $host = $webHosts->shift();
-                $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('blocking' => false));
+                $rsyLock = new \Eleme\Rlock\Lock($redis, JobLock::rsyLock($host['hostip']), array('timeout' => 600000, 'blocking' => false));
                 if ($rsyLock->acquire()) {
                     try {
                         $HOST_NAME = $host['hostname'];
