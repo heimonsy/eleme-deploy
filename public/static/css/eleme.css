@@ -18,3 +18,5 @@ a.showErrorLog { color: #e74c3c;}
 .pull-request-list .cv-font { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 14px;}
 
 td a { color: inherit;}
+
+#showErrorModal .modal-body { white-space: pre-wrap; }
