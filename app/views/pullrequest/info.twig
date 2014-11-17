@@ -95,7 +95,7 @@ $(function(){
     var initBuild = function(){
         $('.prRebuild').click(function() {
             $(this).button('loading');
-            var btn = ($this);
+            var btn = $(this);
             var tr = $(this).parent().parent();
             var commit = $(this).attr("data-commit");
 
@@ -109,6 +109,7 @@ $(function(){
                     tr.children("td:eq(7)").html('Waiting');
                     btn.remove();
                 } else {
+                    btn.button('reset');
                     alert(data.info);
                 }
             }, 'json');
