@@ -98,7 +98,7 @@ class PullRequestController extends BaseController
             $pr->save($prCommit);
             $res = 0;
             $info = '';
-            Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::BUILD_QUEUE);
+            Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
         } else {
             $res = 1;
             $info = '当前Commit的状态不可Rebuild';

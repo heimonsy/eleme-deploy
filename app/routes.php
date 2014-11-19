@@ -51,7 +51,7 @@ Route::post('/playload', function() {
                 $have->status = $notifyObject->pull_request->state;
                 $pr->save($have);
             } else {
-                Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::BUILD_QUEUE);
+                Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
                 $pr->add($notifyObject);
             }
         }

@@ -70,7 +70,12 @@ return array(
         'deploy' => array(
             'driver' => 'redis',
             'queue'  => 'DEPLOY:QUEUE:DEPLOY',
-        )
+        ),
+
+        'prbuild' => array(
+            'driver' => 'redis',
+            'queue' => 'DEPLOY:QUEUE:PR:BUILD',
+        ),
 
 	),
 

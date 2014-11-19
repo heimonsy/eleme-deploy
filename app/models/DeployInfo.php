@@ -10,6 +10,7 @@ class DeployInfo
 {
     const BUILD_QUEUE  = 'DEPLOY:QUEUE:BUILD';
     const DEPLOY_QUEUE = 'DEPLOY:QUEUE:DEPLOY';
+    const PR_BUILD_QUEUE = 'DEPLOY:QUEUE:PR:BUILD';
 
     private $listKey = 'DEPLOY:L:INFO:IDS:';
     private $infoKey = 'DEPLOY:H:INFO:';

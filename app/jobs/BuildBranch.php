@@ -12,6 +12,12 @@ class BuildBranch
 {
     public function fire($job, $message)
     {
+        $redis = app('redis')->connection();
+        $lock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($developRoot), array('timeout' => 600000, 'blocking' => false));
+        if ($lock) {
+
+        }
+
         $siteId = $message['siteId'];
         $buildId = $message['id'];
         $branch = $message['branch'];
@@ -31,7 +37,6 @@ class BuildBranch
 
         Log::info("\n---------------------------\njob id : {$job->getJobId()} start");
         $progress = 0;
-        $redis = app('redis')->connection();
         $lock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($developRoot), array('timeout' => 600000, 'blocking' => false));
 
         if (!$lock->acquire()) {
