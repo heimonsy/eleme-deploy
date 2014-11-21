@@ -18,6 +18,7 @@ class DeployCommit
     private $pr;
     private $type;
     private $dfManger;
+    private $warnings;
 
     public function updateStatus($status, $errorMsg = NULL)
     {
@@ -37,6 +38,7 @@ class DeployCommit
 
     public function fire($job, $message)
     {
+        $this->warnings = array();
         $commit = $message['commit'];
         $hostType = $message['hostType'];
         $siteId = $message['siteId'];
@@ -187,13 +189,18 @@ class DeployCommit
             //执行同步后本地命令
             $this->processCommands($webScript['after']['handle']);
 
-            $this->updateStatus('Deploy Success');
+            $errMsg = '';
+            foreach ($this->warnings as $w) {
+                $errMsg .= "{$w}\n";
+            }
+            $errMsg = empty($errMsg) ? null : $errMsg;
+            $this->updateStatus('Deploy Success', $errMsg);
 
             Log::info($job->getJobId()." finish");
 
         } catch (Exception $e) {
             //if ($rsyLock != null) $rsyLock->release();
-            $this->updateStatus('Error', $e->getMessage());
+            $this->updateStatus('Error', "file : " . $e->getFile() . "\nline : " . $e->getLine() . "\n Error Msg : " . $e->getMessage());
 
             Log::error($e->getMessage());
             Log::info($job->getJobId() . " Error Finish\n---------------------------");
@@ -206,9 +213,15 @@ class DeployCommit
     {
         foreach ($CMDS as $command) {
             if ($remoteHostName === NULL) {
-                (new Process($command))->mustRun();
+                $process = new Process($command);
             } else {
-                (new Process($this->remoteProcess($remoteHostName, $command)))->mustRun();
+                $process = new Process($this->remoteProcess($remoteHostName, $command));
+            }
+            $process->run();
+            if (!$process->isSuccessful()) {
+                $info = "Command Warning : $command  \nWarning Info : {$process->getErrorOutput()}";
+                Log::info($info);
+                $this->warnings[] = $info;
             }
         }
     }

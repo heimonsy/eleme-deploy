@@ -55,7 +55,13 @@
                         <td><a href="https://github.com/{{ m.operateUser }}" target="_blank">{{ m.operateUser }}</a></td>
                         <td>{{ m.time }}</td>
                         <td>{{ m.updateTime }}</td>
+                    {% if m.status == 'Error' %}
+                        <td><a href="#" class="showErrorBtn showErrorLog" data-info="{{ m.errorMsg | escape }}">{{ m.status }}</a></td>
+                    {% elseif m.errorMsg == null%}
                         <td>{{ m.status }}</td>
+                    {% else %}
+                        <td><a href="#" class="showErrorBtn" data-info="{{ m.errorMsg | escape }}">{{ m.status }}</a></td>
+                    {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -95,8 +101,14 @@ $(function(){
     };
 
     var initErrorMsg = function(){
-        $(".showErrorLog").unbind('click');
-        $('.showErrorLog').click(function(e) {
+        $(".showErrorBtn").unbind('click');
+        $('.showErrorBtn').click(function(e) {
+            var tr = $(this).parent().parent();
+            if (tr.isSuccess()) {
+                $('#myModalLabel').html('Warning');
+            } else {
+                $('#myModalLabel').html('Error');
+            }
             $('#showErrorModal .modal-body').html($(this).attr('data-info'));
             $('#showErrorModal').modal("show");
             return false;
@@ -130,6 +142,10 @@ $(function(){
                         html = '<a href="#" class="showErrorLog" data-info="'+ escapeHtml(info.errorMsg) +'" >Error</a>';
                     } else if (info.status == 'Deploy Success'){
                         tr.attr('class', 'text-success');
+                        if (info.errorMsg != null) {
+                            html = "<a href=\"#\" class=\"showErrorBtn\" data-info=\""
+                                + escapeHtml(info.errorMsg) + "\">Deploy Success</a>";
+                        }
                     }
                     tr.children('td:last').html(html);
                     initErrorMsg();

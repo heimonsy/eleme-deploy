@@ -75,9 +75,11 @@
                     <td>{{ m.time }}</td>
                     <td>{{ m.last_time }}</td>
                     {% if m.result == 'Error' %}
-                        <td><a href="#" class="showErrorLog" data-info="{{ m.errMsg | escape }}">{{ m.result }}</a></td>
-                    {% else %}
+                        <td><a href="#" class="showErrorBtn showErrorLog" data-info="{{ m.errMsg | escape }}">{{ m.result }}</a></td>
+                    {% elseif m.errMsg == null%}
                         <td>{{ m.result }}</td>
+                    {% else %}
+                        <td><a href="#" class="showErrorBtn" data-info="{{ m.errMsg | escape }}">{{ m.result }}</a></td>
                     {% endif %}
 
                 </tr>
@@ -122,8 +124,14 @@ $(function() {
     };
 
     var initErrorLogBtn = function() {
-        $(".showErrorLog").unbind('click');
-        $(".showErrorLog").click(function(e) {
+        $(".showErrorBtn").unbind('click');
+        $(".showErrorBtn").click(function(e) {
+            var tr = $(this).parent().parent();
+            if (tr.isSuccess()) {
+                $('#myModalLabel').html('Warning');
+            } else {
+                $('#myModalLabel').html('Error');
+            }
             $("#showErrorModal .modal-body").html($(this).attr('data-info'));
             $("#showErrorModal").modal("show");
             return false;
@@ -162,13 +170,17 @@ $(function() {
                                     data.hosts[i].commit.slice(0, 7) +'</option>');
                                 $("#s-commit").val(data.hosts[i].commit);
                             }
+                            if (data.hosts[i].errMsg != null) {
+                                tr.children('td:last').html("<a href=\"#\" class=\"showErrorBtn\" data-info=\""
+                                    + escapeHtml(data.hosts[i].errMsg) + "\">Deploy Success</a>");
+                            }
                         }
                         if (tr.isError()) {
                             tr.attr('class', 'text-danger');
-                            tr.children('td:last').html("<a href=\"#\" class=\"showErrorLog\" data-info=\""
+                            tr.children('td:last').html("<a href=\"#\" class=\"showErrorBtn showErrorLog\" data-info=\""
                                 + escapeHtml(data.hosts[i].errMsg) + "\">Error</a>");
-                            initErrorLogBtn();
                         }
+                        initErrorLogBtn();
                     }
                 }
             });
