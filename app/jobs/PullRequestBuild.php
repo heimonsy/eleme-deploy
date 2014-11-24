@@ -51,7 +51,7 @@ class PullRequestBuild
             }
 
             Log::info("git fetch origin");
-            $cmd = "git fetch origin $branch:$branch --depth 20";
+            $cmd = "git fetch -f origin $branch:$branch --depth 20";
             (new Process($cmd, $branchRoot))->setTimeout(600)->mustRun();
 
             if (File::exists($commitPath)) {
