@@ -21,6 +21,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">Commit Deploy</div>
         <div class="panel-body">
+            <p class="text-warning">请不要在10:00 - 14:00和 16:00 - 20:00两个高峰时段发布代码到线上机器</p>
             <form class="form-inline" role="form" action="/commit/deploy" method="post">
                 <input type="hidden" name="siteId" value="{{ siteId }}">
                 <div class="form-group form-group-sm">
@@ -41,7 +42,7 @@
                     </select>
                 </div>
                 <div class="form-group form-group-sm">
-                    <button type="button" id="deployCommit" class="btn btn-sm btn-info">Deploy</button>
+                    <button type="button" id="deployCommit" class="btn btn-sm btn-info" autocomplete="off">Deploy</button>
                     &nbsp;&nbsp;<span id="deployCommitInfo" class="text-success"></span>
                 </div>
             </form>
@@ -105,6 +106,25 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title text-danger" id="confirmModalLabel">警告 <span class="glyphicon glyphicon-warning-sign"></span></h4>
+            </div>
+            <div class="modal-body">
+                请不要在10:00 - 14:00和 16:00 - 20:00两个高峰时段发代码到线上机器。<br>
+                <span class="text-danger">当前处于高峰时间段。</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-default" id="forceDeploy" autocomplete="off">强行发布 <span class="glyphicon glyphicon-warning-sign"></span></button>&nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">取消发布</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 $(function() {
     jQuery.fn.isSuccess = function() {
@@ -162,7 +182,6 @@ $(function() {
                         tr.children('td:last').html(data.hosts[i].result);
                         tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 7));
                         tr.children('td:eq(6)').html(data.hosts[i].last_time);
-                        console.log(tr.isSuccess());
                         if (tr.isSuccess()) {
                             tr.attr('class', 'text-success');
                             if (data.hosts[i].type == "Build") {
@@ -201,12 +220,7 @@ $(function() {
             }
         });
     });
-    $("#deployCommit").click(function(e){
-        if ($('#s-commit').val()=='') {
-            alert('请选择commit version');
-            return false;
-        }
-        $(this).button('loading');
+    var toDeploy = function () {
         $.post('/commit/deploy', {
             siteId : "{{ siteId }}",
             commit : $('#s-commit').val(),
@@ -216,10 +230,29 @@ $(function() {
                 $('#deployCommitInfo').html('Deploy Request Success');
                 window.setTimeout(function(){
                     location.href = location.href;
-                }, 700);
+                }, 400);
             }
         });
-        return true;
+    };
+    $("#deployCommit").click(function(e){
+        if ($('#s-commit').val()=='') {
+            alert('请选择commit version');
+            return false;
+        }
+        $(this).button('loading');
+        var h = parseInt((new Date).getHours());
+        if ((h >= 10 && h <=14) || (h >= 16 && h <=20)) {
+            $(this).button('reset');
+            $('#confirmModal').modal("show");
+        } else {
+            toDeploy();
+        }
+        return false;
+    });
+    $("#forceDeploy").click(function (e) {
+        $(this).button('loading');
+        toDeploy();
+        return false;
     });
 });
 </script>
