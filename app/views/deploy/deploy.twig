@@ -241,7 +241,7 @@ $(function() {
         }
         $(this).button('loading');
         var h = parseInt((new Date).getHours());
-        if ((h >= 10 && h <=14) || (h >= 16 && h <=20)) {
+        if ((h >= 10 && h <14) || (h >= 16 && h <20)) {
             $(this).button('reset');
             $('#confirmModal').modal("show");
         } else {
