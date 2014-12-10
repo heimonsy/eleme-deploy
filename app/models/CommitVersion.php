@@ -24,6 +24,19 @@ class CommitVersion
 
     public function getList()
     {
-        return $this->redis->zrevrange($this->key, 0, 30);
+        return $this->redis->zrevrange($this->key, 0, 20);
+    }
+
+    public function clearList()
+    {
+        $max = 1 << 31 - 1;
+        $count = $this->redis->zcount($this->key, 0, $max);
+        if ($count > 20) {
+            $res = $this->redis->zrange($this->key, 0, $count - 20 - 1);
+            $this->redis->zremrangebyrank($this->key, 0, $count - 20 - 1);
+        } else {
+            $res = array();
+        }
+        return $res;
     }
 }

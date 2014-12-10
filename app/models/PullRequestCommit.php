@@ -64,6 +64,7 @@ class PullRequest
     private $storeKeyPrefix = 'DEPLOY:H:PULL:REQUEST:COMMITS:';
     private $listKeyPrefix = 'DEPLOY:L:PULL:REQUEST:COMMITS:';
     private $relationKeyPrefix = 'DEPLOY:S:PULL:REQUEST:TO:COMMITS:';
+    private $prListKeyPrefix = 'DEPLOY:L:PR:';
     private $siteId;
 
     public function __construct($siteId)
@@ -91,6 +92,10 @@ class PullRequest
         $this->redis->hset($this->storeKey(), $pr->head->sha, $pro->json());
         $this->redis->lpush($this->listKey(), $pr->head->sha);
         $this->redis->sadd($this->relationKey($pr->id), $pr->head->sha);
+        $score = $this->redis->zscore($this->prListKey(), $pr->id);
+        if ($score === null) {
+            $this->redis->zadd($this->prListKey(), time(), $pr->id);
+        }
         return $pro;
     }
 
@@ -132,8 +137,46 @@ class PullRequest
     {
         return $this->listKeyPrefix . $this->siteId;
     }
+
     private function relationKey($prId)
     {
         return $this->relationKeyPrefix . $this->siteId . ':' . $prId;
+    }
+
+    private function prListKey()
+    {
+        return $this->prListKeyPrefix . $this->siteId;
+    }
+
+    public function clearList()
+    {
+        $max = 1 << 31 - 1;
+        $count = $this->redis->zcount($this->prListKey(), 0, $max);
+        if ($count > 20) {
+            $res = $this->redis->zrange($this->prListKey(), 0, $count - 20 - 1);
+            foreach ($res as $pr) {
+                $this->redis->del($this->relationKey($pr));
+            }
+            $this->redis->zremrangebyrank($this->prListKey(), 0, $count - 20 - 1);
+        } elseif ($count === 0) {
+            // 兼容以前的情况，将所有的pr relation全部删除
+            $res = $this->redis->keys($this->relationKey('*'));
+            foreach ($res as $key) {
+                $this->redis->del($key);
+            }
+        }
+
+        $len = $this->redis->llen($this->listKey());
+        if ($len > 30) {
+            $cut = $len - 30;
+            $ids = $this->redis->lrange($this->listKey(), -$cut, -1);
+            $this->redis->ltrim($this->listKey(), 0, 29);
+            if (empty($ids)) {
+                $ids = array(-1);
+            }
+            $this->redis->hdel($this->storeKey(), $ids);
+            return $ids;
+        }
+        return array();
     }
 }

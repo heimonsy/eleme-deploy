@@ -79,4 +79,19 @@ class DeployInfo
     {
         return $this->redis->incr($this->incrKey);
     }
+
+
+    public function clearList()
+    {
+        $len = (int) $this->redis->llen($this->listKey);
+        if ($len > 30) {
+            $cut = $len - 30;
+            $ids = $this->redis->lrange($this->listKey, -$cut, -1);
+            $this->redis->ltrim($this->listKey, 0, 29);
+            if (empty($ids)) {
+                $ids = array(-1);
+            }
+            $this->redis->hdel($this->infoKey, $ids);
+        }
+    }
 }

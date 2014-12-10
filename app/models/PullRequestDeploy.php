@@ -73,4 +73,18 @@ class PullRequestDeploy
     {
         return $this->idKeyPrefix . $this->siteId;
     }
+
+    public function clearList()
+    {
+        $len = (int) $this->redis->llen($this->listKey());
+        if ($len > 30) {
+            $cut = $len - 30;
+            $ids = $this->redis->lrange($this->listKey(), -$cut, -1);
+            $this->redis->ltrim($this->listKey(), 0, 29);
+            if (empty($ids)) {
+                return ;
+            }
+            $this->redis->hdel($this->storeKey(), $ids);
+        }
+    }
 }
