@@ -1,4 +1,6 @@
 <?php
+
+use Eleme\Worker\Supervisor;
 /**
  * Created by PhpStorm.
  * User: heimonsy
@@ -98,7 +100,9 @@ class PullRequestController extends BaseController
             $pr->save($prCommit);
             $res = 0;
             $info = '';
-            Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
+            //Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
+            $class = Config::get('worker.queue.prbuild');
+            Supervisor::push($class, array('siteId' => $siteId, 'commit' => $commit, 'pullNumber' => $pr->pullNumber), 'prbuild');
         } else {
             $res = 1;
             $info = '当前Commit的状态不可Rebuild';
@@ -122,7 +126,16 @@ class PullRequestController extends BaseController
         $prd = new PullRequestDeploy($siteId);
         $pri = $prd->add($prCommit->prId, $prCommit->title, $commit, $prCommit->user, $user->login, $hostType, $date, $date, 'Waiting');
 
-        Queue::push('DeployCommit', array('id' => $pri->id, 'type' => DeployCommit::TYPE_PULL_REQUEST, 'hostType' => $hostType, 'siteId' => $siteId, 'commit' => $commit), DeployInfo::DEPLOY_QUEUE);
+        //Queue::push('DeployCommit', array('id' => $pri->id, 'type' => DeployCommit::TYPE_PULL_REQUEST, 'hostType' => $hostType, 'siteId' => $siteId, 'commit' => $commit), DeployInfo::DEPLOY_QUEUE);
+        $class = Config::get('worker.queue.deploy');
+        Supervisor::push($class, array(
+            'siteId' => $siteId,
+            'commit' => $commit,
+            'type' => DeployCommit::TYPE_PULL_REQUEST,
+            'hostType' => $hostType,
+            'id' => $pri->id
+        ), 'deploy');
+
         return Response::json(array('res' => 0));
     }
 

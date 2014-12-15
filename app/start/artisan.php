@@ -12,3 +12,4 @@
 */
 
 Artisan::add(new ScavengerCommand);
+Artisan::add(new WorkerCommand);

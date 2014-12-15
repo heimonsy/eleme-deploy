@@ -20,6 +20,8 @@ class ConfigController extends BaseController
         $dc = new DC($siteId);
         $SCOK = Session::get('SCOK', false);
 
+        $passphrase = empty($dc->get(DC::PASSPHRASE)) ? '' : '******';
+        $identifyfile = empty($dc->get(DC::IDENTIFYFILE))? '' : '**** Secret ****';
 
         return View::make('deploy.config', array(
             'workRoot'       => (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD),
@@ -36,6 +38,8 @@ class ConfigController extends BaseController
             'webScript'         => $dc->get(DC::DEPLOY_WEB_SCRIPT),
             'gitOrigin'         => $dc->get(DC::GIT_ORIGIN),
             'testCommand'       => $dc->get(DC::TEST_COMMAND),
+            'passphrase'       => $passphrase,
+            'identifyfile'       => $identifyfile,
             'SCOK' => $SCOK,
             'siteId' => $siteId,
             'leftNavActive' => 'config',
@@ -47,6 +51,8 @@ class ConfigController extends BaseController
         $siteId = Input::get('siteId');
         $dc = new DC($siteId);
 
+        $dc->set(DC::IDENTIFYFILE, Input::get('identifyfile'));
+        $dc->set(DC::PASSPHRASE, Input::get('passphrase'));
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
         $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));

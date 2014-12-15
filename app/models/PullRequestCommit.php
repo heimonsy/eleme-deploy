@@ -14,6 +14,7 @@ class PullRequestCommit
     public $repo;
     public $branch;
     public $commit;
+    public $pullNumber;
     public $createAt;
     public $lastUpdateAt;
     public $buildStatus;
@@ -23,7 +24,7 @@ class PullRequestCommit
     public $testStatus;
     public $errorMsg;
 
-    public function __construct($prId, $title, $user, $repo, $branch, $commit, $createAt, $lastUpdateAt,
+    public function __construct($prId, $title, $user, $repo, $branch, $commit, $pullNumber, $createAt, $lastUpdateAt,
         $buildStatus, $status, $url, $testStatus, $errorMsg, $mergedBy = '')
     {
         $this->prId = $prId;
@@ -32,6 +33,7 @@ class PullRequestCommit
         $this->repo = $repo;
         $this->branch = $branch;
         $this->commit = $commit;
+        $this->pullNumber = $pullNumber;
         $this->createAt = $createAt;
         $this->lastUpdateAt = $lastUpdateAt;
         $this->buildStatus = $buildStatus;
@@ -51,7 +53,7 @@ class PullRequestCommit
     {
         $o = json_decode($json);
         return new PullRequestCommit(
-            $o->prId, $o->title, $o->user, $o->repo, $o->branch, $o->commit, $o->createAt,$o->lastUpdateAt, $o->buildStatus,
+            $o->prId, $o->title, $o->user, $o->repo, $o->branch, $o->commit, $o->pullNumber, $o->createAt,$o->lastUpdateAt, $o->buildStatus,
             $o->status, $o->url, $o->testStatus, $o->errorMsg,$o->mergedBy
         );
     }
@@ -87,7 +89,7 @@ class PullRequest
 
         $date = date('Y-m-d H:i:s');
         $pro = new PullRequestCommit($pr->id, $pr->title, $pr->user->login, $pr->head->repo->full_name, $pr->head->ref,
-            $pr->head->sha, $date, $date, 'Waiting', $pr->state, $pr->html_url, 'Waiting', NULL, $mergedBy);
+            $pr->head->sha, $pr->number, $date, $date, 'Waiting', $pr->state, $pr->html_url, 'Waiting', NULL, $mergedBy);
 
         $this->redis->hset($this->storeKey(), $pr->head->sha, $pro->json());
         $this->redis->lpush($this->listKey(), $pr->head->sha);

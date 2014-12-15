@@ -29,6 +29,7 @@ Route::post('/playload', function() {
         $repoFullName = $notifyObject->pull_request->base->repo->full_name;
         $siteId = WebSite::getSiteIdByFullName($repoFullName);
         $commit = $notifyObject->pull_request->head->sha;
+        $pullNumber = $notifyObject->pull_request->number;
         if ($siteId !== NULL) {
             $pr = new PullRequest($siteId);
             $have = $pr->get($commit);
@@ -51,7 +52,9 @@ Route::post('/playload', function() {
                 $have->status = $notifyObject->pull_request->state;
                 $pr->save($have);
             } else {
-                Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
+                //Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
+                $class = Config::get('worker.queue.prbuild');
+                \Eleme\Worker\Supervisor::push($class, array('siteId' => $siteId, 'commit' => $commit, 'pullNumber' => $pullNumber), 'prbuild');
                 $pr->add($notifyObject);
             }
         }
@@ -138,10 +141,30 @@ Route::post('/site/del', 'SystemController@delSite');
 Route::post('/config/save', 'ConfigController@saveConfig');
 
 Route::get('/test', function(){
-    return '';
+    //\Eleme\Worker\Report\WorkerReport::clearPids();
+    //return 'hehe';
+    $class = Config::get('worker.queue.build');
+    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'build');
+    $class = Config::get('worker.queue.prbuild');
+    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'prbuild');
+    $class = Config::get('worker.queue.deploy');
+    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'deploy');
+    return '<hr>hehe';
 });
 
+Route::get('/clear', function(){
+    \Eleme\Worker\Report\WorkerReport::clearAllPids();
+    return 'hehe';
+});
 
+Route::get('/process', function(){
+    //(new Symfony\Component\Process\Process('ssh-keygen -R github.com'))->mustRun();
+    //(new Symfony\Component\Process\Process('git clone root@arch:~/hehe /home/vagrant/deploy/deploy/branch/default --depth 20'))->mustRun();
+    //
+    $cmd = 'git clone git@github.com:heimonsy/deploy-test-develop.git /home/vagrant/deploy/deploy/branch/default --depth 20';
+    (new Eleme\Worker\GitProcess($cmd))->mustRun();
+    return 'hehe';
+});
 
 Route::get('/site/config/{siteId}', 'ConfigController@config');
 
@@ -163,3 +186,11 @@ Route::get('/{siteId}/status/pull_request/build', 'PullRequestController@buildSt
 Route::post('/{siteId}/pull_request/rebuild', 'PullRequestController@rebuild');
 Route::post('/{siteId}/pull_request/deploy', 'PullRequestController@toDeploy');
 Route::get('/{siteId}/status/pull_request/deploy', 'PullRequestController@deployStatus');
+
+
+// job
+Route::get('/workers', 'JobController@index');
+Route::get('/worker/process.json', 'JobController@process');
+Route::post('/worker/clear-no-response', 'JobController@clearNoResponse');
+Route::post('/worker/new', 'JobController@newWorker');
+Route::post('/worker/shutdown', 'JobController@shutdownProcess');

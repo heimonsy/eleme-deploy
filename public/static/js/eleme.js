@@ -147,4 +147,55 @@ $(function(){
         });
     };
     elemeInitBtn();
+
+    $('#process-table').on('click', '.shutdownBtn', function () {
+        var btn = $(this);
+        btn.button('loading');
+        $.post('/worker/shutdown', {
+            pid : btn.attr('data-id')
+        }, function (data) {
+            if (data.res != 0 ) {
+                alert(data.info);
+            }
+            btn.button('reset');
+        }, 'json');
+    });
+
+    $('.btnClearNoResponse').click(function(){
+        var btn = $(this);
+        btn.button('loading');
+        $.post('/worker/clear-no-response', {}, function (data) {
+            if (data.res == 0) {
+            }
+            btn.button('reset');
+        }, 'json');
+    });
+
+    $('#newWorkerBtn').click(function () {
+        var alert = $('.new-worker-alert');
+        alert.html('');
+        var btn = $(this);
+        var queue = $('#queue').val();
+        if (queue == '') {
+            alert('必须选择worker的队列');
+            return false;
+        }
+        btn.button('loading');
+
+        $.post('/worker/new', {
+            'queue': queue
+        }, function (data) {
+            if (data.res == 0) {
+                $('#queue').val('');
+                alert.addClass('text-success');
+                alert.html('Success');
+            }
+            btn.button('reset');
+        }, 'json');
+    });
+
+    var reloadTable = function () {
+        $('#process-table').bootstrapTable('refresh', {silent: true});
+    };
+    setInterval(reloadTable, 8000);
 });

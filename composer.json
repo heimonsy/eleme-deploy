@@ -11,7 +11,8 @@
 		"symfony/process": "~2.5",
 		"eleme/rlock": "0.3.2",
 		"barryvdh/laravel-ide-helper": "~1.11",
-		"guzzlehttp/guzzle": "~5.0"
+		"guzzlehttp/guzzle": "~5.0",
+		"heimonsy/sshprocess": "0.1.*"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,7 +26,7 @@
             "app/deploy"
 		],
         "psr-0" : {
-            "Eleme\\" : "app/"
+            "Eleme\\" : ["app/", "src/"]
         }
 	},
 	"scripts": {

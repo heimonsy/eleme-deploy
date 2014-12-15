@@ -1,0 +1,62 @@
+{{ include('common/header.twig') }}
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">Workers</div>
+            <div class="panel-body">
+                <form class="form-inline" role="form" action="/worker/new" method="post" >
+                    <div class="form-group">
+                        <label class="sr-only">Descript</label>
+                        <p class="form-control-static">新增Worker进程&nbsp;</p>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control input-sm" name="queue" id="queue">
+                            <option value="">请选择队列类型...</option>
+                            {% for key, m in queues %}
+                            <option value="{{ key }}">{{ key }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;<button type="button" id="newWorkerBtn" class="btn btn-sm btn-info">新增worker</button>
+                        &nbsp; &nbsp;<span class="new-worker-alert"></span>
+                    </div>
+                </form>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-info btn-xs btnClearNoResponse" data-loading-text="正在请求...">清除无效进程</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <table id="process-table" class="table" data-toggle="table" data-url="/worker/process.json" data-cache="false"  data-query-params="no_params">
+                    <thead>
+                        <tr>
+                            <th data-field="pid">#</th>
+                            <th data-field="queue">queue</th>
+                            <th data-field="status" data-formatter="statusFormatter">status</th>
+                            <th data-field="job">current job</th>
+                            <th data-formatter="operate">operate</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function statusFormatter(value)
+    {
+        var cls = value == 'NO RESPONSE' ? 'label-danger' : 'label-success';
+        return '<span class="label ' + cls + '">' + value + '</span>';
+    }
+    function operate(value, row, index)
+    {
+        return row.status == 'NO RESPONSE' ? '' : '<button class="btn btn-warning btn-xs shutdownBtn" data-id="' + row.pid + '">终结进程</button>';
+    }
+</script>
+{{ include('common/footer.twig') }}

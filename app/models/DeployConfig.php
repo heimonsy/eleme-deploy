@@ -23,7 +23,9 @@ class DeployConfig
     const DEPLOY_STATIC_SCRIPT = 'DEPLOY:STATIC:SCRIPT';
     const DEPLOY_WEB_SCRIPT = 'DEPLOY:WEB:SCRIPT';
     const GIT_ORIGIN = 'GIT:ORIGIN';
-    CONST TEST_COMMAND = 'TEST:COMMAND';
+    const TEST_COMMAND = 'TEST:COMMAND';
+    const PASSPHRASE = 'SSH:PASSPHRASE';
+    const IDENTIFYFILE = 'SSH:IDENTIFYFILE';
 
     private $prefix = 'deploy:H:config:';
     private $key;

@@ -1,4 +1,6 @@
 <?php
+
+use Eleme\Worker\Supervisor;
 /**
  * Created by PhpStorm.
  * User: heimonsy
@@ -63,7 +65,9 @@ class DeployController extends BaseController
         );
         $id = (new DeployInfo($siteId))->add($deploy);
 
-        Queue::push('BuildBranch', array('siteId' => $siteId, 'branch' => $branch, 'id' => $id), DeployInfo::BUILD_QUEUE);
+        $class = Config::get('worker.queue.build');
+        //Queue::push('BuildBranch', array('siteId' => $siteId, 'branch' => $branch, 'id' => $id), DeployInfo::BUILD_QUEUE);
+        Supervisor::push($class, array('siteId' => $siteId, 'branch' => $branch, 'id' => $id), 'build');
         return Response::json(array('res' => 0));
     }
 
@@ -84,12 +88,13 @@ class DeployController extends BaseController
         );
         $id = (new DeployInfo($siteId))->add($deploy);
 
-        Queue::push('DeployCommit', array(
+        $class = Config::get('worker.queue.deploy');
+        Supervisor::push($class, array(
             'siteId' => $siteId,
             'commit' => $commit,
             'hostType' => $hostType,
             'id' => $id
-        ), DeployInfo::DEPLOY_QUEUE);
+        ), 'deploy');
 
         return Response::json(array('res' => 0));
     }
