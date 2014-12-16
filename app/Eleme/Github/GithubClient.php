@@ -16,6 +16,7 @@ class GithubClient
 
     private $client;
     private $access_token;
+    private $response;
 
     public function __construct($access_token = NULL)
     {
@@ -30,6 +31,20 @@ class GithubClient
         ));
     }
 
+    public function get($url)
+    {
+        $option = array(
+            'headers' => $this->headers(),
+        );
+        $this->response = $this->client->get($url, $option);
+        return json_decode($this->response->getBody());
+    }
+
+    public function catUrl($uri)
+    {
+        return self::API . $uri;
+    }
+
     public function request($uri, $params = array(), $post = false)
     {
         $option = array(
@@ -38,10 +53,16 @@ class GithubClient
 
         if ($post) {
             $option['body'] = $params;
-            return json_decode($this->client->post(self::API . $uri, $option)->getBody());
+            $this->response = $this->client->post(self::API . $uri, $option);
         } else {
-            return json_decode($this->client->get(self::API . $uri . '?' . http_build_query($params), $option)->getBody());
+            $this->response = $this->client->get(self::API . $uri . '?' . http_build_query($params), $option);
         }
+        return json_decode($this->response->getBody());
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     public function setAccessToken($access_token)

@@ -31,8 +31,9 @@ class TeamRepos
             $client = new \Eleme\Github\GithubClient($userToken);
             $this->repos = array();
             $page = 1;
+            $url = $client->catUrl('teams/' . $teamId . '/repos');
             do {
-                $tempRepos = $client->request('teams/' . $teamId . '/repos?page=' . $page);
+                $tempRepos = $client->get($url);
                 if (empty($tempRepos->message)) {
                     foreach ($tempRepos as $m) {
                         if ($m->owner->login == Config::get('github.organization')) {
@@ -44,12 +45,15 @@ class TeamRepos
                             );
                         }
                     }
-                    $this->save();
                 } else {
                     throw new Exception('teamId doesn\'t found');
                 }
-                $page++;
-            } while (count($tempRepos) != 0);
+                $header = $client->getResponse()->getHeader('Link');
+                preg_match('/<(.+)>; rel="next"/', $header, $matchs);
+                if (count($matchs) == 0) break;
+                $url = $matchs[1];
+            } while (true);
+            $this->save();
         } else {
             $this->repos = json_decode($jstr);
         }
