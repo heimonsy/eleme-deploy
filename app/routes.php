@@ -102,7 +102,8 @@ Route::get('/github/oauth/callback', function(){
     foreach ($teams as $team) {
         if ($team->organization->login == Config::get('github.organization')) {
             $haveEleme = true;
-            $orgTeams[] = new GithubTeam($team);
+            $orgTeams[] = $gt = new GithubTeam($team);
+            TeamRepos::delByTeamId($gt->id);
         }
     }
 

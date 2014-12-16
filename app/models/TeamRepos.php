@@ -72,4 +72,9 @@ class TeamRepos
         return $this->repos;
     }
 
+    public static function delByTeamId($teamId)
+    {
+        $redis = app('redis')->connection();
+        $redis->del('DEPLOY:S:TEAMREPOS:' . $teamId);
+    }
 }
