@@ -36,6 +36,18 @@ class PullRequestBuildJob implements ElemeJob
 
         $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId;
 
+        $ifContent = $dc->get(DC::IDENTIFYFILE);
+        if (!empty($ifContent)) {
+            $passphrase = $dc->get(DC::PASSPHRASE);
+            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
+            if (!File::exists($identifyfile)) {
+                file_put_contents($identifyfile, $ifContent);
+                chmod($identifyfile, 0600);
+            }
+        } else {
+            $passphrase = null;
+            $identifyfile = null;
+        }
         $defaultBranch = "{$root}/branch/default";
         $prDefaultBranch = "{$root}/branch/pruse";
         $branchRoot = "{$root}/pull_requests/repo/$repoName";
@@ -76,7 +88,7 @@ class PullRequestBuildJob implements ElemeJob
             if (!File::exists($commitPath)) {
                 $cmd = "git fetch -f origin +refs/pull/{$pullNumber}/head";
                 Log::info($cmd ."  " . $prDefaultBranch);
-                (new GitProcess($cmd, $prDefaultBranch))->setTimeout(600)->mustRun();
+                (new GitProcess($cmd, $prDefaultBranch, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
 
                 $progress = 3;
                 $cmd = "cp -r $prDefaultBranch $commitPath";

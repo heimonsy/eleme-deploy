@@ -161,7 +161,7 @@ class DeployCommitJob implements ElemeJob
                         Log::info("deploying static files to {$HOST_NAME}.");
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
+                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
 
                         //执行同步后每次都执行的本地命令
@@ -206,7 +206,7 @@ class DeployCommitJob implements ElemeJob
                         Log::info("deploying web apps to {$HOST_NAME}.");
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
+                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
                         (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
 
                         //执行同步后每次都执行的本地命令

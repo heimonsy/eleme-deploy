@@ -36,6 +36,18 @@ class BuildBranchJob implements ElemeJob
         $branchPath = "{$commitRoot}/{$branch}";
         $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
+        $ifContent = $dc->get(DC::IDENTIFYFILE);
+        if (!empty($ifContent)) {
+            $passphrase = $dc->get(DC::PASSPHRASE);
+            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
+            if (!File::exists($identifyfile)) {
+                file_put_contents($identifyfile, $ifContent);
+                chmod($identifyfile, 0600);
+            }
+        } else {
+            $passphrase = null;
+            $identifyfile = null;
+        }
         $buildCommand = $dc->get(DC::BUILD_COMMAND);
         if (empty($buildCommand)) $buildCommand = 'make deploy';
         $defaultBranch = 'default';
@@ -60,7 +72,7 @@ class BuildBranchJob implements ElemeJob
                 (new Process('mkdir -p ' . $commitRoot))->mustRun();
                 (new Process('mkdir -p ' . $developRoot))->mustRun();
                 $worker->report('');
-                (new GitProcess('git clone ' . $gitOrigin . ' ' . $developRoot, $developRoot))->setTimeout(600)->mustRun();
+                (new GitProcess('git clone ' . $gitOrigin . ' ' . $developRoot, $developRoot, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
                 unset($createWait);
             }
             $build['result'] = 'Fetch Origin';
@@ -69,7 +81,7 @@ class BuildBranchJob implements ElemeJob
 
             Log::info("git fetch origin");
             $worker->report('');
-            (new GitProcess("git fetch origin", $developRoot))->setTimeout(600)->mustRun();
+            (new GitProcess("git fetch origin", $developRoot, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
             $progress = 1;
             (new Process("cp -r {$developRoot} {$branchPath}", $commitRoot))->mustRun();
 
