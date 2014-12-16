@@ -33,8 +33,9 @@ class GithubUser
                 $this->teams[] = $t;
             }
         }
-        if ($permissions == NULL) {
-            $this->sitePermission();
+
+        if ($permissions == null) {
+            $this->permissions = array();
         } else {
             $this->permissions = $permissions;
         }
@@ -75,7 +76,7 @@ class GithubUser
         return new GithubUser($jsonObject['login'], $jsonObject['email'], $jsonObject['token'], $jsonObject['teams'], $jsonObject['permissions']);
     }
 
-    private function sitePermission()
+    public function sitePermission()
     {
         $siteList = (new WebSite())->getList();
         $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';

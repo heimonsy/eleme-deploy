@@ -119,6 +119,13 @@ Route::get('/github/oauth/callback', function(){
     }
 });
 
+Route::get('/user/permissions/refresh', function () {
+    $user = GithubLogin::getLoginUser();
+    $user->sitePermission();
+    GithubLogin::sessionUser($user);
+    return Redirect::to('/');
+});
+
 Route::get('/user/team/repos', function(){
     $repos = array();
     $user = GithubLogin::getLoginUser();
@@ -144,26 +151,35 @@ Route::post('/config/save', 'ConfigController@saveConfig');
 Route::get('/test', function(){
     //\Eleme\Worker\Report\WorkerReport::clearPids();
     //return 'hehe';
-    $class = Config::get('worker.queue.build');
-    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'build');
-    $class = Config::get('worker.queue.prbuild');
-    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'prbuild');
-    $class = Config::get('worker.queue.deploy');
-    \Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'deploy');
+    //$class = Config::get('worker.queue.build');
+    //\Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'build');
+    //$class = Config::get('worker.queue.prbuild');
+    //\Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'prbuild');
+    //$class = Config::get('worker.queue.deploy');
+    //\Eleme\Worker\Supervisor::push($class, array('test' => 'test'), 'deploy');
     return '<hr>hehe';
 });
 
 Route::get('/clear', function(){
-    \Eleme\Worker\Report\WorkerReport::clearAllPids();
-    return 'hehe';
+    //$client = new \GuzzleHttp\Client();
+    //$res = $client->get('');
+    //$client = new Eleme\Github\GithubClient('ad9ea7efa56f8cb8c780058622058e43f48a39f2');
+    //$content = $client->request('teams/991232/repos?page=1');
+    //$response = $client->getResponse();
+    //$header = $response->getHeader('Link');
+    //preg_match('/<(.+)>; rel="next"/', $header, $matchs);
+    //var_dump($matchs);
+    return '<hr>hehe';
 });
 
 Route::get('/process', function(){
     //(new Symfony\Component\Process\Process('ssh-keygen -R github.com'))->mustRun();
     //(new Symfony\Component\Process\Process('git clone root@arch:~/hehe /home/vagrant/deploy/deploy/branch/default --depth 20'))->mustRun();
     //
-    $cmd = 'git clone git@github.com:heimonsy/deploy-test-develop.git /home/vagrant/deploy/deploy/branch/default --depth 20';
-    (new Eleme\Worker\GitProcess($cmd))->mustRun();
+    //$cmd = 'clone git@github.com:heimonsy/deploy-test-develop.git /home/vagrant/deploy/deploy/branch/default --depth 20';
+    //$gp = new Eleme\Worker\GitProcess($cmd, '/tmp/', '/var/www/.ssh/github.bak');
+    //$gp->mustRun();
+
     return 'hehe';
 });
 

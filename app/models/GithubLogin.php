@@ -32,7 +32,7 @@ class GithubLogin
         return true;
     }
 
-    private static function sessionUser(GithubUser $user)
+    public static function sessionUser(GithubUser $user)
     {
         Session::set(self::$sessionKey, $user->json());
     }
