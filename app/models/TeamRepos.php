@@ -29,23 +29,27 @@ class TeamRepos
         if (empty($jstr)) {
             //$user = GithubLogin::getLoginUser();
             $client = new \Eleme\Github\GithubClient($userToken);
-            $tempRepos = $client->request('teams/' . $teamId . '/repos');
             $this->repos = array();
-            if (empty($tempRepos->message)) {
-                foreach ($tempRepos as $m) {
-                    if ($m->owner->login == Config::get('github.organization')) {
-                        $this->repos[] = new GithubRepo(
-                            $m->id,
-                            $m->name,
-                            $m->full_name,
-                            $m->ssh_url
-                        );
+            $page = 1;
+            do {
+                $tempRepos = $client->request('teams/' . $teamId . '/repos?page=' . $page);
+                if (empty($tempRepos->message)) {
+                    foreach ($tempRepos as $m) {
+                        if ($m->owner->login == Config::get('github.organization')) {
+                            $this->repos[] = new GithubRepo(
+                                $m->id,
+                                $m->name,
+                                $m->full_name,
+                                $m->ssh_url
+                            );
+                        }
                     }
+                    $this->save();
+                } else {
+                    throw new Exception('teamId doesn\'t found');
                 }
-                $this->save();
-            } else {
-                throw new Exception('teamId doesn\'t found');
-            }
+                $page++;
+            } while (count($tempRepos) != 0);
         } else {
             $this->repos = json_decode($jstr);
         }
