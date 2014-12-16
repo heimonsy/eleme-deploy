@@ -17,7 +17,8 @@ class PullRequestBuildJob implements ElemeJob
 {
     public function descriptYourself($message)
     {
-        return "Pull Request Build, site id {$message['siteId']}\n";
+        $number = $message['pullNumber'];
+        return "PR Build, site {$message['siteId']}, pull number $number\n";
     }
 
     public function fire(Worker $worker, $message)
@@ -41,17 +42,24 @@ class PullRequestBuildJob implements ElemeJob
         $commitPath = "{$root}/pull_requests/commit/{$commit}";
         $progress = 0;
         $cmd = '';
-
-        $lock = new \Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($repoName), array('timeout' => 600000, 'blocking' => false));
-        if (!$lock->acquire()) {
-            Log::info("Job locked, now {$worker->getJobId()} Release");
-            $worker->release(30);
-
-            return;
-        }
-
+        $lock1 = null;
+        $lock2 = null;
         try {
+            $lock2 = new \Eleme\Rlock\Lock(app('redis')->connection(), JobLock::pullRequestBuildLock($prDefaultBranch), array('timeout' => 600000, 'blocking' => false));
+            if (!$lock2->acquire()) {
+                Log::info("Job locked, now {$worker->getJobId()} Release");
+                $worker->release(30);
+                return;
+            }
+
             if (!File::exists($prDefaultBranch)) {
+                // 可能跟build branch冲突
+                $lock1 = new \Eleme\Rlock\Lock(app('redis')->connection(), JobLock::buildLock($defaultBranch), array('timeout' => 600000, 'blocking' => false));
+                if (!$lock1->acquire()) {
+                    Log::info("Job locked, now {$worker->getJobId()} Release");
+                    $worker->release(30);
+                    return;
+                }
                 Log::info('init pull request branch');
                 $mcd = 'mkdir -p ' . $prDefaultBranch ;
                 (new Process($cmd))->mustRun();
@@ -62,21 +70,21 @@ class PullRequestBuildJob implements ElemeJob
                 $cmd = "cp -r $defaultBranch $prDefaultBranch";
                 (new Process($cmd))->mustRun();
                 $progress = 2;
+                $lock1->release();
+                $lock1 = null;
             }
+            if (!File::exists($commitPath)) {
+                $cmd = "git fetch -f origin +refs/pull/{$pullNumber}/head";
+                Log::info($cmd ."  " . $prDefaultBranch);
+                (new GitProcess($cmd, $prDefaultBranch))->setTimeout(600)->mustRun();
 
-            Log::info("git fetch origin");
-            $cmd = "git fetch -f origin +refs/pull/{$pullNumber}/head";
-            (new GitProcess($cmd, $prDefaultBranch))->setTimeout(600)->mustRun();
-
-            if (File::exists($commitPath)) {
-                $cmd = "rm -rf $commitPath";
-                (new Process($cmd))->setTimeout(600)->mustRun();
+                $progress = 3;
+                $cmd = "cp -r $prDefaultBranch $commitPath";
+                Log::info($cmd);
+                (new Process($cmd))->mustRun();
             }
-
-            $progress = 3;
-            $cmd = "cp -r $prDefaultBranch $commitPath";
-            (new Process($cmd))->mustRun();
-
+            $lock2->release();
+            $lock2 = null;
 
             $cmd = "git checkout -qf FETCH_HEAD";
             Log::info($cmd);
@@ -103,6 +111,9 @@ class PullRequestBuildJob implements ElemeJob
             $commitInfo->testStatus = 'Success';
             $pr->save($commitInfo);
         } catch (Exception $e) {
+            if ($lock1 !== null) $lock1->release();
+            if ($lock2 !== null) $lock2->release();
+
             Log::info("ERROR!!! : " . $e->getMessage());
 
             $commitInfo->buildStatus = 'Error';
@@ -127,7 +138,6 @@ class PullRequestBuildJob implements ElemeJob
             }
             $pr->save($commitInfo);
         }
-        $lock->release();
 
         Log::info("progress : $progress");
         Log::info("worker id : {$worker->getJobId()} finish");

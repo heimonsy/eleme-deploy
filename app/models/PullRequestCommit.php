@@ -52,8 +52,13 @@ class PullRequestCommit
     public static function createFromJson($json)
     {
         $o = json_decode($json);
+        if (!isset($o->pullNumber)) {
+            $pullNumber = '';
+        } else {
+            $pullNumber = $o->pullNumber;
+        }
         return new PullRequestCommit(
-            $o->prId, $o->title, $o->user, $o->repo, $o->branch, $o->commit, $o->pullNumber, $o->createAt,$o->lastUpdateAt, $o->buildStatus,
+            $o->prId, $o->title, $o->user, $o->repo, $o->branch, $o->commit, $pullNumber, $o->createAt,$o->lastUpdateAt, $o->buildStatus,
             $o->status, $o->url, $o->testStatus, $o->errorMsg,$o->mergedBy
         );
     }

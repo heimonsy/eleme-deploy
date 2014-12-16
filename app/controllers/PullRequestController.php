@@ -97,12 +97,12 @@ class PullRequestController extends BaseController
             $prCommit->testStatus = 'Waiting';
             $prCommit->errorMsg = NULL;
             $prCommit->buildStatus = 'Waiting';
-            $pr->save($prCommit);
             $res = 0;
             $info = '';
             //Queue::push('PullRequestBuild', array('siteId' => $siteId, 'commit' => $commit), DeployInfo::PR_BUILD_QUEUE);
             $class = Config::get('worker.queue.prbuild');
-            Supervisor::push($class, array('siteId' => $siteId, 'commit' => $commit, 'pullNumber' => $pr->pullNumber), 'prbuild');
+            Supervisor::push($class, array('siteId' => $siteId, 'commit' => $commit, 'pullNumber' => $prCommit->pullNumber), 'prbuild');
+            $pr->save($prCommit);
         } else {
             $res = 1;
             $info = '当前Commit的状态不可Rebuild';

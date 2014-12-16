@@ -35,8 +35,9 @@ class DeployCommitJob implements ElemeJob
 
     public function descriptYourself($message)
     {
-        $commit = $message['commit'];
-        return "Deploy Commit : {$commit}\n";
+        $commit = substr($message['commit'], 0, 7);
+        $siteId = $message['siteId'];
+        return "site $siteId, Deploy Commit : {$commit}\n";
     }
 
     public function updateStatus($status, $errorMsg = NULL)
@@ -91,7 +92,7 @@ class DeployCommitJob implements ElemeJob
         $ifContent = $dc->get(DC::IDENTIFYFILE);
         if (!empty($ifContent)) {
             $passphrase = $dc->get(DC::PASSPHRASE);
-            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/identify.key';
+            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
             if (!File::exists($identifyfile)) {
                 file_put_contents($identifyfile, $ifContent);
                 chmod($identifyfile, 0600);

@@ -18,7 +18,7 @@ class BuildBranchJob implements ElemeJob
 {
     public function descriptYourself($message)
     {
-        return "Build\n";
+        return "Build {$message['siteId']}, branch {$message['branch']}";
     }
 
     public function fire(Worker $worker, $message)
