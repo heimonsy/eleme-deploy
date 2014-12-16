@@ -53,9 +53,6 @@ class ConfigController extends BaseController
         $ifContent = Input::get('identifyfile');
         if ($ifContent != '**** Secret ****') {
             $dc->set(DC::IDENTIFYFILE, Input::get('identifyfile'));
-            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
-            file_put_contents($identifyfile, $ifContent);
-            chmod($identifyfile, 0600);
         }
         $passphrase = Input::get('passphrase');
         if ($passphrase != '******') {

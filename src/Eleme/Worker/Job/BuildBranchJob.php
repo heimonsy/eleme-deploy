@@ -40,10 +40,8 @@ class BuildBranchJob implements ElemeJob
         if (!empty($ifContent)) {
             $passphrase = $dc->get(DC::PASSPHRASE);
             $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
-            if (!File::exists($identifyfile)) {
-                file_put_contents($identifyfile, $ifContent);
-                chmod($identifyfile, 0600);
-            }
+            file_put_contents($identifyfile, $ifContent);
+            chmod($identifyfile, 0600);
         } else {
             $passphrase = null;
             $identifyfile = null;
