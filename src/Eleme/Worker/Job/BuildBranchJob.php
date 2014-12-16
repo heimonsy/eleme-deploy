@@ -36,7 +36,8 @@ class BuildBranchJob implements ElemeJob
         $branchPath = "{$commitRoot}/{$branch}";
         $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
-        $buildCommand = 'make deploy';
+        $buildCommand = $dc->get(DC::BUILD_COMMAND);
+        if (empty($buildCommand)) $buildCommand = 'make deploy';
         $defaultBranch = 'default';
         $developRoot = "{$root}/branch/{$defaultBranch}";
 

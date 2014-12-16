@@ -50,9 +50,14 @@ class ConfigController extends BaseController
     {
         $siteId = Input::get('siteId');
         $dc = new DC($siteId);
-
-        $dc->set(DC::IDENTIFYFILE, Input::get('identifyfile'));
-        $dc->set(DC::PASSPHRASE, Input::get('passphrase'));
+        $identifyfile = Input::get('identifyfile');
+        if ($identifyfile != '**** Secret ****') {
+            $dc->set(DC::IDENTIFYFILE, Input::get('identifyfile'));
+        }
+        $passphrase = Input::get('passphrase');
+        if ($passphrase != '******') {
+            $dc->set(DC::PASSPHRASE, Input::get('passphrase'));
+        }
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
         $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));
