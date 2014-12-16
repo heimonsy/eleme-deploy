@@ -152,21 +152,22 @@ class DeployCommitJob implements ElemeJob
                 if ($rsyLock->acquire()) {
                     try{
                         $HOST_NAME = $host['hostname'];
+                        $PORT = $host['hostport'];
                         //执行同步前每次都执行的本地命令
                         $this->processCommands($staticScript['before']['local']);
                         //执行同步前每次都执行的远端命令
-                        $this->processCommands($staticScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase);
+                        $this->processCommands($staticScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         Log::info("deploying static files to {$HOST_NAME}.");
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase))->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath))->setTimeout(600)->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase))->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
 
                         //执行同步后每次都执行的本地命令
                         $this->processCommands($staticScript['after']['local']);
                         //执行同步后每次都执行的远端命令
-                        $this->processCommands($staticScript['after']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase);
+                        $this->processCommands($staticScript['after']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         $rsyLock->release();
                     } catch (Exception $e) {
@@ -196,21 +197,22 @@ class DeployCommitJob implements ElemeJob
                 if ($rsyLock->acquire()) {
                     try {
                         $HOST_NAME = $host['hostname'];
+                        $PORT = $host['hostport'];
                         //执行同步前每次都执行的本地命令
                         $this->processCommands($webScript['before']['local']);
                         //执行同步前每次都执行的远端命令
-                        $this->processCommands($webScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase);
+                        $this->processCommands($webScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         Log::info("deploying web apps to {$HOST_NAME}.");
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_DIR}", $identifyfile, $passphrase))->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_DIR}", $identifyfile, $passphrase))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath))->setTimeout(600)->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}", $identifyfile, $passphrase))->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
+                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
 
                         //执行同步后每次都执行的本地命令
                         $this->processCommands($webScript['after']['local']);
                         //执行同步后每次都执行的远端命令
-                        $this->processCommands($webScript['after']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase);
+                        $this->processCommands($webScript['after']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         $rsyLock->release();
                     } catch (Exception $e) {
@@ -245,13 +247,13 @@ class DeployCommitJob implements ElemeJob
         $commitLock->release();
     }
 
-    private function processCommands($CMDS, $remoteHostName = NULL, $address = null, $username = null, $identifyfile = null, $passphrase = null)
+    private function processCommands($CMDS, $remoteHostName = NULL, $address = null, $username = null, $identifyfile = null, $passphrase = null, $port = 22)
     {
         foreach ($CMDS as $command) {
             if ($remoteHostName === NULL) {
                 $process = new Process($command);
             } else {
-                $process = new SSHProcess($remoteHostName, $address, $username, $command, $identifyfile, $passphrase);
+                $process = new SSHProcess($remoteHostName, $address, $username, $command, $identifyfile, $passphrase, null, $port);
             }
             $process->run();
             if (!$process->isSuccessful()) {
