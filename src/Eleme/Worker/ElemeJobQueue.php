@@ -34,7 +34,7 @@ class ElemeJobQueue
     public function pop()
     {
         $this->migrateAllDelayJobs();
-        $this->migrateAllExpiredJobs();
+        //$this->migrateAllExpiredJobs();
 
         $job = $this->redis->rpop($this->queueKey);
         if ($job !== null) {

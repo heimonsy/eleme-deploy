@@ -30,13 +30,13 @@ class Worker
                     ob_start();
                     $this->start($this->job);
                     ob_get_clean();
-                    $this->supervisor->removeJobFromReserved($this->job);
                     Log::info("Worker [{$this->supervisor->pid}], job done [ {$this->getJobId()} ]");
                 } catch (\Exception $e) {
                     Log::info("Worker [{$this->supervisor->pid}], job err  [ {$this->getJobId()} ]");
                     Log::error($e);
                     $this->supervisor->workerReporter->reportJob('LISTENING');
                 }
+                $this->supervisor->removeJobFromReserved($this->job);
             } else {
                 if ($attempts !== 0) {
                     sleep(3);
