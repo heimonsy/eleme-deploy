@@ -124,6 +124,7 @@ class BuildBranchJob implements ElemeJob
             $df->save($build);
 
             Log::info($worker->getJobId() . " finish\n---------------------------");
+            (new Process('rm -f' . $identifyfile))->run();
 
         } catch (Exception $e) {
             Log::error($e->getMessage());

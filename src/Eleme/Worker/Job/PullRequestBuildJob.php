@@ -150,6 +150,7 @@ class PullRequestBuildJob implements ElemeJob
                     break;
             }
             $pr->save($commitInfo);
+            (new Process('rm -f' . $identifyfile))->run();
         }
 
         Log::info("progress : $progress");
