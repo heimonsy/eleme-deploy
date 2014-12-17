@@ -19,4 +19,6 @@ a.showErrorLog { color: #e74c3c;}
 
 td a { color: inherit;}
 
-#showErrorModal .modal-body { white-space: pre-wrap; }
+.consolas-font {}
+ /*#showErrorModal .modal-body { white-space: pre-wrap; } */
+.tab-pane-self { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 12px; white-space: pre-wrap; }

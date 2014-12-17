@@ -16,6 +16,9 @@ use Eleme\Worker\GitProcess;
 
 class BuildBranchJob implements ElemeJob
 {
+    private $infoManage;
+    private $deployInfo;
+
     public function descriptYourself($message)
     {
         return "Build {$message['siteId']}, branch {$message['branch']}";
@@ -29,23 +32,13 @@ class BuildBranchJob implements ElemeJob
         $branch = $message['branch'];
 
         $dc = new DC($siteId);
-        $df = new DeployInfo($siteId);
+        $this->infoManage = new DeployInfo($siteId);
 
         $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId;
         $commitRoot = "{$root}/commit/";
         $branchPath = "{$commitRoot}/{$branch}";
         $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
-        $ifContent = $dc->get(DC::IDENTIFYFILE);
-        if (!empty($ifContent)) {
-            $passphrase = $dc->get(DC::PASSPHRASE);
-            $identifyfile = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/identify.key';
-            file_put_contents($identifyfile, $ifContent);
-            chmod($identifyfile, 0600);
-        } else {
-            $passphrase = null;
-            $identifyfile = null;
-        }
         $buildCommand = $dc->get(DC::BUILD_COMMAND) ?: 'make deploy';
         $defaultBranch = 'default';
         $developRoot = "{$root}/branch/{$defaultBranch}";
@@ -61,40 +54,43 @@ class BuildBranchJob implements ElemeJob
         }
 
         try {
-            $build = $df->get($buildId);
+            $this->deployInfo = $this->infoManage->get($buildId);
+
+            $ifContent = $dc->get(DC::IDENTIFYFILE);
+            if (!empty($ifContent)) {
+                $passphrase = $dc->get(DC::PASSPHRASE);
+                $sitePath = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId;
+                if (!File::exists($sitePath)) {
+                    $this->process('mkdir -p ' . $sitePath);
+                }
+                $identifyfile = $sitePath . '/identify.key';
+                file_put_contents($identifyfile, $ifContent);
+                chmod($identifyfile, 0600);
+            } else {
+                $passphrase = null;
+                $identifyfile = null;
+            }
 
             if (!File::exists($developRoot)) {
-                Log::info('Git clone');
-                $createWait = 1;
-                (new Process('mkdir -p ' . $commitRoot))->mustRun();
-                (new Process('mkdir -p ' . $developRoot))->mustRun();
+                $this->refreshStatus('Clone Repo');
                 $worker->report('');
-                (new GitProcess('git clone ' . $gitOrigin . ' ' . $developRoot, $developRoot, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
+                $createWait = 1;
+                $this->process('mkdir -p ' . $commitRoot);
+                $this->process('mkdir -p ' . $developRoot);
+                $this->gitProcess('git clone -q ' . $gitOrigin . ' ' . $developRoot, $developRoot, $identifyfile, $passphrase);
                 unset($createWait);
             }
-            $build['result'] = 'Fetch Origin';
-            $build['last_time'] = date('Y-m-d H:i:s');
-            $df->save($build);
 
-            Log::info("git fetch origin");
+            $this->refreshStatus('Fetch Origin');
             $worker->report('');
-            (new GitProcess("git fetch origin", $developRoot, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
+            $this->gitProcess("git fetch origin", $developRoot, $identifyfile, $passphrase);
             $progress = 1;
-            (new Process("cp -r {$developRoot} {$branchPath}", $commitRoot))->mustRun();
+            $this->process("cp -r {$developRoot} {$branchPath}", $commitRoot);
 
-
-            $revParseProcess = new Process("git rev-parse origin/{$branch}", $branchPath);
-            $revParseProcess->run();
-            if (!$revParseProcess->isSuccessful()) {
-                throw new Exception('Error Message : ' . $revParseProcess->getErrorOutput());
-            }
-
+            $revParseProcess = $this->process("git rev-parse origin/{$branch}", $branchPath);
             $commit = trim($revParseProcess->getOutput());
             $commitPath = "{$commitRoot}/{$commit}";
 
-            $build['result'] = 'Building';
-            $build['last_time'] = date('Y-m-d H:i:s');
-            $df->save($build);
             $needBuild = true;
             if ($commit !== $branch) {
                 if (File::exists($commitPath)) {
@@ -106,48 +102,83 @@ class BuildBranchJob implements ElemeJob
                 }
             }
             if ($needBuild) {
+                $this->refreshStatus('Building', false);
                 Log::info("Build {$siteId} branch:  {$branch}");
 
-                (new Process("git checkout {$commit}", $commitPath))->mustRun();
-
-                Log::info($buildCommand);
+                $this->process("git checkout {$commit}", $commitPath);
                 $worker->report('');
-                (new Process($buildCommand, $commitPath))->setTimeout(600)->mustRun();
+                $this->process($buildCommand, $commitPath);
             }
 
             (new CommitVersion($siteId))->add($commit);
 
-            $build['commit'] = $commit;
-            $build['result'] = 'Build Success';
-            $build['last_time'] = date('Y-m-d H:i:s');
-            $df->save($build);
+            $this->deployInfo['commit'] = $commit;
+            $this->refreshStatus('Build Success');
 
-            Log::info($worker->getJobId() . " finish\n---------------------------");
-            (new Process('rm -f' . $identifyfile))->run();
+            Log::info('--- '. $worker->getJobId() . " finish ---");
 
         } catch (Exception $e) {
-            Log::error($e->getMessage());
-            Log::info($worker->getJobId() . " Error Finish\n---------------------------");
+            Log::error($e);
+            Log::info('--- '. $worker->getJobId() . " ERROR ---");
 
-            $build['errMsg'] = $e->getMessage();
-            $build['result'] = 'Error';
-            $build['last_time'] = date('Y-m-d H:i:s');
-            $df->save($build);
+            //$this->deployInfo['errMsg'] = $e->getFile() . '  '. $e->getLine() . ' : ' . $e->getMessage();
+            $this->deployInfo['errOut'] = $worker->getJobId() .  " error : " . $e->getMessage() . "\n";
+            $this->refreshStatus('Error', false);
 
             switch($progress) {
                 case 2 :
-                    (new Process('rm -rf ' . $commitPath))->run();
+                    $this->process('rm -rf ' . $commitPath);
                 case 1 :
-                    (new Process('rm -rf ' . $branchPath))->run();
-
+                    $this->process('rm -rf ' . $branchPath);
             }
             if (isset($createWait) && $createWait == 1) {
-                (new Process('rm -rf ' . $developRoot))->run();
-                (new Process('rm -rf ' . $commitRoot))->run();
+                $this->process('rm -rf ' . $developRoot);
+                $this->process('rm -rf ' . $commitRoot);
             }
-
         }
 
+        $lock->release();
         Log::info("--- BuildBranchJob End ---");
+        if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
     }
+
+    public function process($command, $cwd = null, $must = true)
+    {
+        $process = new Process($command, $cwd);
+
+        return $this->run($process, $command, $must);
+    }
+
+    public function gitProcess($command, $cwd = null, $identifyfile = null, $passphrase = null, $must = true)
+    {
+        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase);
+        $this->run($process, $command, $must);
+    }
+
+    public function run(Process $process, $originCommand, $must = true)
+    {
+        $str = "<span class='text-info'>{$originCommand}</span>\n";
+        $this->deployInfo['standOut'] .= $str;
+        $this->deployInfo['errOut'] .= $str;
+        $this->infoManage->save($this->deployInfo);
+
+        $must ? $process->setTimeout(600)->mustRun() : $process->run();
+
+        $this->deployInfo['standOut'] .= $process->getOutput();
+        $this->deployInfo['errOut'] .= $process->getErrorOutput();
+        $this->infoManage->save($this->deployInfo);
+
+        return $process;
+    }
+
+    public function refreshStatus($status, $log = true)
+    {
+        $this->deployInfo['result'] = $status;
+        $this->deployInfo['last_time'] = date('Y-m-d H:i:s');
+        $this->infoManage->save($this->deployInfo);
+        if ($log) {
+            Log::info($status);
+        }
+    }
+
 }

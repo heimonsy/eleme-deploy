@@ -75,14 +75,7 @@
                     <td><a href="https://github.com/{{ m.user }}" target="_blank">{{ m.user }}</a></td>
                     <td>{{ m.time }}</td>
                     <td>{{ m.last_time }}</td>
-                    {% if m.result == 'Error' %}
-                        <td><a href="#" class="showErrorBtn showErrorLog" data-info="{{ m.errMsg | escape }}">{{ m.result }}</a></td>
-                    {% elseif m.errMsg == null%}
-                        <td>{{ m.result }}</td>
-                    {% else %}
-                        <td><a href="#" class="showErrorBtn" data-info="{{ m.errMsg | escape }}">{{ m.result }}</a></td>
-                    {% endif %}
-
+                    <td><a href="#" class="showErrorBtn">{{ m.result }}</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -95,11 +88,23 @@
 <div class="modal fade" id="showErrorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">Error</h4>
+            <div class="modal-body" role="tabpanel">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <!-- Nav tabs -->
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#standOut" aria-controls="standOut" role="tab" data-toggle="tab">Output</a></li>
+                            <li role="presentation"><a href="#errOut" aria-controls="errOut" role="tab" data-toggle="tab">Error Output</a></li>
+                        </ul>
+                        <br>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane tab-pane-self active" id="standOut"></div>
+                            <div role="tabpanel" class="tab-pane tab-pane-self" id="errOut"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -146,14 +151,20 @@ $(function() {
     var initErrorLogBtn = function() {
         $(".showErrorBtn").unbind('click');
         $(".showErrorBtn").click(function(e) {
+            var btn = $(this);
+            btn.button('loading');
             var tr = $(this).parent().parent();
-            if (tr.isSuccess()) {
-                $('#myModalLabel').html('Warning');
-            } else {
-                $('#myModalLabel').html('Error');
-            }
-            $("#showErrorModal .modal-body").html($(this).attr('data-info'));
-            $("#showErrorModal").modal("show");
+            $.getJSON('/deploy/info/logs', {
+                'siteId' : '{{ siteId }}',
+                'id' : tr.attr('data-id')
+            }, function (data) {
+                if (data.res == 0) {
+                    $("#standOut").html(data.info.standOut);
+                    $("#errOut").html(data.info.errOut);
+                    $("#showErrorModal").modal("show");
+                }
+                btn.button('reset');
+            });
             return false;
         });
     };
@@ -179,7 +190,6 @@ $(function() {
                         var tr = obs[parseInt(data.hosts[i].id)];
                         if (tr == undefined) continue;
                         tr.attr('data-result', data.hosts[i].result);
-                        tr.children('td:last').html(data.hosts[i].result);
                         tr.children('td:eq(2)').html(data.hosts[i].commit.slice(0, 7));
                         tr.children('td:eq(6)').html(data.hosts[i].last_time);
                         if (tr.isSuccess()) {
@@ -189,16 +199,10 @@ $(function() {
                                     data.hosts[i].commit.slice(0, 7) +'</option>');
                                 $("#s-commit").val(data.hosts[i].commit);
                             }
-                            if (data.hosts[i].errMsg != null) {
-                                tr.children('td:last').html("<a href=\"#\" class=\"showErrorBtn\" data-info=\""
-                                    + escapeHtml(data.hosts[i].errMsg) + "\">Deploy Success</a>");
-                            }
-                        }
-                        if (tr.isError()) {
+                        } else if (tr.isError()) {
                             tr.attr('class', 'text-danger');
-                            tr.children('td:last').html("<a href=\"#\" class=\"showErrorBtn showErrorLog\" data-info=\""
-                                + escapeHtml(data.hosts[i].errMsg) + "\">Error</a>");
                         }
+                        tr.children('td:last').html("<a href=\"#\" class=\"showErrorBtn\">" + data.hosts[i].result + "</a>");
                         initErrorLogBtn();
                     }
                 }

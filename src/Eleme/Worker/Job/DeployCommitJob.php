@@ -40,18 +40,20 @@ class DeployCommitJob implements ElemeJob
         return "site $siteId, Deploy Commit : {$commit}\n";
     }
 
-    public function updateStatus($status, $errorMsg = NULL)
+    public function updateStatus($status = null, $errorMsg = NULL, $standOut = null, $errOut = null)
     {
         $date = date('Y-m-d H:i:s');
         if ($this->type == self::TYPE_PULL_REQUEST) {
-            $this->prDeployInfo->status = $status;
+            $this->prDeployInfo->status = $status ?: $this->prDeployInfo->status;
             $this->prDeployInfo->updateTime = $date;
-            $this->prDeployInfo->errorMsg = $errorMsg;
+            $this->prDeployInfo->errorMsg = $errorMsg ?: $this->prDeployInfo->errorMsg;
             $this->pr->save($this->prDeployInfo);
         } else {
-            $this->deployInfo['result'] = $status;
+            $this->deployInfo['result'] = $status ?: $this->deployInfo['result'];
             $this->deployInfo['last_time'] = $date;
-            $this->deployInfo['errMsg'] = $errorMsg;
+            $this->deployInfo['errMsg'] = $errorMsg ?: $this->deployInfo['errMsg'];
+            $this->deployInfo['standOut'] .= $standOut ?: '';
+            $this->deployInfo['errOut'] .= $errOut ?: '';
             $this->dfManger->save($this->deployInfo);
         }
     }
@@ -157,10 +159,10 @@ class DeployCommitJob implements ElemeJob
                         $this->processCommands($staticScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         Log::info("deploying static files to {$HOST_NAME}.");
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT);
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT);
+                        $this->rsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_STATIC_DIR, $REMOTE_STATIC_DIR, RsyncProcess::KEEP_FILES, $identifyfile, $passphrase, $commitPath, $PORT);
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_STATIC_DIR}", $identifyfile, $passphrase, null, $PORT);
 
                         //执行同步后每次都执行的本地命令
                         $this->processCommands($staticScript['after']['local']);
@@ -202,10 +204,10 @@ class DeployCommitJob implements ElemeJob
                         $this->processCommands($webScript['before']['remote'], $HOST_NAME, $host['hostip'], $remoteUser, $identifyfile, $passphrase, $PORT);
 
                         Log::info("deploying web apps to {$HOST_NAME}.");
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
-                        (new RsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath, $PORT))->setTimeout(600)->mustRun();
-                        (new SSHProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT))->mustRun();
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo mkdir -p {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT);
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteUser} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT);
+                        $this->rsyncProcess($HOST_NAME, $host['hostip'], $remoteUser, $RSYNC_EXCLUDE, $LOCAL_DIR, $REMOTE_DIR, RsyncProcess::FORCE_DELETE, $identifyfile, $passphrase, $commitPath, $PORT);
+                        $this->sshProcess($HOST_NAME, $host['hostip'], $remoteUser, "sudo chown {$remoteOwner} -R {$REMOTE_DIR}", $identifyfile, $passphrase, null, $PORT);
 
                         //执行同步后每次都执行的本地命令
                         $this->processCommands($webScript['after']['local']);
@@ -237,30 +239,63 @@ class DeployCommitJob implements ElemeJob
 
         } catch (Exception $e) {
             //if ($rsyLock != null) $rsyLock->release();
-            $this->updateStatus('Error', "file : " . $e->getFile() . "\nline : " . $e->getLine() . "\n Error Msg : " . $e->getMessage());
+            $errMsg = $worker->getJobId() .  " error : " . $e->getMessage() . "\n";
+            $this->updateStatus('Error', $errMsg, null, $errMsg);
 
-            Log::error($e->getMessage());
+            Log::error($e);
             Log::info($worker->getJobId() . " Error Finish\n---------------------------");
         }
         $commitLock->release();
 
-        (new Process('rm -f' . $identifyfile))->run();
+        if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
     }
 
     private function processCommands($CMDS, $remoteHostName = NULL, $address = null, $username = null, $identifyfile = null, $passphrase = null, $port = 22)
     {
         foreach ($CMDS as $command) {
             if ($remoteHostName === NULL) {
-                $process = new Process($command);
+                $this->process($command);
             } else {
-                $process = new SSHProcess($remoteHostName, $address, $username, $command, $identifyfile, $passphrase, null, $port);
-            }
-            $process->run();
-            if (!$process->isSuccessful()) {
-                $info = "Command Warning : $command  \nWarning Info : {$process->getErrorOutput()}";
-                Log::info($info);
-                $this->warnings[] = $info;
+                $this->sshProcess($remoteHostName, $address, $username, $command, $identifyfile, $passphrase, null, $port, false);
             }
         }
+    }
+
+    public function process($command, $cwd = null, $must = true)
+    {
+        $process = new Process($command, $cwd);
+
+        return $this->run($process, $command, $must);
+    }
+
+    public function sshProcess($host, $address, $username, $command, $identifyfile, $passphrase, $cwd = null, $port = 22, $must = true)
+    {
+        $process = new SSHProcess($host, $address, $username, $command, $identifyfile, $passphrase, null, $port);
+
+        return $this->run($process, $command, $must);
+    }
+
+    public function rsyncProcess($hostname, $address, $username, $exclude, $localDir, $remoteDir, $forceDelete, $identityfile = null, $passphrase = null, $cwd = null, $port = 22, $must = true)
+    {
+        $process = new RsyncProcess($hostname, $address, $username, $exclude, $localDir, $remoteDir, $forceDelete, $identityfile, $passphrase, $cwd, $port);
+        return $this->run($process, 'RSYNC', $must);
+    }
+
+    public function gitProcess($command, $cwd = null, $identifyfile = null, $passphrase = null, $must = true)
+    {
+        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase);
+        return $this->run($process, $command, $must);
+    }
+
+    public function run(Process $process, $originCommand, $must = true)
+    {
+        $str = "<span class='text-info'>{$originCommand}</span>\n";
+        $this->updateStatus(null, null, $str, $str);
+
+        $must ? $process->setTimeout(600)->mustRun() : $process->run();
+
+        $this->updateStatus(null, null, $process->getOutput(), $process->getErrorOutput());
+
+        return $process;
     }
 }

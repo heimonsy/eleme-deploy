@@ -62,6 +62,9 @@ class DeployController extends BaseController
             'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
             'result' => 'Build Waiting',
+            'errMsg' => ' ',
+            'errOut' => "<div class='text-center'>----------- ERROR OUTPUT -----------</div>\n",
+            'standOut' => "<div class='text-center'>----------- STANDED OUTPUT -----------</div>\n",
         );
         $id = (new DeployInfo($siteId))->add($deploy);
 
@@ -85,6 +88,9 @@ class DeployController extends BaseController
             'time'   => date('Y-m-d H:i:s'),
             'last_time' => '0000-00-00 00:00:00',
             'result' => 'Deploy Waiting',
+            'errMsg' => ' ',
+            'errOut' => "<div class='text-center'>----------- ERROR OUTPUT -----------</div>\n",
+            'standOut' => "<div class='text-center'>----------- STANDED OUTPUT -----------</div>\n",
         );
         $id = (new DeployInfo($siteId))->add($deploy);
 
@@ -108,6 +114,18 @@ class DeployController extends BaseController
         return Response::json(array(
             'res' => 0,
             'hosts' => $hosts,
+        ));
+    }
+
+    public function logs()
+    {
+        $id = Input::get('id');
+        $siteId = Input::get('siteId');
+        $info = (new DeployInfo($siteId))->get($id);
+
+        return Response::json(array(
+            'res' => 0,
+            'info' => $info,
         ));
     }
 } 
