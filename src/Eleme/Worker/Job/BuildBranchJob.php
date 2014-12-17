@@ -46,8 +46,7 @@ class BuildBranchJob implements ElemeJob
             $passphrase = null;
             $identifyfile = null;
         }
-        $buildCommand = $dc->get(DC::BUILD_COMMAND);
-        if (empty($buildCommand)) $buildCommand = 'make deploy';
+        $buildCommand = $dc->get(DC::BUILD_COMMAND) ?: 'make deploy';
         $defaultBranch = 'default';
         $developRoot = "{$root}/branch/{$defaultBranch}";
 
@@ -111,7 +110,7 @@ class BuildBranchJob implements ElemeJob
 
                 (new Process("git checkout {$commit}", $commitPath))->mustRun();
 
-                Log::info("make deploy");
+                Log::info($buildCommand);
                 $worker->report('');
                 (new Process($buildCommand, $commitPath))->setTimeout(600)->mustRun();
             }

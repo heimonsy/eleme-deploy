@@ -105,8 +105,7 @@ class PullRequestBuildJob implements ElemeJob
             $commitInfo->buildStatus = 'Building';
             $pr->save($commitInfo);
             $progress = 4;
-            $cmd = $dc->get(DC::BUILD_COMMAND);
-            if (empty($cmd)) $cmd= 'make deploy';
+            $cmd = $dc->get(DC::BUILD_COMMAND) ?: 'make deploy';
             Log::info($cmd);
             (new Process($cmd, $commitPath))->setTimeout(600)->mustRun();
             $commitInfo->buildStatus = 'Success';
