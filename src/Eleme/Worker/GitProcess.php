@@ -17,7 +17,7 @@ class GitProcess extends Process
             $command = base_path() . '/scripts/git.sh -i ' . $identityfile . ' ' . $cmd;
             $commandline = $this->expect($command);
         } else {
-            $command = 'git ' . $cmd;
+            $command = $cmd;
             $commandline = $this->expect($cmd);
         }
         parent::__construct($commandline, $cwd);
