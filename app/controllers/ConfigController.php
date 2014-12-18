@@ -22,6 +22,7 @@ class ConfigController extends BaseController
 
         $passphrase = empty($dc->get(DC::PASSPHRASE)) ? '' : '******';
         $identifyfile = empty($dc->get(DC::IDENTIFYFILE))? '' : '**** Secret ****';
+        $hipchatToken = empty($dc->get(DC::HIPCHAT_TOKEN))? '' : '******';
 
         return View::make('deploy.config', array(
             'workRoot'       => (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD),
@@ -36,6 +37,8 @@ class ConfigController extends BaseController
             'remote_owner'      => $dc->get(DC::REMOTE_OWNER),
             'staticScript'      => $dc->get(DC::DEPLOY_STATIC_SCRIPT),
             'webScript'         => $dc->get(DC::DEPLOY_WEB_SCRIPT),
+            'hipchatRoom'         => $dc->get(DC::HIPCHAT_ROOM),
+            'hipchatToken'         => $hipchatToken,
             'gitOrigin'         => $dc->get(DC::GIT_ORIGIN),
             'testCommand'       => $dc->get(DC::TEST_COMMAND),
             'passphrase'       => $passphrase,
@@ -58,6 +61,12 @@ class ConfigController extends BaseController
         if ($passphrase != '******') {
             $dc->set(DC::PASSPHRASE, Input::get('passphrase'));
         }
+        $hipchatToken = Input::get('hipchatToken');
+        if ($hipchatToken != '******') {
+            $dc->set(DC::HIPCHAT_TOKEN, Input::get('hipchatToken'));
+        }
+
+        $dc->set(DC::HIPCHAT_ROOM, Input::get('hipchatRoom'));
         $dc->set(DC::STATIC_DIR, Input::get('staticDir'));
         $dc->set(DC::DEFAULT_BRANCH, Input::get('defaultBranch'));
         $dc->set(DC::REMOTE_USER, Input::get('remoteUser'));

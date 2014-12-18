@@ -26,6 +26,8 @@ class DeployConfig
     const TEST_COMMAND = 'TEST:COMMAND';
     const PASSPHRASE = 'SSH:PASSPHRASE';
     const IDENTIFYFILE = 'SSH:IDENTIFYFILE';
+    const HIPCHAT_ROOM = 'HIPCHAT:ROOM';
+    const HIPCHAT_TOKEN = 'HIPCHAT:TOKEN';
 
     private $prefix = 'deploy:H:config:';
     private $key;

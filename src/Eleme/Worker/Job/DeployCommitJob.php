@@ -19,6 +19,7 @@ use SplQueue;
 use SSHProcess\SSHProcess;
 use SSHProcess\RsyncProcess;
 use ScriptCommand;
+use Heimonsy\HipChat;
 
 
 class DeployCommitJob implements ElemeJob
@@ -236,6 +237,16 @@ class DeployCommitJob implements ElemeJob
             $this->updateStatus('Deploy Success', $errMsg);
 
             Log::info($worker->getJobId()." finish");
+            try {
+                $token = $dc->get(DC::HIPCHAT_TOKEN);
+                $room = $dc->get(DC::HIPCHAT_ROOM);
+                if (!empty($token) && !empty($room)) {
+                    $client = new HipChat($token, $room);
+                    $client->notify("Deploy {$siteId} success, commit {$commit}");
+                }
+            } catch (Exception $e) {
+                Log::error("HipChat Error:\n" . $e);
+            }
 
         } catch (Exception $e) {
             //if ($rsyLock != null) $rsyLock->release();
