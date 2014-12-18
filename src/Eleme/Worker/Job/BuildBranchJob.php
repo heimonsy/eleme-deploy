@@ -144,14 +144,14 @@ class BuildBranchJob implements ElemeJob
 
     public function process($command, $cwd = null, $must = true)
     {
-        $process = new Process($command, $cwd);
+        $process = new Process($command, $cwd, 600);
 
         return $this->run($process, $command, $must);
     }
 
     public function gitProcess($command, $cwd = null, $identifyfile = null, $passphrase = null, $must = true)
     {
-        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase);
+        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase, 600);
         $this->run($process, $command, $must);
     }
 

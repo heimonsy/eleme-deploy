@@ -242,7 +242,7 @@ class DeployCommitJob implements ElemeJob
                 $room = $dc->get(DC::HIPCHAT_ROOM);
                 if (!empty($token) && !empty($room)) {
                     $client = new HipChat($token, $room);
-                    $client->notify("Deploy {$siteId} success, commit {$commit}");
+                    $client->notify("Deploy {$siteId} to {$hostType} success, commit {$commit}");
                 }
             } catch (Exception $e) {
                 Log::error("HipChat Error:\n" . $e);
@@ -281,20 +281,20 @@ class DeployCommitJob implements ElemeJob
 
     public function sshProcess($host, $address, $username, $command, $identifyfile, $passphrase, $cwd = null, $port = 22, $must = true)
     {
-        $process = new SSHProcess($host, $address, $username, $command, $identifyfile, $passphrase, null, $port);
+        $process = new SSHProcess($host, $address, $username, $command, $identifyfile, $passphrase, null, $port, 600);
 
         return $this->run($process, $command, $must);
     }
 
     public function rsyncProcess($hostname, $address, $username, $exclude, $localDir, $remoteDir, $forceDelete, $identityfile = null, $passphrase = null, $cwd = null, $port = 22, $must = true)
     {
-        $process = new RsyncProcess($hostname, $address, $username, $exclude, $localDir, $remoteDir, $forceDelete, $identityfile, $passphrase, $cwd, $port);
+        $process = new RsyncProcess($hostname, $address, $username, $exclude, $localDir, $remoteDir, $forceDelete, $identityfile, $passphrase, $cwd, $port, 600);
         return $this->run($process, 'RSYNC', $must);
     }
 
     public function gitProcess($command, $cwd = null, $identifyfile = null, $passphrase = null, $must = true)
     {
-        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase);
+        $process = new GitProcess($command, $cwd, $identifyfile, $passphrase, 600);
         return $this->run($process, $command, $must);
     }
 
@@ -303,7 +303,7 @@ class DeployCommitJob implements ElemeJob
         $str = "<span class='text-info'>{$originCommand}</span>\n";
         $this->updateStatus(null, null, $str, $str);
 
-        $must ? $process->setTimeout(600)->mustRun() : $process->run();
+        $must ? $process->setTimeout(600)->mustRun() : $process->setTimeout(600)->run();
 
         $this->updateStatus(null, null, $process->getOutput(), $process->getErrorOutput());
 

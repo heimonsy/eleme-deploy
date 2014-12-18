@@ -8,17 +8,17 @@ class GitProcess extends Process
 {
     use SSHProtocolTrait;
 
-    public function __construct($cmd, $cwd = null, $identityfile = null, $passphrase = null)
+    public function __construct($cmd, $cwd = null, $identityfile = null, $passphrase = null, $timeout = 180)
     {
         if (!empty($passphrase)) {
             $command = base_path() . '/scripts/git.sh -i ' . $identityfile . ' ' . $cmd;
-            $commandline = $this->expectWithPassphrase($command, $passphrase);
+            $commandline = $this->expectWithPassphrase($command, $passphrase, $timeout);
         } elseif (!empty($identityfile)) {
             $command = base_path() . '/scripts/git.sh -i ' . $identityfile . ' ' . $cmd;
-            $commandline = $this->expect($command);
+            $commandline = $this->expect($command, $timeout);
         } else {
             $command = $cmd;
-            $commandline = $this->expect($cmd);
+            $commandline = $this->expect($cmd, $timeout);
         }
         parent::__construct($commandline, $cwd);
     }

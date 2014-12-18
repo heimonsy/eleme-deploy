@@ -88,7 +88,7 @@ class PullRequestBuildJob implements ElemeJob
             if (!File::exists($commitPath)) {
                 $cmd = "git fetch -f origin +refs/pull/{$pullNumber}/head";
                 Log::info($cmd ."  " . $prDefaultBranch);
-                (new GitProcess($cmd, $prDefaultBranch, $identifyfile, $passphrase))->setTimeout(600)->mustRun();
+                (new GitProcess($cmd, $prDefaultBranch, $identifyfile, $passphrase, 600))->setTimeout(600)->mustRun();
 
                 $progress = 3;
                 $cmd = "cp -r $prDefaultBranch $commitPath";
