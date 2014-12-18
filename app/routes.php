@@ -1,11 +1,11 @@
 <?php
 
-App::before(function($request){
+App::before(function($request) {
     $preg = '/^\/github\/oauth|\/logout|\/playload/';
     $check =  GithubLogin::check();
     if (!$check && preg_match($preg, $request->getRequestUri()) == 0) {
         return Redirect::to('/github/oauth/confirm');
-    } else if($check) {
+    } elseif ($check) {
         $user = GithubLogin::getLoginUser();
         View::share('login', $user->login);
     }
@@ -33,8 +33,8 @@ Route::post('/playload', function() {
         if ($siteId !== NULL) {
             $pr = new PullRequest($siteId);
             $have = $pr->get($commit);
-            if($have !== NULL) {
-                if($notifyObject->action == 'closed'){
+            if ($have !== NULL) {
+                if ($notifyObject->action == 'closed') {
                     $mgb = $notifyObject->pull_request->merged_by;
                     $have->mergedBy = empty($mgb) ? '' : $mgb->login;
                     $commitList = $pr->getListByPRId($notifyObject->pull_request->id);
@@ -42,7 +42,7 @@ Route::post('/playload', function() {
                         $m->status = 'closed';
                         $pr->save($m);
                     }
-                } else if($notifyObject->action == 'reopened') {
+                } elseif ($notifyObject->action == 'reopened') {
                     $commitList = $pr->getListByPRId($notifyObject->pull_request->id);
                     foreach ($commitList as $m) {
                         $m->status = 'open';
@@ -59,29 +59,33 @@ Route::post('/playload', function() {
             }
         }
     }
+
     return  "";
 });
 
-Route::get('/github/oauth/confirm', function(){
+Route::get('/github/oauth/confirm', function() {
     if (GithubLogin::check()) {
         return Redirect::to('/');
     }
+
     return Response::view('oauth-confirm');
 });
 
-Route::get('/github/oauth', function(){
+Route::get('/github/oauth', function() {
     if (GithubLogin::check()) {
         return Redirect::to('/');
     }
+
     return Redirect::to(GithubLogin::authorizeUrl());
 });
 
-Route::get('/logout', function(){
+Route::get('/logout', function() {
     $cookie = GithubLogin::logout();
+
     return Redirect::to('/github/oauth/confirm')->withCookie($cookie);
 });
 
-Route::get('/github/oauth/callback', function(){
+Route::get('/github/oauth/callback', function() {
     if (GithubLogin::check()) {
         return Redirect::to('/');
     }
@@ -113,7 +117,6 @@ Route::get('/github/oauth/callback', function(){
         $cookie = GithubLogin::login($user->login, $email, $accessToken, $orgTeams);
 
         return Redirect::to('/')->withCookie($cookie);
-
     } else {
         return "ORG ERROR";
     }
@@ -123,10 +126,11 @@ Route::get('/user/permissions/refresh', function () {
     $user = GithubLogin::getLoginUser();
     $user->sitePermission();
     GithubLogin::sessionUser($user);
+
     return Redirect::to('/');
 });
 
-Route::get('/user/team/repos', function(){
+Route::get('/user/team/repos', function() {
     $repos = array();
     $user = GithubLogin::getLoginUser();
     foreach ($user->teams as $team) {
@@ -148,7 +152,7 @@ Route::post('/site/del', 'SystemController@delSite');
 
 Route::post('/config/save', 'ConfigController@saveConfig');
 
-Route::get('/test', function(){
+Route::get('/test', function() {
     //\Eleme\Worker\Report\WorkerReport::clearPids();
     //return 'hehe';
     //$class = Config::get('worker.queue.build');
@@ -160,7 +164,7 @@ Route::get('/test', function(){
     return '<hr>hehe';
 });
 
-Route::get('/clear', function(){
+Route::get('/clear', function() {
     //$client = new \GuzzleHttp\Client();
     //$res = $client->get('');
     //$client = new Eleme\Github\GithubClient('ad9ea7efa56f8cb8c780058622058e43f48a39f2');
@@ -172,7 +176,7 @@ Route::get('/clear', function(){
     return '<hr>hehe';
 });
 
-Route::get('/process', function(){
+Route::get('/process', function() {
     //(new Symfony\Component\Process\Process('ssh-keygen -R github.com'))->mustRun();
     //(new Symfony\Component\Process\Process('git clone root@arch:~/hehe /home/vagrant/deploy/deploy/branch/default --depth 20'))->mustRun();
     //
@@ -186,11 +190,11 @@ Route::get('/process', function(){
 Route::get('/site/config/{siteId}', 'ConfigController@config');
 
 Route::get('/deploy/{siteId}', 'DeployController@index');
+Route::get('/deploy/info/logs', 'DeployController@logs');
 
 Route::get('/host/config/{siteId}', 'ConfigController@hostConfig');
 Route::post('/host/add', 'ConfigController@hostAdd');
 Route::post('/host/del', 'ConfigController@hostDel');
-
 
 Route::post('/branch/deploy', 'DeployController@branch');
 Route::post('/commit/deploy', 'DeployController@commit');
@@ -203,7 +207,6 @@ Route::get('/{siteId}/status/pull_request/build', 'PullRequestController@buildSt
 Route::post('/{siteId}/pull_request/rebuild', 'PullRequestController@rebuild');
 Route::post('/{siteId}/pull_request/deploy', 'PullRequestController@toDeploy');
 Route::get('/{siteId}/status/pull_request/deploy', 'PullRequestController@deployStatus');
-
 
 // job
 Route::get('/workers', 'JobController@index');
