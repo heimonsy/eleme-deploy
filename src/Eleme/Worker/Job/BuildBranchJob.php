@@ -144,7 +144,7 @@ class BuildBranchJob implements ElemeJob
 
     public function process($command, $cwd = null, $must = true)
     {
-        $process = new Process($command, $cwd, 600);
+        $process = new Process($command, $cwd);
 
         return $this->run($process, $command, $must);
     }
