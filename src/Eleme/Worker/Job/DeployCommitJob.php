@@ -74,6 +74,7 @@ class DeployCommitJob implements ElemeJob
             $this->type = self::TYPE_PULL_REQUEST;
             $this->pr = new PullRequestDeploy($siteId);
             $this->prDeployInfo = $this->pr->get($id);
+            $operateUser = $this->prDeployInfo->operateUser;
 
             $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/pull_requests';
             $commitPath = "$root/commit/$commit";
@@ -83,6 +84,7 @@ class DeployCommitJob implements ElemeJob
             $this->dfManger = new DeployInfo($siteId);
             $id = $message['id'];
             $this->deployInfo = $this->dfManger->get($id);
+            $operateUser = $this->deployInfo['user'];
 
             $root = (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD) . '/' . $siteId . '/commit';
             $commitPath = "{$root}/{$commit}";
@@ -242,7 +244,7 @@ class DeployCommitJob implements ElemeJob
                 $room = $dc->get(DC::HIPCHAT_ROOM);
                 if (!empty($token) && !empty($room)) {
                     $client = new HipChat($token, $room);
-                    $client->notify("Deploy {$siteId} to {$hostType} success, commit {$commit}");
+                    $client->notify("deploy {$siteId} to {$hostType} success\nCommit: {$commit}\nDeploy Id: {$id}\nkl'wDeploy By: {$operateUser}\nDeploy Detail: http://deploy.elenet.me/deploy/{$siteId}");
                 }
             } catch (Exception $e) {
                 Log::error("HipChat Error:\n" . $e);
