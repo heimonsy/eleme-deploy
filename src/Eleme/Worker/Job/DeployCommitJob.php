@@ -305,7 +305,7 @@ class DeployCommitJob implements ElemeJob
 
         $must ? $process->setTimeout(600)->mustRun() : $process->setTimeout(600)->run();
 
-        $this->updateStatus(null, null, $process->getOutput(), $process->getErrorOutput());
+        $this->updateStatus(null, null, $process->getOutput(), preg_replace('/"Enter passphrase" \{ send ".+/', '--------', $process->getErrorOutput()));
 
         return $process;
     }
