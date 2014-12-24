@@ -153,6 +153,11 @@ Route::post('/site/del', 'SystemController@delSite');
 Route::post('/config/save', 'ConfigController@saveConfig');
 
 Route::get('/test', function() {
+    //Mail::send('emails.deploy', array('siteId' => 'web2', 'status' => 'Success', 'hostType' => 'testing', 'commit' => 'f548a32fd929500d28966d60c432d833c0391167', 'repoName' => 'heimonsy/eleme-deploy'), function($message)
+    //{
+        //$message->to('heimonsy@gmail.com', 'Heimonsy')->subject('[TEST] Deploy Success!');
+        //$message->cc('250661062@qq.com')->cc('hongbo.tang@ele.me');
+    //});
     //\Eleme\Worker\Report\WorkerReport::clearPids();
     //return 'hehe';
     //$class = Config::get('worker.queue.build');
@@ -214,3 +219,7 @@ Route::get('/worker/process.json', 'JobController@process');
 Route::post('/worker/clear-no-response', 'JobController@clearNoResponse');
 Route::post('/worker/new', 'JobController@newWorker');
 Route::post('/worker/shutdown', 'JobController@shutdownProcess');
+
+// watch
+Route::post('/sites/{siteId}/watch', 'SystemController@watch');
+Route::post('/sites/{siteId}/notwatch', 'SystemController@notWatch');

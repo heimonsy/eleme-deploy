@@ -19,10 +19,19 @@ class SystemController extends BaseController
     {
         $sc = new SystemConfig();
         $hostTypes = (new HostType())->permissionList();
+        ksort($hostTypes, SORT_STRING);
 
         $success = Session::get('SCS', false);
+        $user = GithubLogin::getLoginUser();
+        $watchSites = Watch::allSiteWatched($user->login);
+        foreach ($this->validSites as $key => $value) {
+            if (in_array($value['siteId'], $watchSites)) {
+                $this->validSites[$key]['watch'] = true;
+            }
+        }
 
         return View::make('index', array(
+            'listSites' => $this->validSites,
             'hostTypes' => $hostTypes,
             'success' => $success,
             'workRoot' => $sc->get(SystemConfig::WORK_ROOT_FIELD),
@@ -103,4 +112,19 @@ class SystemController extends BaseController
         return Response::json(array('res' => 0));
     }
 
+    public function watch($siteId)
+    {
+        $user = GithubLogin::getLoginUser();
+        (new Watch($user->login, $siteId))->watch();
+
+        return Response::json(array('res' => 0));
+    }
+
+    public function notWatch($siteId)
+    {
+        $user = GithubLogin::getLoginUser();
+        (new Watch($user->login, $siteId))->notWatch();
+
+        return Response::json(array('res' => 0));
+    }
 }

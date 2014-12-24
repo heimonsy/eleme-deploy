@@ -22,3 +22,5 @@ td a { color: inherit;}
 .consolas-font {}
  /*#showErrorModal .modal-body { white-space: pre-wrap; } */
 .tab-pane-self { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 12px; white-space: pre-wrap; }
+
+.dropdown-menu a[href] { text-decoration: none; }

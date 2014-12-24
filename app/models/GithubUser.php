@@ -46,7 +46,7 @@ class GithubUser
 
     public function set()
     {
-        return $this->redis->set($this->key(), $this->json(), 'EX', $this->expires);
+        return $this->redis->set($this->key(), $this->json());
     }
 
     public function json()

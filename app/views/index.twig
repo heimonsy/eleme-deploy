@@ -124,11 +124,21 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for m in sites %}
+                                    {% for m in listSites %}
                                     <tr>
                                         <td>{{ m.siteId }}</td>
                                         <td>{{ m.siteName }}</td>
                                         <td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn {{ m.watch ? 'btn-info' : 'btn-default' }} btn-xs dropdown-toggle" data-toggle="dropdown">
+                                                    {{ m.watch ? 'Watching' : 'Not Watch' }} <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="#" class="d-watch" data-id="{{ m.siteId }}">Watch</a></li>
+                                                    <li><a href="#" class="not-watch" data-id="{{ m.siteId }}" disabled>Not Watch</a></li>
+                                                </ul>
+                                            </div>
+                                            &nbsp;&nbsp;
                                             {% if m.siteId in adminSites or isSuperUser  %}
                                             <button data-id="{{ m.siteId }}" data-name="{{ m.siteName }}" class="btn btn-xs btn-warning delSite">删除</button>
                                             {% endif %}

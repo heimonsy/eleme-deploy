@@ -9,6 +9,8 @@
 
 class BaseController extends Controller
 {
+    protected $validSites;
+
     public function __construct()
     {
         $sites = (new WebSite())->getList();
@@ -34,6 +36,7 @@ class BaseController extends Controller
             $i++;
         }
 
+        $this->validSites = $validSites;
         View::share('sites', $validSites);
         View::share('isSuperUser', $isSuperUser);
         View::share('adminSites', $adminSites);
