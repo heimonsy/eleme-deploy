@@ -1,4 +1,6 @@
 <?php
+
+use Eleme\Github\GithubClient;
 /**
  * Created by PhpStorm.
  * User: heimonsy
@@ -28,11 +30,11 @@ class TeamRepos
         $jstr = $this->redis->get($this->key());
         if (empty($jstr)) {
             //$user = GithubLogin::getLoginUser();
-            $client = new \Eleme\Github\GithubClient($userToken);
             $this->repos = array();
             $page = 1;
-            $url = $client->catUrl('teams/' . $teamId . '/repos');
+            $url = GithubClient::catUrl('teams/' . $teamId . '/repos');
             do {
+                $client = new GithubClient($userToken);
                 $tempRepos = $client->get($url);
                 if (empty($tempRepos->message)) {
                     foreach ($tempRepos as $m) {
@@ -52,6 +54,9 @@ class TeamRepos
                 preg_match('/<(.+?)>; rel="next"/', $header, $matchs);
                 if (count($matchs) != 2) break;
                 $url = $matchs[1];
+
+                unset($tempRepos);
+                unset($client);
             } while (!empty($url));
             $this->save();
         } else {
