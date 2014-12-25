@@ -1,0 +1,9 @@
+<body>
+    <p><strong>Message: </strong>Deploy <span style="color: blue;">{{ siteId }}</span> to <span style="color: blue;">{{ hostType }}</span> <span style="color: {{ status == 'Success' ? 'green' : 'red' }};">{{ status }}</span></p>
+    <p><strong>Deploy ID: </strong>{{ id }}</p>
+    <p><strong>Operater: </strong>{{ user }}</p>
+    <p><strong>Status: </strong><span style="color: {{ status == 'Success' ? 'green' : 'red' }};">{{ status }}</span></p>
+    <p><strong>Host Type: </strong>{{ hostType }}</p>
+    <p><strong>Commit: </strong>{{ commit }}</p>
+    <p><strong>Diff: </strong><a href="https://github.com/{{ repoName }}/commit/{{ commit }}" target="_blank">https://github.com/{{ repoName }}/commit/{{ commit }}<a></p>
+</body>

@@ -20,6 +20,8 @@ use SSHProcess\SSHProcess;
 use SSHProcess\RsyncProcess;
 use ScriptCommand;
 use Heimonsy\HipChat;
+use Watch;
+use GithubUser;
 
 
 class DeployCommitJob implements ElemeJob
@@ -68,6 +70,7 @@ class DeployCommitJob implements ElemeJob
 
         $dc = new DC($siteId);
         $staticDir = $dc->get(DC::STATIC_DIR);
+        $gitOrigin = $dc->get(DC::GIT_ORIGIN);
 
         if (isset($message['type']) && $message['type'] == self::TYPE_PULL_REQUEST) {
             $id = $message['id'];
@@ -112,7 +115,6 @@ class DeployCommitJob implements ElemeJob
         $staticScript = ScriptCommand::complie($dc->get(DC::DEPLOY_STATIC_SCRIPT), $siteId);
         $webScript    = ScriptCommand::complie($dc->get(DC::DEPLOY_WEB_SCRIPT), $siteId);
 
-        $this->updateStatus('Deploying');
 
         Log::info("--- {$worker->getJobId()} ---");
         Log::info("Commit deploy: {$commit}");
@@ -125,6 +127,7 @@ class DeployCommitJob implements ElemeJob
             $worker->release(30);
             return ;
         }
+        $this->updateStatus('Deploying');
         $rsyLock = NULL;
         try {
             $hosts = (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList();
@@ -244,10 +247,29 @@ class DeployCommitJob implements ElemeJob
                 $room = $dc->get(DC::HIPCHAT_ROOM);
                 if (!empty($token) && !empty($room)) {
                     $client = new HipChat($token, $room);
-                    $client->notify("deploy {$siteId} to {$hostType} success\nCommit: {$commit}\nDeploy Id: {$id}\nkl'wDeploy By: {$operateUser}\nDeploy Detail: http://deploy.elenet.me/deploy/{$siteId}");
+                    $client->notify("deploy {$siteId} to {$hostType} success\nCommit: {$commit}\nDeploy Id: {$id}\nOperater: {$operateUser}\nDeploy Detail: http://deploy.elenet.me/deploy/{$siteId}");
+                    Log::info('Hipchat Notify Send Sucess');
+                }
+                $logins = Watch::allUserWatching($siteId);
+                $emails = array();
+                foreach ($logins as $login) {
+                    $user = GithubUser::loadFromRedis($login);
+                    $emails[] = $user->email;
+                }
+                if (count($emails) > 0) {
+                    preg_match('/github\.com:(.+?)\.git$/i', $gitOrigin, $matchs);
+                    \Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id), function($message) use ($emails) {
+                        $email = array_pop($emails);
+                        $message->to($email)->subject('Deploy Success!');
+
+                        foreach ($emails as $email) {
+                            $message->cc($email);
+                        }
+                    });
+                    Log::info('Email Notify Send Success');
                 }
             } catch (Exception $e) {
-                Log::error("HipChat Error:\n" . $e);
+                Log::error("Notify Error:\n" . $e);
             }
 
         } catch (Exception $e) {
