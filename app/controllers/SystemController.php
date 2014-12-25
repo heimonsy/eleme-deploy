@@ -96,6 +96,10 @@ class SystemController extends BaseController
             'siteName' => $siteName,
         ));
 
+        $user = GithubLogin::getLoginUser();
+        $user->sitePermission();
+        $user->set();
+        GithubLogin::sessionUser($user);
         return Redirect::to('/')->with('SCS', '添加Site成功');
     }
 

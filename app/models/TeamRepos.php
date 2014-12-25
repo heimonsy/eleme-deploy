@@ -49,10 +49,10 @@ class TeamRepos
                     throw new Exception('teamId doesn\'t found');
                 }
                 $header = $client->getResponse()->getHeader('Link');
-                preg_match('/<(.+)>; rel="next"/', $header, $matchs);
-                if (count($matchs) == 0) break;
+                preg_match('/<(.+?)>; rel="next"/', $header, $matchs);
+                if (count($matchs) != 2) break;
                 $url = $matchs[1];
-            } while (true);
+            } while (!empty($url));
             $this->save();
         } else {
             $this->repos = json_decode($jstr);
