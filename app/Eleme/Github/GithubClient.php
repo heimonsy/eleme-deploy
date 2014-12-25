@@ -40,7 +40,7 @@ class GithubClient
         return json_decode($this->response->getBody());
     }
 
-    public static function catUrl($uri)
+    public function catUrl($uri)
     {
         return self::API . $uri;
     }
