@@ -125,6 +125,7 @@ Route::get('/github/oauth/callback', function() {
 Route::get('/user/permissions/refresh', function () {
     $user = GithubLogin::getLoginUser();
     $user->sitePermission();
+    $user->set();
     GithubLogin::sessionUser($user);
 
     return Redirect::to('/');
