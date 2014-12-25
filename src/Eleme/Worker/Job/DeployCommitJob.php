@@ -268,6 +268,8 @@ class DeployCommitJob implements ElemeJob
                             $message->cc($email);
                         }
                     });
+                    $rmpath = app_path() . '/storage/views/twig/*';
+                    $this->process('sudo rm -rf ' . $rmpath, null, false);
                     Log::info('Email Notify Send Success');
                 }
             } catch (Exception $e) {
