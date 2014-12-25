@@ -242,6 +242,8 @@ class DeployCommitJob implements ElemeJob
             $this->updateStatus('Deploy Success', $errMsg);
 
             Log::info($worker->getJobId()." finish");
+            $pc = new \PrevCommit($siteId, $hostType);
+            $prevCommit = $pc->get();
             try {
                 $token = $dc->get(DC::HIPCHAT_TOKEN);
                 $room = $dc->get(DC::HIPCHAT_ROOM);
@@ -258,7 +260,7 @@ class DeployCommitJob implements ElemeJob
                 }
                 if (count($emails) > 0) {
                     preg_match('/github\.com:(.+?)\.git$/i', $gitOrigin, $matchs);
-                    \Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id), function($message) use ($emails) {
+                    \Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id, 'prevCommit' => $prevCommit), function($message) use ($emails) {
                         $email = array_pop($emails);
                         $message->to($email)->subject('Deploy Success!');
 
@@ -271,6 +273,7 @@ class DeployCommitJob implements ElemeJob
             } catch (Exception $e) {
                 Log::error("Notify Error:\n" . $e);
             }
+            $pc->set($commit);
 
         } catch (Exception $e) {
             //if ($rsyLock != null) $rsyLock->release();
