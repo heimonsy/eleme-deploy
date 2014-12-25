@@ -6,6 +6,6 @@
     <p><strong>Host Type: </strong>{{ hostType }}</p>
     <p><strong>Commit: </strong>{{ commit }}</p>
     {% if prevCommit != null and commit != prevCommit %}
-    <p><strong>Diff: </strong><a href="https://github.com/{{ repoName }}/compare/{{ commit }}...{{ prevCommit }}" target="_blank">{{ repoName }}<a></p>
+    <p><strong>Diff: </strong><a href="https://github.com/{{ repoName }}/compare/{{ prevCommit }}...{{ commit }}" target="_blank">{{ repoName }}<a></p>
     {% endif %}
 </body>

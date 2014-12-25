@@ -244,12 +244,28 @@ class DeployCommitJob implements ElemeJob
             Log::info($worker->getJobId()." finish");
             $pc = new \PrevCommit($siteId, $hostType);
             $prevCommit = $pc->get();
+
             try {
+                preg_match('/github\.com:(.+?)\.git$/i', $gitOrigin, $matchs);
+                $repoName = $matchs[1];
                 $token = $dc->get(DC::HIPCHAT_TOKEN);
                 $room = $dc->get(DC::HIPCHAT_ROOM);
                 if (!empty($token) && !empty($room)) {
                     $client = new HipChat($token, $room);
-                    $client->notify("deploy {$siteId} to {$hostType} success\nCommit: {$commit}\nDeploy Id: {$id}\nOperater: {$operateUser}\nDeploy Detail: http://deploy.elenet.me/deploy/{$siteId}");
+                    $diffUrl = '';
+                    if (!empty($prevCommit) && $prevCommit != $commit ) {
+                        $diffUrl = "Diff: https://github.com/{$repoName}/compare/{$prevCommit}...{$commit}";
+                    }
+                    $notify = <<<EOT
+Message: Deploy {$siteId} to {$hostType} Success
+Deploy Id: {$id}
+Operater: {$operateUser}
+Status: Success
+Host Type: {$hostType}
+Commit: {$commit}
+{$diffUrl}
+EOT;
+                    $client->notify($notify);
                     Log::info('Hipchat Notify Send Sucess');
                 }
                 $logins = Watch::allUserWatching($siteId);
@@ -259,7 +275,6 @@ class DeployCommitJob implements ElemeJob
                     $emails[] = $user->email;
                 }
                 if (count($emails) > 0) {
-                    preg_match('/github\.com:(.+?)\.git$/i', $gitOrigin, $matchs);
                     \Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id, 'prevCommit' => $prevCommit), function($message) use ($emails) {
                         $email = array_pop($emails);
                         $message->to($email)->subject('Deploy Success!');
