@@ -39,11 +39,22 @@ class PullRequestController extends BaseController
             }
         }
         $ht = new HostType();
-        $hostTypes = $ht->permissionList();
-        $hostTypeList = array();
-        foreach ($hostTypes as $hostType => $permission) {
-            if ($permission == DeployPermissions::PULL) {
-                $hostTypeList[] = $hostType;
+        $hostTypes = $ht->getList();
+
+        $hostList = array();
+        foreach ($hostTypes as $hostType) {
+            $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList());
+            $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
+        }
+
+        $existHostTypes = array();
+        $user = GithubLogin::getLoginUser();
+        $hp = (new HostType())->permissionList();
+        foreach ($hostList as $host) {
+            //Debugbar::info($user->permissions[$siteId] . ' ' . $hp[$host['hosttype']]);
+            if (!empty($user->permissions[$siteId]) &&
+                DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
+                $existHostTypes[$host['hosttype']] = $host['hosttype'];
             }
         }
 
@@ -65,7 +76,7 @@ class PullRequestController extends BaseController
             'siteId' => $siteId,
             'leftNavActive' => 'pullRequestDeploy',
             'commitList' =>  $commitList,
-            'hostTypeList' => $hostTypeList,
+            'hostTypeList' => $existHostTypes,
             'toDeploy' => Input::get('toDeploy'),
             'prdList' => $prdList,
             'prList' => $prList,
