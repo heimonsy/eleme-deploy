@@ -119,9 +119,9 @@ class DeployCommitJob implements ElemeJob
         Log::info("--- {$worker->getJobId()} ---");
         Log::info("Commit deploy: {$commit}");
 
-        //本地同步锁，不能在同一个commit下同步
+        //本地同步锁
         $redis = app('redis')->connection();
-        $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($commitPath), array('timeout' => 600000, 'blocking' => false));
+        $commitLock = new \Eleme\Rlock\Lock($redis, JobLock::buildLock($siteId . $hostType), array('timeout' => 600000, 'blocking' => false));
         if (!$commitLock->acquire()) {
             Log::info("worker : {$worker->getJobId()} Release");
             $worker->release(30);
@@ -302,7 +302,7 @@ EOT;
         }
         $commitLock->release();
 
-        if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
+        //if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
     }
 
     private function processCommands($CMDS, $remoteHostName = NULL, $address = null, $username = null, $identifyfile = null, $passphrase = null, $port = 22)
