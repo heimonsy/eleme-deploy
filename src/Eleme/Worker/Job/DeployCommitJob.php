@@ -283,13 +283,17 @@ EOT;
                             $message->cc($email);
                         }
                     });
-                    $rmpath = app_path() . '/storage/views/twig/*';
-                    $this->process('sudo rm -rf ' . $rmpath, null, false);
                     Log::info('Email Notify Send Success');
                 }
             } catch (Exception $e) {
                 Log::error("Notify Error:\n" . $e);
             }
+            $rmpath = app_path() . '/storage/views/*';
+            $this->process('sudo rm -rf ' . $rmpath, null, false);
+            $rmpath = app_path() . '/storage/cache/*';
+            $this->process('sudo rm -rf ' . $rmpath, null, false);
+            $rmpath = app_path() . '/storage/meta/*';
+            $this->process('sudo rm -rf ' . $rmpath, null, false);
             $pc->set($commit);
 
         } catch (Exception $e) {
