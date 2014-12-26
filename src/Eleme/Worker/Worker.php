@@ -43,6 +43,7 @@ class Worker
                 }
                 $attempts++ ;
             }
+            pcntl_signal_dispatch();
         }
         Log::info("Worker [{$this->supervisor->pid}], off duty");
         $this->supervisor->offDuty();

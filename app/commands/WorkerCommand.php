@@ -44,10 +44,22 @@ class WorkerCommand extends Command {
 
         $pid = getmypid();
         Log::info("New Worker Start, pid $pid, queue $queue");
+
+        $handler = function ($signal) {
+            if ($signal = SIGINT) {
+                echo "You can't stop Worker here\n";
+            } elseif ($signal = SIGHUP) {
+                Log::info("RECV SIGHUP");
+            }
+        };
+        pcntl_signal(SIGINT, $handler);
+        pcntl_signal(SIGHUP, $handler); // php-fpm stop 的时会发送这个信号
+
         $queue = new ElemeJobQueue($queue);
         $supervisor = new Supervisor($queue, $pid);
         $worker = $supervisor->getWorker();
         $worker->listen();
+
     }
 
     /**
