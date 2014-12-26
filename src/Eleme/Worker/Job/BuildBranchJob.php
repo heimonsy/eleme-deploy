@@ -139,7 +139,7 @@ class BuildBranchJob implements ElemeJob
 
         $lock->release();
         Log::info("--- BuildBranchJob End ---");
-        if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
+        //if (!empty($identifyfile)) $this->process('rm -f ' . $identifyfile, false);
     }
 
     public function process($command, $cwd = null, $must = true)

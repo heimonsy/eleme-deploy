@@ -153,6 +153,6 @@ class PullRequestBuildJob implements ElemeJob
 
         Log::info("progress : $progress");
         Log::info("worker id : {$worker->getJobId()} finish");
-        if (!empty($identifyfile)) (new Process('rm -f ' . $identifyfile))->run();
+        //if (!empty($identifyfile)) (new Process('rm -f ' . $identifyfile))->run();
     }
 }
