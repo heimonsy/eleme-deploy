@@ -18,4 +18,9 @@ return array(
     'SMTP_FROM_NAME' => '',
     'SMTP_USER' => '',
     'SMTP_PASS' => '',
+
+    'DEPLOY_PERMISSIONS' => array(
+        //"hostype" => "能发布的team"
+        'testing' => 'QA',
+    )
 );

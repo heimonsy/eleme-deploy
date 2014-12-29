@@ -46,13 +46,32 @@ class PullRequestController extends BaseController
             $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList());
             $hostList = array_merge($hostList, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
         }
-
         $existHostTypes = array();
         $user = GithubLogin::getLoginUser();
         $hp = (new HostType())->permissionList();
+
+        $deployPermissions = array();
+        foreach ($_ENV as $key => $value) {
+            if (strpos($key, 'DEPLOY_PERMISSIONS') === 0) {
+                $deployPermissions[substr($key, strlen('DEPLOY_PERMISSIONS') + 1)] = $value;
+            }
+        }
+
+        $userTeams = array();
+        foreach ($user->teams as $team) {
+            $userTeams[] = $team->name;
+        }
+
         foreach ($hostList as $host) {
             //Debugbar::info($user->permissions[$siteId] . ' ' . $hp[$host['hosttype']]);
-            if (!empty($user->permissions[$siteId]) &&
+            $canDeploy = true;
+            if (!empty($deployPermissions[$host['hosttype']])) {
+                $teamName = $deployPermissions[$host['hosttype']];
+                if (!in_array($teamName, $userTeams)) {
+                    $canDeploy = false;
+                }
+            }
+            if ($canDeploy && !empty($user->permissions[$siteId]) &&
                 DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
                 $existHostTypes[$host['hosttype']] = $host['hosttype'];
             }
