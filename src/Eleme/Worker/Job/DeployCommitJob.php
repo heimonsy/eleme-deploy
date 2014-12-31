@@ -130,6 +130,9 @@ class DeployCommitJob implements ElemeJob
         $this->updateStatus('Deploying');
         $rsyLock = NULL;
         try {
+            $REMOTE_DIR = $this->clearDirString($REMOTE_DIR);
+            $REMOTE_STATIC_DIR = $this->clearDirString($REMOTE_STATIC_DIR);
+
             $hosts = (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList();
             $staticHosts = new SplQueue();
             foreach ($hosts as $h) {
@@ -356,5 +359,28 @@ EOT;
         $this->updateStatus(null, null, $process->getOutput(), preg_replace('/"Enter passphrase" \{ send ".+/', '--------', $process->getErrorOutput()));
 
         return $process;
+    }
+
+    public function clearDirString($str)
+    {
+        $dirArray = explode('/', $str);
+        $realPath = '';
+        foreach ($dirArray as $dir) {
+            if (!empty($dir)) {
+                $realPath .= '/' . $dir;
+            }
+        }
+
+        if (!empty($_ENV['REMOTE_DIR_PREFIX']) && strpos($realPath, $_ENV['REMOTE_DIR_PREFIX']) !== 0) {
+            throw new \Exception('REMOTE DIR PREFIX ERROR : ' . $realPath);
+        }
+
+        $danger_path = array('', '/', '/root', '/boot', '/etc', '/dev'. '/lib');
+
+        if (in_array($realPath, $danger_path)) {
+            throw new \Exception('Remote Dir si Danger Path : ' . $realPath);
+        }
+
+        return $realPath .  '/';
     }
 }

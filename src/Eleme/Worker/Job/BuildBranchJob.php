@@ -77,7 +77,7 @@ class BuildBranchJob implements ElemeJob
                 $createWait = 1;
                 $this->process('mkdir -p ' . $commitRoot);
                 $this->process('mkdir -p ' . $developRoot);
-                $this->gitProcess('git clone -q ' . $gitOrigin . ' ' . $developRoot, $developRoot, $identifyfile, $passphrase);
+                $this->gitProcess('git clone ' . $gitOrigin . ' ' . $developRoot, $developRoot, $identifyfile, $passphrase);
                 unset($createWait);
             }
 
@@ -162,7 +162,11 @@ class BuildBranchJob implements ElemeJob
         $this->deployInfo['errOut'] .= $str;
         $this->infoManage->save($this->deployInfo);
 
-        $must ? $process->setTimeout(600)->mustRun() : $process->run();
+        if ($must) {
+            $process->setTimeout(600)->mustRun();
+        } else {
+            $process->setTimeout(600)->run();
+        }
 
         $this->deployInfo['standOut'] .= $process->getOutput();
         $this->deployInfo['errOut'] .= $process->getErrorOutput();
