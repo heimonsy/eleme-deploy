@@ -22,5 +22,8 @@ return array(
     'DEPLOY_PERMISSIONS' => array(
         //"hostype" => "能发布的team"
         'testing' => 'QA',
-    )
+    ),
+
+    // allow dir
+    'REMOTE_DIR_PREFIX' => '/var/www',
 );
