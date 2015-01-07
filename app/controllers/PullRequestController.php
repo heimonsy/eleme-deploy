@@ -71,7 +71,7 @@ class PullRequestController extends BaseController
                     $canDeploy = false;
                 }
             }
-            if ($canDeploy && !empty($user->permissions[$siteId]) &&
+            if ($canDeploy && !empty($user->permissions[$siteId]) && $hp[$host['hosttype']] == 'pull' &&
                 DeployPermissions::havePermission($hp[$host['hosttype']], $user->permissions[$siteId])) {
                 $existHostTypes[$host['hosttype']] = $host['hosttype'];
             }
