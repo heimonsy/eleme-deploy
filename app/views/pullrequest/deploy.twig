@@ -40,7 +40,7 @@
                     <th>Title</th>
                     <th>User</th>
                     <th>Deploy User</th>
-                    <th>Time</th>
+                    <th>Host Type</th>
                     <th>Update At</th>
                     <th>Result</th>
                 </tr>
@@ -53,7 +53,7 @@
                         <td>{{ m.prTitle }}</td>
                         <td><a href="https://github.com/{{ prList[m.commit].repo }}/tree/{{ prList[m.commit].branch }}" target="_blank">{{ m.prUser }}</a></td>
                         <td><a href="https://github.com/{{ m.operateUser }}" target="_blank">{{ m.operateUser }}</a></td>
-                        <td>{{ m.time }}</td>
+                        <th>{{ m.hostType }}</th>
                         <td>{{ m.updateTime }}</td>
                     {% if m.status == 'Error' %}
                         <td><a href="#" class="showErrorBtn showErrorLog" data-info="{{ m.errorMsg | escape }}">{{ m.status }}</a></td>
