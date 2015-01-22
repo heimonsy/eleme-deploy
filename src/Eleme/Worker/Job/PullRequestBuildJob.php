@@ -123,9 +123,9 @@ class PullRequestBuildJob implements ElemeJob
 
             $commitInfo->testStatus = 'Success';
             $pr->save($commitInfo);
-            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'success');
+            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'success', 'Build and Test Success');
         } catch (Exception $e) {
-            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'error');
+            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'error', $e->getMessage());
             if ($lock1 !== null) $lock1->release();
             if ($lock2 !== null) $lock2->release();
 
@@ -159,7 +159,7 @@ class PullRequestBuildJob implements ElemeJob
         //if (!empty($identifyfile)) (new Process('rm -f ' . $identifyfile))->run();
     }
 
-    public function sendStatus($siteId, $login, $git_url, $commit, $status)
+    public function sendStatus($siteId, $login, $git_url, $commit, $status, $message)
     {
         try {
             $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';
@@ -169,7 +169,7 @@ class PullRequestBuildJob implements ElemeJob
                 $response = $client->request('repos/' . $matchs[1] . '/statuses/' . $commit, json_encode(array(
                     'state' => $status,
                     "target_url" => url("/{$siteId}/pull_request/info"),
-                    "description" => "The build succeeded!",
+                    "description" => $message,
                     "context" => "eleme deploy"
                 )), true);
 
