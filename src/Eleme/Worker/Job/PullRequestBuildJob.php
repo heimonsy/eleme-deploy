@@ -112,20 +112,28 @@ class PullRequestBuildJob implements ElemeJob
             $commitInfo->buildStatus = 'Success';
             $pr->save($commitInfo);
 
-            $progress = 5;
-            $commitInfo->testStatus = 'Testing';
-            $pr->save($commitInfo);
-            $cmd = $dc->get(DC::TEST_COMMAND);
-            if (!empty($cmd)) {
-                Log::info($cmd);
-                (new Process($cmd, $commitPath))->setTimeout(600)->mustRun();
+            try {
+                $progress = 5;
+                $commitInfo->testStatus = 'Testing';
+                $pr->save($commitInfo);
+                $cmd = $dc->get(DC::TEST_COMMAND);
+                if (!empty($cmd)) {
+                    Log::info($cmd);
+                    (new Process($cmd, $commitPath))->setTimeout(600)->mustRun();
+                }
+            } catch (Exception $e) {
+                $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'failure', 'Test Failure');
+                throw new Exception($e->getMessage(), 1379);
             }
 
             $commitInfo->testStatus = 'Success';
             $pr->save($commitInfo);
             $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'success', 'Build and Test Success');
+
         } catch (Exception $e) {
-            $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'error', 'Build Or Test Error');
+            if ($e->getCode() != 1379) {
+                $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'error', 'Job Error');
+            }
             if ($lock1 !== null) $lock1->release();
             if ($lock2 !== null) $lock2->release();
 
