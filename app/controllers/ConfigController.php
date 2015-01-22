@@ -23,6 +23,7 @@ class ConfigController extends BaseController
         $passphrase = empty($dc->get(DC::PASSPHRASE)) ? '' : '******';
         $identifyfile = empty($dc->get(DC::IDENTIFYFILE))? '' : '**** Secret ****';
         $hipchatToken = empty($dc->get(DC::HIPCHAT_TOKEN))? '' : '******';
+        $githubToken = empty($dc->get(DC::GITHUB_TOKEN))? '' : '******';
 
         return View::make('deploy.config', array(
             'workRoot'       => (new SystemConfig())->get(SystemConfig::WORK_ROOT_FIELD),
@@ -46,6 +47,7 @@ class ConfigController extends BaseController
             'SCOK' => $SCOK,
             'siteId' => $siteId,
             'leftNavActive' => 'config',
+            'github_token' => $githubToken
         ));
     }
 
@@ -64,6 +66,10 @@ class ConfigController extends BaseController
         $hipchatToken = Input::get('hipchatToken');
         if ($hipchatToken != '******') {
             $dc->set(DC::HIPCHAT_TOKEN, Input::get('hipchatToken'));
+        }
+        $github_token = Input::get('github_token');
+        if ($hipchatToken != '******') {
+            $dc->set(DC::GITHUB_TOKEN, Input::get('github_token'));
         }
 
         $dc->set(DC::HIPCHAT_ROOM, Input::get('hipchatRoom'));

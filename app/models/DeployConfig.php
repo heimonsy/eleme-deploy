@@ -28,6 +28,7 @@ class DeployConfig
     const IDENTIFYFILE = 'SSH:IDENTIFYFILE';
     const HIPCHAT_ROOM = 'HIPCHAT:ROOM';
     const HIPCHAT_TOKEN = 'HIPCHAT:TOKEN';
+    const GITHUB_TOKEN = 'GITHUB:TOKEN';
 
     private $prefix = 'deploy:H:config:';
     private $key;
@@ -70,4 +71,4 @@ class DeployConfig
         );
     }
 
-} 
+}
