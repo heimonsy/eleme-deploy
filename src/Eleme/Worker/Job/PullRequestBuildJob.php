@@ -125,7 +125,7 @@ class PullRequestBuildJob implements ElemeJob
             $pr->save($commitInfo);
             $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'success', 'Build and Test Success');
         } catch (Exception $e) {
-            $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'error', $e->getMessage());
+            $this->sendStatus($siteId, $dc->get(DC::GITHUB_TOKEN), $dc->get(DC::GIT_ORIGIN), $commit, 'error', 'Build Or Test Error');
             if ($lock1 !== null) $lock1->release();
             if ($lock2 !== null) $lock2->release();
 
