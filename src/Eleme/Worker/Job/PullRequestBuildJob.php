@@ -165,6 +165,9 @@ class PullRequestBuildJob implements ElemeJob
             $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';
             if (preg_match($pattern, $git_url, $matchs)) {
                 $user = GithubUser::loadFromRedis($login);
+                if ($user == null) {
+                    throw new Exception('user doesn\'t login');
+                }
                 $client = new \Eleme\Github\GithubClient($user->token);
                 $response = $client->request('repos/' . $matchs[1] . '/statuses/' . $commit, json_encode(array(
                     'state' => $status,

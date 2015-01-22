@@ -1,6 +1,7 @@
 <?php
 namespace Eleme\Worker\Job;
 
+use Mail;
 use Eleme\Worker\ElemeJob;
 use Eleme\Worker\Worker;
 use Symfony\Component\Process\Process;
@@ -278,7 +279,10 @@ EOT;
                     $emails[] = $user->email;
                 }
                 if (count($emails) > 0) {
-                    \Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id, 'prevCommit' => $prevCommit), function($message) use ($emails) {
+                    $transport = app('swift.transport');
+                    $transport->stop();
+                    $transport->start();
+                    Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id, 'prevCommit' => $prevCommit), function($message) use ($emails) {
                         $email = array_pop($emails);
                         $message->to($email)->subject('Deploy Success!');
 
