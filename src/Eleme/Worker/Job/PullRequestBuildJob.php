@@ -1,6 +1,7 @@
 <?php
 namespace Eleme\Worker\Job;
 
+use GithubUser;
 use Eleme\Worker\ElemeJob;
 use Eleme\Worker\Worker;
 use Symfony\Component\Process\Process;
@@ -122,7 +123,9 @@ class PullRequestBuildJob implements ElemeJob
 
             $commitInfo->testStatus = 'Success';
             $pr->save($commitInfo);
+            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'success');
         } catch (Exception $e) {
+            $this->sendStatus($siteId, $commitInfo->user, $dc->get(DC::GIT_ORIGIN), $commit, 'error');
             if ($lock1 !== null) $lock1->release();
             if ($lock2 !== null) $lock2->release();
 
@@ -154,5 +157,30 @@ class PullRequestBuildJob implements ElemeJob
         Log::info("progress : $progress");
         Log::info("worker id : {$worker->getJobId()} finish");
         //if (!empty($identifyfile)) (new Process('rm -f ' . $identifyfile))->run();
+    }
+
+    public function sendStatus($siteId, $login, $git_url, $commit, $status)
+    {
+        try {
+            $pattern = '/:([\w\d-_\.]+\/[\w\d-_\.]+)\.git$/i';
+            if (preg_match($pattern, $git_url, $matchs)) {
+                $user = GithubUser::loadFromRedis($login);
+                $client = new \Eleme\Github\GithubClient($user->token);
+                $response = $client->request('repos/' . $matchs[1] . '/statuses/' . $commit, json_encode(array(
+                    'state' => $status,
+                    "target_url" => url("/{$siteId}/pull_request/info"),
+                    "description" => "The build succeeded!",
+                    "context" => "eleme deploy"
+                )), true);
+
+                Log::info("Send Status To Github: {$status}");
+            } else {
+                Log::info("Send Status Error, Can't Find Full Repo Name: {$git_url}");
+            }
+        } catch (Exception $e) {
+            Log::info($e);
+            Log::info($e->getResponse()->getBody(true));
+            Log::info("Send Status Error");
+        }
     }
 }
