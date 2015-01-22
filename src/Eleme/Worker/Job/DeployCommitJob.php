@@ -279,7 +279,7 @@ EOT;
                     $emails[] = $user->email;
                 }
                 if (count($emails) > 0) {
-                    $transport = app('swift.transport');
+                    $transport = App::make('swift.transport');
                     $transport->stop();
                     $transport->start();
                     Mail::send('emails.deploy', array('siteId' => $siteId, 'status' => 'Success', 'hostType' => $hostType, 'commit' => $commit, 'repoName' => $matchs[1], 'user' => $operateUser, 'id' => $id, 'prevCommit' => $prevCommit), function($message) use ($emails) {

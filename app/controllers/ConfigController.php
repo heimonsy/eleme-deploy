@@ -68,7 +68,7 @@ class ConfigController extends BaseController
             $dc->set(DC::HIPCHAT_TOKEN, Input::get('hipchatToken'));
         }
         $github_token = Input::get('github_token');
-        if ($hipchatToken != '******') {
+        if ($github_token != '******') {
             $dc->set(DC::GITHUB_TOKEN, Input::get('github_token'));
         }
 

@@ -68,6 +68,7 @@ class DeployConfig
             'remoteAppDir' => $this->get(self::REMOTE_APP_DIR),
             'remoteStaticDir' => $this->get(self::REMOTE_STATIC_DIR),
             'testCommand' => $this->get(self::TEST_COMMAND),
+            'github_token' => $this->get(self::GITHUB_TOKEN),
         );
     }
 
