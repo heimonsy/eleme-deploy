@@ -12,7 +12,7 @@
 		"eleme/rlock": "0.3.2",
 		"barryvdh/laravel-ide-helper": "~1.11",
 		"guzzlehttp/guzzle": "~5.0",
-		"heimonsy/sshprocess": "0.1.*",
+		"heimonsy/sshprocess": "0.2.*",
 		"heimonsy/hipchat-laravel": "0.1.*"
 	},
 	"autoload": {

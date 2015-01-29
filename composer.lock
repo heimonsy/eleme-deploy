@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "696bf2c3b024d10ec9361422765c578c",
+    "hash": "d64f0eba0840fc37909ceda0b9463fed",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -669,16 +669,16 @@
         },
         {
             "name": "heimonsy/sshprocess",
-            "version": "v0.1.4",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heimonsy/sshprocess.git",
-                "reference": "8d7867b8a495fff5163b496bf5d26f3a2ea03591"
+                "reference": "e95be57506b5fdddaa6d51b1e301328a2f38db49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heimonsy/sshprocess/zipball/8d7867b8a495fff5163b496bf5d26f3a2ea03591",
-                "reference": "8d7867b8a495fff5163b496bf5d26f3a2ea03591",
+                "url": "https://api.github.com/repos/heimonsy/sshprocess/zipball/e95be57506b5fdddaa6d51b1e301328a2f38db49",
+                "reference": "e95be57506b5fdddaa6d51b1e301328a2f38db49",
                 "shasum": ""
             },
             "require": {
@@ -696,7 +696,7 @@
                 "MIT"
             ],
             "description": "process with ssh client and rsync",
-            "time": "2014-12-30 03:07:58"
+            "time": "2015-01-29 07:53:37"
         },
         {
             "name": "ircmaxell/password-compat",
