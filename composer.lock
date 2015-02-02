@@ -669,16 +669,16 @@
         },
         {
             "name": "heimonsy/sshprocess",
-            "version": "v0.2.0",
+            "version": "v0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heimonsy/sshprocess.git",
-                "reference": "e95be57506b5fdddaa6d51b1e301328a2f38db49"
+                "reference": "7fa858f6bde67305b718d5ed691bfa81a8001ca6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heimonsy/sshprocess/zipball/e95be57506b5fdddaa6d51b1e301328a2f38db49",
-                "reference": "e95be57506b5fdddaa6d51b1e301328a2f38db49",
+                "url": "https://api.github.com/repos/heimonsy/sshprocess/zipball/7fa858f6bde67305b718d5ed691bfa81a8001ca6",
+                "reference": "7fa858f6bde67305b718d5ed691bfa81a8001ca6",
                 "shasum": ""
             },
             "require": {
@@ -696,7 +696,7 @@
                 "MIT"
             ],
             "description": "process with ssh client and rsync",
-            "time": "2015-01-29 07:53:37"
+            "time": "2015-02-02 09:10:51"
         },
         {
             "name": "ircmaxell/password-compat",
