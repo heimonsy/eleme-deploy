@@ -224,3 +224,29 @@ Route::post('/worker/shutdown', 'JobController@shutdownProcess');
 // watch
 Route::post('/sites/{siteId}/watch', 'SystemController@watch');
 Route::post('/sites/{siteId}/notwatch', 'SystemController@notWatch');
+
+Route::get('/sites/{siteId}/all_hosts', function ($siteId) {
+    $hostTypes = (new HostType())->getList();
+    $staticHosts = array();
+    $webHosts = array();
+    foreach ($hostTypes as $hostType) {
+        $staticHosts = array_merge($staticHosts, (new SiteHost($siteId, $hostType, SiteHost::STATIC_HOST))->getList());
+        $webHosts = array_merge($webHosts, (new SiteHost($siteId, $hostType, SiteHost::WEB_HOST))->getList());
+    }
+    $hosts = array();
+    foreach ($webHosts as $h) {
+        $hosts[$h['hosttype']][] = $h;
+    }
+    foreach ($staticHosts as $h) {
+        $hosts[$h['hosttype']][] = $h;
+    }
+    //var_dump($hosts);
+    foreach ($hosts as $hostType => $hostTypes) {
+        echo $hostType . "\n<br>";
+        foreach ($hostTypes as $host) {
+            $type = $host['type'] == 'WEB' ? 'APP' : $host['type'];
+            echo $host['hosttype'] . ' ' . $type . ' ' . $host['hostname'] . ' ' . $host['hostip'] . ' ' . $host['hostport'] . "\n<br>";
+        }
+    }
+    //var_dump($staticHosts);
+});
